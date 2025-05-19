@@ -1,0 +1,18 @@
+algorithm: word2vec(invent from google)
+training:
+1. prepare atlease 2000 word at every row,cell 1
+2. prepare very very huge features,like gender,taste,color,size... ,for cell 2~n
+3. mark every word's feature value, every rows will become a vector
+
+skip-gram:
+4. input a word(included by your database)
+5. find the m closest word,and output it
+
+or
+
+CBOW
+4.input n word(include by your database)
+5.find the smallest sum of squares(target word and input word will have smallest distance)
+
+application:
+classification word
