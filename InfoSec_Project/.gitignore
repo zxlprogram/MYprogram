@@ -1,4 +1,4 @@
 .glitchdotcom.json
-.mp4
+*.mp4
 .node-gyp
 node_modules
