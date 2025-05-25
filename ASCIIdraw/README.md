@@ -65,11 +65,11 @@ title: "\U0001F3A8 ASCII 圖畫產生器（ASCIIdraw）"
 
 1. 前往 GitHub 頁面：
    👉 `https://github.com/zxlprogram/MYprogram`
-2. 找到並下載 `ASCIIdraw.jar`
+2. 找到並下載 `ASCIIdraw資料夾`
 3. 打開命令提示字元，導向 jar 檔所在資料夾：
 
    ```sh
-   cd C:\你下載的位置
+   cd C:\你下載的位置\ASCIIdraw
    ```
 4. 執行程式：
 
