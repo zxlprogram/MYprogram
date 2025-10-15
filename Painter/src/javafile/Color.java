@@ -1,0 +1,26 @@
+package javafile;
+/**
+ * we allowed the input is bigger than 1 or smaller than 0, and the value will be change to the legal value 
+ */
+public class Color {
+	private double R,G,B;
+	public Color(double r,double g,double b) {
+		this.R=r;
+		this.G=g;
+		this.B=b;
+	}
+	public double getR() {
+		return this.R;
+	}
+	public double getG() {
+		return this.G;
+	}
+	public double getB() {
+		return this.B;
+	}
+	public void setColor(double r,double g,double b) {
+		this.R=r;
+		this.G=g;
+		this.B=b;
+	}
+}
