@@ -29,7 +29,12 @@ import java.util.List;
  * prevMouseX,Y is used to record the mouse coordinate
  * offsetX,Y,scale is used to let all surface to fit the windows size
  * 
+ * 2025-10-14
  * when delete pressed, if nothing were be choosing, it will remove the last element of all_surface (list)
+ * 
+ * 2015-10-15
+ * when delete pressed, it will only delete the draggingSurface, and when we press the mouse but didn't choose any surface, draggingSurface will become null, it will tells computer that we stopping choosing that surface
+ * 
  * we make all event and listener at here, if you want to add new thing and you need to control the outside object, just let your function have an input value
  * 
  * dragging the point takes precedence over dragging the surface
@@ -37,7 +42,14 @@ import java.util.List;
  * use the function execute() to start the application
  * 
  * we have the auto repaint, don't worry about this
- * 		
+ * 
+ * allSurfaces will sorted by layer
+ * 
+ * add remove point method
+ * 
+ * we change the repaint-time in 10ms because we discovered that 16ms have a bit lag 
+ * [the future refresh] we should add the undo/redo and Save/load and Canvas Zoom/Pan  and Copy and grouping
+ * better add the shape property panel
  */
 public class Scene extends JPanel implements MouseListener, MouseMotionListener,KeyListener {//AI接手mouseEvent, base-on-swing
     private static final long serialVersionUID = 1L;
@@ -49,9 +61,7 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
     private double scale;
     private double offsetX;
     private double offsetY;
-
     private final int POINT_RADIUS = 10;
-    
     public void execute() {
     		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -68,11 +78,9 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
         addMouseListener(this);
         addKeyListener(this);
         addMouseMotionListener(this);
-
         setFocusable(true);
-        requestFocusInWindow();
-        
-        Timer timer = new Timer(16, e -> repaint());
+        requestFocusInWindow();  
+        Timer timer = new Timer(10,e->repaint());
         timer.start();
     }
 
@@ -101,7 +109,7 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
     }
 
 
-    private void drawSurface(Graphics g, Surface s) {
+    private void drawSurface(Graphics g, Surface s) {//AI method
         Point[] points = s.getEdge();
         if (points.length < 2) return;
 
@@ -135,12 +143,12 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
 
 
     @Override
-    public void mousePressed(MouseEvent e) {
+    public void mousePressed(MouseEvent e) {//AI
     		draggingSurface=null;
+    		draggingPoint=null;
     		this.requestFocusInWindow();
         int mx = e.getX();
         int my = e.getY();
-        // 先找拖拽點
         for (Surface s : allSurfaces) {
             for (Point p : s.getEdge()) {
             	int px = (int)(p.getX() * scale + offsetX);
@@ -150,15 +158,16 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
                     draggingPoint = p;
                     prevMouseX = mx;
                     prevMouseY = my;
-                    return; // 找到點就拖點，不再拖多邊形
+                    return;
                 }
             }
         }
-
-        // 找不到拖點，嘗試拖整個多邊形
-        for (Surface s : allSurfaces) {
-            if (isPointInSurface(mx, my, s)) {
-                draggingSurface = s;
+        for (int i=allSurfaces.size()-1;i>=0;i--) {
+            if (isPointInSurface(mx, my, allSurfaces.get(i))) {
+                draggingSurface = this.allSurfaces.get(i);
+                int index=i;
+                this.allSurfaces.add(this.allSurfaces.get(i));
+                this.allSurfaces.remove(index);
                 prevMouseX = mx;
                 prevMouseY = my;
                 break;
@@ -167,7 +176,7 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
     }
 
     @Override
-    public void mouseDragged(MouseEvent e) {
+    public void mouseDragged(MouseEvent e) {//AI
         int mx = e.getX();
         int my = e.getY();
         double dx = (mx - prevMouseX) / scale;
@@ -186,11 +195,9 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
     }
 
     @Override
-    public void mouseReleased(MouseEvent e) {
-        draggingPoint = null;
-    }
+    public void mouseReleased(MouseEvent e) {}
 
-    private boolean isPointInSurface(int mx, int my, Surface s) {
+    private boolean isPointInSurface(int mx, int my, Surface s) {//AI
         Point[] points = s.getEdge();
         int[] xPoints = new int[points.length];
         int[] yPoints = new int[points.length];
@@ -206,8 +213,46 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
    	public void keyPressed(KeyEvent e) {
    		switch(e.getKeyCode()) {
 		case KeyEvent.VK_DELETE:
-			if(draggingSurface!=null)
-				this.removeSurface(draggingSurface);
+			if(draggingSurface!=null||draggingPoint!=null)
+				if(draggingPoint==null)
+					this.removeSurface(draggingSurface);
+				else {
+					draggingPoint.getSurface().removePoint(draggingPoint,this);
+				}
+			break;
+		case KeyEvent.VK_RIGHT:
+		case KeyEvent.VK_UP:
+			if(draggingSurface!=null) {
+				double centx=0,centy=0;
+				for(Point p:draggingSurface.getEdge()) {
+					centx+=p.getX();
+					centy+=p.getY();
+				}
+				centx/=draggingSurface.getEdge().length;
+				centy/=draggingSurface.getEdge().length;
+				for(Point p:draggingSurface.getEdge()) {
+					p.setX(p.getX()+(p.getX()-centx)*0.1);
+					p.setY(p.getY()+(p.getY()-centy)*0.1);
+				}
+			}
+			break;
+		case KeyEvent.VK_LEFT:
+		case KeyEvent.VK_DOWN:
+			if(draggingSurface!=null) {
+				double centx=0,centy=0;
+				for(Point p:draggingSurface.getEdge()) {
+					centx+=p.getX();
+					centy+=p.getY();
+				}
+				centx/=draggingSurface.getEdge().length;
+				centy/=draggingSurface.getEdge().length;
+				for(Point p:draggingSurface.getEdge()) {
+					p.setX(p.getX()-(p.getX()-centx)*0.1);
+					p.setY(p.getY()-(p.getY()-centy)*0.1);
+				}
+			}
+			break;
+		case KeyEvent.VK_Z:
 			break;
 		}
    	}
@@ -267,11 +312,11 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
    			this.setVisible(true);
    		}
    	}
-   	@Override public void mouseEntered(MouseEvent e) {}
    	@Override public void mouseExited(MouseEvent e) {}
    	@Override public void mouseMoved(MouseEvent e) {}
    	@Override public void keyTyped(KeyEvent e) {}
    	@Override public void keyReleased(KeyEvent e) {}
+	@Override public void mouseEntered(MouseEvent e) {}
 }
 /**
  * when you click mouse_keyRight on surface,it will show you three text field,you can enter the number(0~1) to change the surface's color

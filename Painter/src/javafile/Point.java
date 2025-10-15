@@ -1,9 +1,16 @@
+/**
+ * 
+ * add the getSurface method, and all point should declare which surface did it belong
+ */
+
 package javafile;
 public class Point {
 	private double X,Y;
-	public Point(double x,double y) {
+	private Surface surface;
+	public Point(double x,double y,Surface surface) {
 		this.X=x;
 		this.Y=y;
+		this.surface=surface;
 	}
 	public void setX(double x) {
 		this.X=x;
@@ -16,5 +23,8 @@ public class Point {
 	}
 	public double getY() {
 		return this.Y;
+	}
+	public Surface getSurface() {
+		return this.surface;
 	}
 }

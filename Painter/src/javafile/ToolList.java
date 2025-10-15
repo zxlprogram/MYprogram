@@ -46,19 +46,28 @@ class ToolList extends JPanel {
 		JTextField enterMoreEdge=new JTextField(2);
 		toolList.add(new Tool("more edge:",()-> {
 			Surface t=new Surface();
-			int rand;
+			int edge;
 			try {
-				rand=Integer.parseInt(enterMoreEdge.getText());
+				edge=Integer.parseInt(enterMoreEdge.getText());
 			}
 			catch(IllegalArgumentException e) {
-				rand=4;
+				edge=4;
 			}
-			for(int i=0;i<rand;i++)
+			for(int i=0;i<edge;i++)
 				t.addPoint(Math.random(),Math.random());
 			t.setColor(1,0,0);
 			scene.addSurface(t);
 		},scene));
 		toolList.add(enterMoreEdge);
+		toolList.add(new Tool("Circle",()->{
+			Surface t=new Surface();
+			for(double a=-1;a<=1;a+=0.01)
+				t.addPoint(a,Math.sqrt(1-a*a));	
+			for(double a=1;a>=-1;a-=0.01)
+				t.addPoint(a,-Math.sqrt(1-a*a));	
+			t.setColor(1,0,0);
+			scene.addSurface(t);
+		},scene));
 		for(Component t:toolList)
 			super.add(t);
 		
