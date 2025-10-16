@@ -1,0 +1,26 @@
+author: z.x.l
+init version: 1.0
+latest version: 1.2
+
+version description:
+	1.0: we added the basic feature, like Surface, scene, point, tool, color changing system; we can add the feature with toolList, and the input controlled by class Scene
+	1.1: we added some operating feature like delete, Surface bigger/smaller and wrote the readme, we rewrite the choosing system of surface, and we also make the choosing surface became the highest layer, we add the circle shape
+	1.2: we added copy feature, zoom in/out and translation
+
+feature description:
+	KeyEvent C: copy the choosing surface
+	KeyEvent up/right: make the choosing surface bigger(if there have surface have been choosed) or zoom in
+	KeyEvent down/left: make the choosing surface smaller(if there have surface have been choosed) or zoom out
+	keyEvent delete: delete the choosing surface(if there have surface have been choosed) or delete the highest layer surface
+	MouseEvent left: when pressed, choosing surface will became null if the mouse didn't in any surface,otherwise choosing surface will became the highest layer surface, when dragged, it will check if the choosing point were exist,if it were exist than the point will follow the mouse; otherwise it will check if the choosing surface were exist, if it were exist than the surface will follow the mouse;if nothing were been choosed, we will translation All Object(it look like canvas translation but we actually move all surfaces)
+	MouseEvent right: change the color for choosing surface
+	Color changing: the textfield used to enter RGB, it is only allowed to enter the number which between 0 and 1, if the format is wrong, it will show the dialog to announce the error, you must enter the number again
+	Core: this app GUI is base on java swing
+
+Possibly bug:
+	there's no current bug
+	
+Possibly problem:
+	copied surface must repoint the surface, or it will followed the old one.
+	we should add the undo/redo feature
+	we should add the save/load feature

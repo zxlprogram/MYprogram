@@ -16,7 +16,8 @@ import javax.swing.JTextField;
  * 		toolList.add(new Tool("{@value}"
 			Surface t=new Surface();
 			
-			{@code}discribe the surface here
+			
+			[describe the surface here]
 			
 			scene.addSurface(t);
 		},scene));
@@ -89,7 +90,7 @@ class ToolList extends JPanel {
 			this.action=r;
 			addActionListener(e -> {
 	            if (this.action != null) {
-	                this.action.run();  // 點擊時執行傳入的程式
+	                this.action.run(); 
 	            }
                 scene.requestFocusInWindow();
 	        });

@@ -1,11 +1,4 @@
-/** 
- * 
-* the painter is base on java swing
-*
-* @author: z.x.l
-* @since: 2025-10-13
-* 
-*/
+
 package javafile;
 
 import java.awt.event.KeyEvent;
@@ -20,48 +13,39 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
 /**
- * @since 2025-10-14
- * 
- * this part I give AI write it, here is the method we charging our interface to swing
- * 
- * allSurfaces is a list
- * draggingPoint and draggingSurface is the object which we are choosing
- * prevMouseX,Y is used to record the mouse coordinate
- * offsetX,Y,scale is used to let all surface to fit the windows size
- * 
- * 2025-10-14
- * when delete pressed, if nothing were be choosing, it will remove the last element of all_surface (list)
- * 
- * 2015-10-15
- * when delete pressed, it will only delete the draggingSurface, and when we press the mouse but didn't choose any surface, draggingSurface will become null, it will tells computer that we stopping choosing that surface
- * 
- * we make all event and listener at here, if you want to add new thing and you need to control the outside object, just let your function have an input value
- * 
- * dragging the point takes precedence over dragging the surface
- * 
- * use the function execute() to start the application
- * 
- * we have the auto repaint, don't worry about this
- * 
- * allSurfaces will sorted by layer
- * 
- * add remove point method
- * 
- * we change the repaint-time in 10ms because we discovered that 16ms have a bit lag 
- * [the future refresh] we should add the undo/redo and Save/load and Canvas Zoom/Pan  and Copy and grouping
- * better add the shape property panel
+ * @since 2025-10-13
+ * @author z.x.l
+ * @version 1.1
  */
 public class Scene extends JPanel implements MouseListener, MouseMotionListener,KeyListener {//AI接手mouseEvent, base-on-swing
-    private static final long serialVersionUID = 1L;
+
+	private static final long serialVersionUID = 1L;
     static final String appName = "Painter";
+    /**
+     * @param
+     * allSurfaces is the container of Surface, it is a List
+     */
     private java.util.List<Surface> allSurfaces = new ArrayList<>();
+    /**
+     * @param
+     * draggingSurface used to save the surface which we are choosing, when mouse pressed, it will set to null if mouse is not in any surface, and it will not forget after mouse released, so does draggingPoint
+     */
     private Surface draggingSurface = null;
     private Point draggingPoint = null;
+    /**
+     * 
+     * this part I let chatgpt did
+     */
     private int prevMouseX, prevMouseY;
     private double scale;
     private double offsetX;
     private double offsetY;
     private final int POINT_RADIUS = 10;
+
+	/**
+     * 
+     * just like javaFx Application.start()
+     */
     public void execute() {
     		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -73,7 +57,6 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
         frame.setSize(400, 400);
         frame.setContentPane(this);
         frame.setVisible(true);
-        this.setBackground(java.awt.Color.WHITE);
         this.add(toolList,BorderLayout.NORTH);
         addMouseListener(this);
         addKeyListener(this);
@@ -87,14 +70,52 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
     public void addSurface(Surface s) {
         this.allSurfaces.add(s);
     }
-
+    public void setAllSurface(List<Surface>allsurface) {
+    		this.allSurfaces=allsurface;
+    }
     public void removeSurface(Surface s) {
         this.allSurfaces.remove(s);
     }
     public List<Surface>getAllSurface() {
     		return this.allSurfaces;
     }
+  
+    
+	public Point getDraggingPoint() {
+		return this.draggingPoint;
+	}
+	public void setDraggingPoint(Point p) {
+		this.draggingPoint=p;
+	}
+	public Surface getDraggingSurface() {
+		return this.draggingSurface;
+	}
+	public void setDraggingSurface(Surface s) {
+		this.draggingSurface=s;
+	}
+    public void setScale(double d) {
+    		this.scale=d;
+    }
+    public double getScale() {
+    		return this.scale;
+    }
+    public void setOffsetX(double d) {
+		this.offsetX=d;
+    }	
+    public double getOffsetX() {
+		return this.offsetX;
+    }
+    public void setOffsetY(double d) {
+		this.offsetY=d;
+    }	
+    public double getOffsetY() {
+		return this.offsetY;
+    }
+    
     @Override
+    /**
+     * this part I let chatgpt did
+     */
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
@@ -107,8 +128,9 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
             drawSurface(g, s);
         }
     }
-
-
+    /**
+     * this part I let chatgpt did
+     */
     private void drawSurface(Graphics g, Surface s) {//AI method
         Point[] points = s.getEdge();
         if (points.length < 2) return;
@@ -140,12 +162,12 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
         }
         g.fillPolygon(xPoints, yPoints, points.length);
     }
-
-
     @Override
-    public void mousePressed(MouseEvent e) {//AI
+    public void mousePressed(MouseEvent e) {
     		draggingSurface=null;
     		draggingPoint=null;
+    		prevMouseX=e.getX();
+    		prevMouseY=e.getY();
     		this.requestFocusInWindow();
         int mx = e.getX();
         int my = e.getY();
@@ -189,6 +211,12 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
             draggingSurface.moveX(dx);
             draggingSurface.moveY(dy);
         }
+        else {
+        		for(Surface s:allSurfaces) {
+        			s.moveX(dx);
+        			s.moveY(dy);
+        		}
+        }
 
         prevMouseX = mx;
         prevMouseY = my;
@@ -212,47 +240,69 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
    	@Override
    	public void keyPressed(KeyEvent e) {
    		switch(e.getKeyCode()) {
+   		case KeyEvent.VK_C:
+   			if(draggingSurface!=null) {
+   				Surface s=new Surface();
+   				for(Point p:draggingSurface.getEdge()) {
+   					s.addPoint(p.getX(),p.getY());
+   				}
+   				s.setColor(draggingSurface.getColor().getR(),draggingSurface.getColor().getG(),draggingSurface.getColor().getB());
+   				s.moveX(0.25);
+   				s.moveY(0.25);
+   				this.addSurface(s);
+   				draggingSurface=s;
+   			}
+   			break;
 		case KeyEvent.VK_DELETE:
-			if(draggingSurface!=null||draggingPoint!=null)
-				if(draggingPoint==null)
+			if(draggingSurface!=null||draggingPoint!=null) {
+				if(draggingPoint==null) {
 					this.removeSurface(draggingSurface);
+					this.draggingSurface=null;
+				}
 				else {
 					draggingPoint.getSurface().removePoint(draggingPoint,this);
+					this.draggingPoint=null;
 				}
+			}
+			else if(allSurfaces!=null)
+				allSurfaces.removeLast();
+			
 			break;
 		case KeyEvent.VK_RIGHT:
 		case KeyEvent.VK_UP:
 			if(draggingSurface!=null) {
-				double centx=0,centy=0;
+				Point cert=draggingSurface.getCertain();
 				for(Point p:draggingSurface.getEdge()) {
-					centx+=p.getX();
-					centy+=p.getY();
+					p.setX(p.getX()+(p.getX()-cert.getX())*0.1);
+					p.setY(p.getY()+(p.getY()-cert.getY())*0.1);
 				}
-				centx/=draggingSurface.getEdge().length;
-				centy/=draggingSurface.getEdge().length;
-				for(Point p:draggingSurface.getEdge()) {
-					p.setX(p.getX()+(p.getX()-centx)*0.1);
-					p.setY(p.getY()+(p.getY()-centy)*0.1);
+			}
+			else if(allSurfaces.size()>0) {
+				for(Surface s:allSurfaces) {
+					for(Point p:s.getEdge()) {
+						p.setX(p.getX()*1.1);
+						p.setY(p.getY()*1.1);
+					}
 				}
 			}
 			break;
 		case KeyEvent.VK_LEFT:
 		case KeyEvent.VK_DOWN:
 			if(draggingSurface!=null) {
-				double centx=0,centy=0;
+				Point cert=draggingSurface.getCertain();
 				for(Point p:draggingSurface.getEdge()) {
-					centx+=p.getX();
-					centy+=p.getY();
-				}
-				centx/=draggingSurface.getEdge().length;
-				centy/=draggingSurface.getEdge().length;
-				for(Point p:draggingSurface.getEdge()) {
-					p.setX(p.getX()-(p.getX()-centx)*0.1);
-					p.setY(p.getY()-(p.getY()-centy)*0.1);
+					p.setX(p.getX()-(p.getX()-cert.getX())*0.1);
+					p.setY(p.getY()-(p.getY()-cert.getY())*0.1);
 				}
 			}
-			break;
-		case KeyEvent.VK_Z:
+			else if(allSurfaces.size()>0) {
+				for(Surface s:allSurfaces) {
+					for(Point p:s.getEdge()) {
+						p.setX(p.getX()/1.1);
+						p.setY(p.getY()/1.1);
+					}
+				}
+			}
 			break;
 		}
    	}
@@ -278,6 +328,11 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
    	            break;
    	    }
    	}
+   	/**
+   	 * when you click mouse_keyRight on surface,it will show you three text field,you can enter the number(0~1) to change the surface's color
+   	 * if your entered is invalid, it will show a dialog told you you have a wrong operate
+   	 * 
+  	 */
    	private class ChoiceColor extends JFrame{
    		private static final long serialVersionUID = 1L;
    		private JTextField R=new JTextField(5),G=new JTextField(5),B=new JTextField(5);
@@ -306,7 +361,7 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
    				catch(IllegalArgumentException e2) {
    					JOptionPane.showMessageDialog(this,"Please enter current number(0~1)","Enter error",JOptionPane.ERROR_MESSAGE);
    				}
-   				
+
    			});
    			this.add(enter);
    			this.setVisible(true);
@@ -318,8 +373,3 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
    	@Override public void keyReleased(KeyEvent e) {}
 	@Override public void mouseEntered(MouseEvent e) {}
 }
-/**
- * when you click mouse_keyRight on surface,it will show you three text field,you can enter the number(0~1) to change the surface's color
- * if your entered is invalid, it will show a dialog told you you have a wrong operate
- * 
- */

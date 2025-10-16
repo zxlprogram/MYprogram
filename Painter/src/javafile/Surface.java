@@ -8,6 +8,8 @@ import java.util.List;
  * the structure is: point & color -> surface
  * 
  * add the remove-point method
+ * 
+ * announce: if you want to copy the surface, remember to change the point's Surface-pointer(Point.surface)
  */
 public class Surface {
 	public static Surface QUAD() {
@@ -70,5 +72,21 @@ public class Surface {
 	}
 	public void removePoint(int index) {
 		this.Edge.remove(index);
+	}
+	public void setEdge(Point[] edge) {
+		this.Edge.clear();
+		for(int i=0;i<edge.length;i++)
+			this.Edge.add(edge[i]);
+		
+	}
+	public Point getCertain() {
+		double centx=0,centy=0;
+		for(Point p:this.getEdge()) {
+			centx+=p.getX();
+			centy+=p.getY();
+		}
+		centx/=this.getEdge().length;
+		centy/=this.getEdge().length;
+		return new Point(centx,centy,null);
 	}
 }
