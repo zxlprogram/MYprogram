@@ -3,7 +3,7 @@ a simple drawing app base on the surface.
 author: z.x.l
 init version: 1.0
 release date: 2025-10-13
-latest version: 1.2
+latest version: 1.3
 
 ## version_description
 	1.0:
@@ -20,9 +20,9 @@ latest version: 1.2
         	we added copy feature, zoom in/out and translation
         	
 	1.3:
-	release date: add redo feature, but it has a bug: sometimes it will redo to wrong situation, add the ctrl key event(with zoom in/out,redo, copy, ToolList move the saveInfo function to tool's constructure, toolList changed to protected
+	release date: 2025-10-16
 	description:
-		rewrite the readme file, fix the bug(delete error when scene is empty)
+		rewrite the readme file, fix the bug(delete error when scene is empty), add redo feature, but it has a bug: sometimes it will redo to wrong situation, add the ctrl key event(with zoom in/out,redo, copy, ToolList move the saveInfo function to tool's constructure, toolList changed to protected
 
 ## feature_description
 	-KeyEvent ctrl+C: copy the choosing surface
