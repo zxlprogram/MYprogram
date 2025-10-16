@@ -30,7 +30,6 @@ class ToolList extends JPanel {
 	private List<Component>toolList=new ArrayList<>();
 	public ToolList(Scene scene) {
 		super.setLayout(new FlowLayout());
-		super.setBackground(java.awt.Color.LIGHT_GRAY);
 		addAllTool(scene);
 	}
 	private void addAllTool(Scene scene) {
@@ -45,6 +44,15 @@ class ToolList extends JPanel {
 			scene.addSurface(t);
 		},scene));
 		JTextField enterMoreEdge=new JTextField(2);
+				toolList.add(new Tool("Circle",()->{
+			Surface t=new Surface();
+			for(double a=-1;a<=1;a+=0.01)
+				t.addPoint(a,Math.sqrt(1-a*a));	
+			for(double a=1;a>=-1;a-=0.01)
+				t.addPoint(a,-Math.sqrt(1-a*a));	
+			t.setColor(1,0,0);
+			scene.addSurface(t);
+		},scene));
 		toolList.add(new Tool("more edge:",()-> {
 			Surface t=new Surface();
 			int edge;
@@ -60,15 +68,7 @@ class ToolList extends JPanel {
 			scene.addSurface(t);
 		},scene));
 		toolList.add(enterMoreEdge);
-		toolList.add(new Tool("Circle",()->{
-			Surface t=new Surface();
-			for(double a=-1;a<=1;a+=0.01)
-				t.addPoint(a,Math.sqrt(1-a*a));	
-			for(double a=1;a>=-1;a-=0.01)
-				t.addPoint(a,-Math.sqrt(1-a*a));	
-			t.setColor(1,0,0);
-			scene.addSurface(t);
-		},scene));
+
 		for(Component t:toolList)
 			super.add(t);
 		
