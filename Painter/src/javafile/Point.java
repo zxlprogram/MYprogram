@@ -2,7 +2,6 @@
  * 
  * add the getSurface method, and all point should declare which surface did it belong
  */
-
 package javafile;
 public class Point {
 	private double X,Y;
@@ -26,5 +25,9 @@ public class Point {
 	}
 	public Surface getSurface() {
 		return this.surface;
+	}
+	@Override
+	public String toString() {
+		return "("+this.X+","+this.Y+")";
 	}
 }

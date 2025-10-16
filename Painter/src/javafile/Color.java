@@ -25,8 +25,4 @@ public class Color {
 		this.G=g;
 		this.B=b;
 	}
-	@Override
-	protected Object clone() {
-		return new Color(R,G,B);
-	}
 }

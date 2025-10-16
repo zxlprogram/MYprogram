@@ -6,12 +6,17 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import javax.swing.*;
+
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
+
+import javax.swing.*;
+
 /**
  * @since 2025-10-13
  * @author z.x.l
@@ -42,6 +47,30 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
     private double offsetY;
     private final int POINT_RADIUS = 10;
 
+    protected class Note extends Stack<List<Surface>>{
+		private static final long serialVersionUID = 1L;
+			public void redo(Scene scene) {
+    			if(!this.isEmpty()) {
+    				List<Surface>repaired=this.pop();
+    				scene.setAllSurface(repaired);
+    				if(this.size()==0)
+    					this.add(new ArrayList<Surface>());
+    			}
+    		}
+    		public void saveInfo(List<Surface>recordAllSurface) {
+    			List<Surface>newRecord=new ArrayList<>();
+    			for(Surface s:recordAllSurface) {
+    				Surface newSurface=new Surface();
+    				for(Point p:s.getEdge())
+    					newSurface.addPoint(new Point(p.getX(),p.getY(),newSurface));
+    				newSurface.setColor(new Color(s.getColor().getR(),s.getColor().getG(),s.getColor().getB()));
+    				newRecord.add(newSurface);
+    			}
+    			this.push(newRecord);
+    		}
+    }
+    private Note note=new Note();
+
 	/**
      * 
      * just like javaFx Application.start()
@@ -62,8 +91,9 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
         addKeyListener(this);
         addMouseMotionListener(this);
         setFocusable(true);
+        note.push(new ArrayList<Surface>());
         requestFocusInWindow();  
-        Timer timer = new Timer(10,e->repaint());
+        Timer timer = new Timer(10,e->{repaint();});
         timer.start();
     }
 
@@ -110,6 +140,9 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
     }	
     public double getOffsetY() {
 		return this.offsetY;
+    }
+    public Note getNote() {
+    	return this.note;
     }
     
     @Override
@@ -217,13 +250,15 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
         			s.moveY(dy);
         		}
         }
-
         prevMouseX = mx;
         prevMouseY = my;
     }
 
     @Override
-    public void mouseReleased(MouseEvent e) {}
+    public void mouseReleased(MouseEvent e) {
+    		if(draggingSurface!=null||draggingPoint!=null)
+    			note.saveInfo(this.allSurfaces);
+    }
 
     private boolean isPointInSurface(int mx, int my, Surface s) {//AI
         Point[] points = s.getEdge();
@@ -241,6 +276,7 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
    	public void keyPressed(KeyEvent e) {
    		switch(e.getKeyCode()) {
    		case KeyEvent.VK_C:
+   		    if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
    			if(draggingSurface!=null) {
    				Surface s=new Surface();
    				for(Point p:draggingSurface.getEdge()) {
@@ -251,6 +287,7 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
    				s.moveY(0.25);
    				this.addSurface(s);
    				draggingSurface=s;
+   				note.saveInfo(this.getAllSurface());
    			}
    			break;
 		case KeyEvent.VK_DELETE:
@@ -264,9 +301,9 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
 					this.draggingPoint=null;
 				}
 			}
-			else if(allSurfaces!=null)
+			else if(allSurfaces.size()>0)
 				allSurfaces.removeLast();
-			
+			note.saveInfo(this.getAllSurface());
 			break;
 		case KeyEvent.VK_RIGHT:
 		case KeyEvent.VK_UP:
@@ -278,6 +315,7 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
 				}
 			}
 			else if(allSurfaces.size()>0) {
+				if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
 				for(Surface s:allSurfaces) {
 					for(Point p:s.getEdge()) {
 						p.setX(p.getX()*1.1);
@@ -285,6 +323,7 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
 					}
 				}
 			}
+			note.saveInfo(this.getAllSurface());
 			break;
 		case KeyEvent.VK_LEFT:
 		case KeyEvent.VK_DOWN:
@@ -296,6 +335,7 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
 				}
 			}
 			else if(allSurfaces.size()>0) {
+				if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
 				for(Surface s:allSurfaces) {
 					for(Point p:s.getEdge()) {
 						p.setX(p.getX()/1.1);
@@ -303,25 +343,28 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
 					}
 				}
 			}
+			note.saveInfo(this.getAllSurface());
+			break;
+		case KeyEvent.VK_Z:
+			if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
+				note.redo(this);
 			break;
 		}
    	}
    	@Override
    	public void mouseClicked(MouseEvent e) {// change color
-   		Surface choisedSurface = null;
    	    	switch (e.getButton()) {
    	        case MouseEvent.BUTTON3:
-   	            for (Surface s : allSurfaces) {
-   	                if (isPointInSurface(e.getX(), e.getY(), s)) {
-   	                    choisedSurface = s;
+   	            for (int i=this.allSurfaces.size()-1;i>=0;i--) {
+   	                if (isPointInSurface(e.getX(), e.getY(),this.allSurfaces.get(i))) {
    	                    prevMouseX = e.getX();
    	                    prevMouseY = e.getY();
-   	                    draggingSurface = s;
+   	                    draggingSurface = this.allSurfaces.get(i);
    	                    break;
    	                }
    	            }
-   	            if (choisedSurface != null && choisedSurface.getColor() != null) {
-   	            		SwingUtilities.invokeLater(() -> new ChoiceColor(draggingSurface));
+   	            if (draggingSurface != null && draggingSurface.getColor() != null) {
+   	            		SwingUtilities.invokeLater(() -> new ChoiceColor(draggingSurface,this));
    	            }
    	            break;
    	        default:
@@ -333,11 +376,13 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
    	 * if your entered is invalid, it will show a dialog told you you have a wrong operate
    	 * 
   	 */
-   	private class ChoiceColor extends JFrame{
+   	protected class ChoiceColor extends JFrame{
    		private static final long serialVersionUID = 1L;
    		private JTextField R=new JTextField(5),G=new JTextField(5),B=new JTextField(5);
    		private JButton enter=new JButton("Enter");
-   		public ChoiceColor(Surface s) {
+   		private Scene scene;
+   		public ChoiceColor(Surface s,Scene scene) {
+   			this.scene=scene;
    			this.setSize(300,100);
    			this.setTitle("choice color");
    			this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -356,6 +401,7 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
    					if(Rtext<0||Rtext>1||Gtext<0||Gtext>1||Btext<0||Btext>1)
    						throw new IllegalArgumentException();
    					s.setColor(Rtext,Gtext,Btext);
+   	   				note.saveInfo(this.scene.getAllSurface());
    					this.dispose();
    				}
    				catch(IllegalArgumentException e2) {
