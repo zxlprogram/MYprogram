@@ -112,7 +112,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         timer.start();
     }
 
-    public void browseMode(String path) {
+    public void browseMode() {
 		try {
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 	} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}
@@ -125,8 +125,6 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     setFocusable(true);
     note.push(new ArrayList<Surface>());
     requestFocusInWindow();
-    saveLoader.loadFile(path);
-    repaint();
     }
     
     public void addSurface(Surface s) {
