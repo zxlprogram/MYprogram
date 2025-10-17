@@ -112,6 +112,23 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         timer.start();
     }
 
+    public void browseMode(String path) {
+		try {
+		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+	} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}
+    JFrame frame = new JFrame("Browser");
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setSize(400, 400);
+    frame.setContentPane(this);
+    frame.setVisible(true);
+    new DropTarget(this,this);
+    setFocusable(true);
+    note.push(new ArrayList<Surface>());
+    requestFocusInWindow();
+    saveLoader.loadFile(path);
+    repaint();
+    }
+    
     public void addSurface(Surface s) {
         this.allSurfaces.add(s);
     }
@@ -394,16 +411,19 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 			dtde.acceptDrop(DnDConstants.ACTION_COPY);
 			Transferable trans=dtde.getTransferable();
 			DataFlavor[]flavor=trans.getTransferDataFlavors();
+			String path ="";
 			for(DataFlavor f:flavor) {
 				if(f.isFlavorJavaFileListType()) {
 					List<File>files=(List<File>)trans.getTransferData(f);
 					for(File file:files) {
-						String path=file.getAbsolutePath();
+						path=file.getAbsolutePath();
 						saveLoader.loadFile(path);
 					}
 				}
 			}
 			dtde.dropComplete(true);
+		    repaint();// it is for browse mode
+			JOptionPane.showMessageDialog(this,"the file "+path+" is opened!","Open the file Successful", JOptionPane.INFORMATION_MESSAGE);
 		}
 		catch(Exception e) {
 			e.printStackTrace();

@@ -32,7 +32,7 @@ __1.3__
 	1.4:
 		release date: 2025-10-17
 	description:
-		remove arrow KeyEvent's translation feature, and add it to mouse wheel, added the export/Load feature, descovered the bug of version 1.3 --when you redo a surface twice, it will redo one more time
+		remove arrow KeyEvent's translation feature, and add it to mouse wheel, added the export/Load feature, descovered the bug of version 1.3 --when you redo a surface twice, it will redo one more time, added browsing mode
 
 ## feature_description
 	-KeyEvent ctrl+C: copy the choosing surface
@@ -65,6 +65,7 @@ __1.3__
 ## execution
 	-cd MYprogram/Painter/bin
 	-java testing.Main
+	-java testing.Browser
 	
 ##  Custom file protocol
 	-for the scene.allSurfaces, we have N points and a color, every points have two doubles and color have three, each point's format:"X Y ",and than, " C " were followed, at last, Color format:"R G B" will followed behind
