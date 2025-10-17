@@ -7,7 +7,7 @@ __1.0__
 ### release date: 
 __2025-10-13__
 ### latest version: 
-__1.4__
+__1.4.1__
 ## version Description
 	1.0:
     	release date: 2025-10-13
@@ -34,8 +34,8 @@ __1.4__
 	description:
 		remove arrow KeyEvent's translation feature, and add it to mouse wheel, added the export/Load feature, descovered the bug of version 1.3 --when you redo a surface twice, it will redo one more time, added browsing mode
 
-	1.5:
-		release date:
+	1.4.1:
+		release date: 
 	description:
 		fix the redo bug in version 1.3, fix the loading-format bug (when a wrong format file were been dragged into scene, it will show the dialog), descovered a new bug:  loading new file is possible to crush the refrash timer
 	
@@ -54,7 +54,7 @@ __1.4__
 	-Core: this app GUI is base on java swing
 
 ## Possibly bug
-	-loading new file is possible to crush the refrash timer (ver: 1.5)
+	-loading new file is possible to crush the refrash timer (ver: 1.4.1)
 	
 ## lacking feature
 	-drag the object with X/Y axis(point p move if [mouseX-surface.getcertain.getX>mouseY-surface.getcertain.getY] than move(mouseX,p.Y),else move(p.X,mouse.Y))

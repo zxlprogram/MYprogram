@@ -21,7 +21,6 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Stack;
 
@@ -116,22 +115,22 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         		saveLoader.loadFile("file.txt");
         	Timer timer = new Timer(10,e->{repaint();});
         timer.start();
-    }
+    	}
 
-    public void browseMode() {
+    	public void browseMode() {
 		try {
-		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-	} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}
-    JFrame frame = new JFrame("Browser");
-    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    frame.setSize(400, 400);
-    frame.setContentPane(this);
-    frame.setVisible(true);
-    new DropTarget(this,this);
-    setFocusable(true);
-    note.push(new ArrayList<Surface>());
-    requestFocusInWindow();
-    }
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}
+		JFrame frame = new JFrame("Browser");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setSize(400, 400);
+		frame.setContentPane(this);
+		frame.setVisible(true);
+		new DropTarget(this,this);
+		setFocusable(true);
+		note.push(new ArrayList<Surface>());
+		requestFocusInWindow();
+    	}
     
     public void addSurface(Surface s) {
         this.allSurfaces.add(s);
