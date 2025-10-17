@@ -5,9 +5,9 @@ import java.util.List;
 /**
  * we have three initial shape: quad, triangle and circle
  * if use getColor but color is null, it will give a color red to the surface
- * the structure is: point & color -> surface
+ * the structure is: point & color => surface
  * 
- * we added the remove-point method
+ * we added the remove_point method
  * 
  * announce: if you want to copy the surface, remember to change the point's Surface-pointer(Point.surface)
  */
@@ -89,8 +89,16 @@ public class Surface {
 		centy/=this.getEdge().length;
 		return new Point(centx,centy,null);
 	}
+	/**
+	 * 1.0 0.0 0.0 -1.0 -1.0 1.0 C 1.0 0.0 0.0
+	 */
 	@Override
 	public String toString() {
-		return this.Edge+", color=("+this.color.getR()+","+this.color.getG()+","+this.color.getB()+")";
+		String s="";
+		for(Point p:this.Edge) {
+			s+=p.getX()+" "+p.getY()+" ";
+		}
+		s+=" C "+this.color.getR()+" "+this.color.getG()+" "+this.color.getB();
+		return s;
 	}
 }

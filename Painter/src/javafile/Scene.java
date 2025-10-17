@@ -6,11 +6,21 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.io.File;
+import java.io.IOException;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
-
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -22,7 +32,7 @@ import javax.swing.*;
  * @author z.x.l
  * @version 1.1
  */
-public class Scene extends JPanel implements MouseListener, MouseMotionListener,KeyListener {//AI接手mouseEvent, base-on-swing
+public class Scene extends JPanel implements MouseListener,MouseMotionListener,KeyListener,MouseWheelListener,DropTargetListener {//AI接手mouseEvent, base-on-swing
 
 	private static final long serialVersionUID = 1L;
     static final String appName = "Painter";
@@ -46,6 +56,7 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
     private double offsetX;
     private double offsetY;
     private final int POINT_RADIUS = 10;
+    private ExportLoadSystem saveLoader=new ExportLoadSystem(this);
 
     protected class Note extends Stack<List<Surface>>{
 		private static final long serialVersionUID = 1L;
@@ -90,9 +101,13 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
         addMouseListener(this);
         addKeyListener(this);
         addMouseMotionListener(this);
+        addMouseWheelListener(this);
+        new DropTarget(this,this);
         setFocusable(true);
         note.push(new ArrayList<Surface>());
-        requestFocusInWindow();  
+        requestFocusInWindow();
+        if(new File("file.txt").exists())
+        		saveLoader.loadFile("file.txt");
         Timer timer = new Timer(10,e->{repaint();});
         timer.start();
     }
@@ -109,8 +124,6 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
     public List<Surface>getAllSurface() {
     		return this.allSurfaces;
     }
-  
-    
 	public Point getDraggingPoint() {
 		return this.draggingPoint;
 	}
@@ -314,15 +327,6 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
 					p.setY(p.getY()+(p.getY()-cert.getY())*0.1);
 				}
 			}
-			else if(allSurfaces.size()>0) {
-				if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
-				for(Surface s:allSurfaces) {
-					for(Point p:s.getEdge()) {
-						p.setX(p.getX()*1.1);
-						p.setY(p.getY()*1.1);
-					}
-				}
-			}
 			note.saveInfo(this.getAllSurface());
 			break;
 		case KeyEvent.VK_LEFT:
@@ -334,20 +338,17 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
 					p.setY(p.getY()-(p.getY()-cert.getY())*0.1);
 				}
 			}
-			else if(allSurfaces.size()>0) {
-				if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
-				for(Surface s:allSurfaces) {
-					for(Point p:s.getEdge()) {
-						p.setX(p.getX()/1.1);
-						p.setY(p.getY()/1.1);
-					}
-				}
-			}
 			note.saveInfo(this.getAllSurface());
 			break;
 		case KeyEvent.VK_Z:
 			if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
 				note.redo(this);
+			break;
+		case KeyEvent.VK_S:
+			if((e.getModifiersEx()&KeyEvent.CTRL_DOWN_MASK)!=0) {
+				saveLoader.ExportFlie("file.txt");
+				JOptionPane.showMessageDialog(this,"Save file successfull!","Save successfull", JOptionPane.INFORMATION_MESSAGE);
+			}
 			break;
 		}
    	}
@@ -371,6 +372,45 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
    	            break;
    	    }
    	}
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		int rol=e.getWheelRotation();
+		if(allSurfaces.size()>0) {
+			if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
+			for(Surface s:allSurfaces) {
+				for(Point p:s.getEdge()) {
+					p.setX(p.getX()*(rol==-1?1.05:1/1.05));
+					p.setY(p.getY()*(rol==-1?1.05:1/1.05));
+				}
+			}
+		}
+		note.saveInfo(this.getAllSurface());
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public void drop(DropTargetDropEvent dtde) {
+		try {
+			dtde.acceptDrop(DnDConstants.ACTION_COPY);
+			Transferable trans=dtde.getTransferable();
+			DataFlavor[]flavor=trans.getTransferDataFlavors();
+			for(DataFlavor f:flavor) {
+				if(f.isFlavorJavaFileListType()) {
+					List<File>files=(List<File>)trans.getTransferData(f);
+					for(File file:files) {
+						String path=file.getAbsolutePath();
+						saveLoader.loadFile(path);
+					}
+				}
+			}
+			dtde.dropComplete(true);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			dtde.dropComplete(false);
+		}
+	}
+	
    	/**
    	 * when you click mouse_keyRight on surface,it will show you three text field,you can enter the number(0~1) to change the surface's color
    	 * if your entered is invalid, it will show a dialog told you you have a wrong operate
@@ -418,4 +458,8 @@ public class Scene extends JPanel implements MouseListener, MouseMotionListener,
    	@Override public void keyTyped(KeyEvent e) {}
    	@Override public void keyReleased(KeyEvent e) {}
 	@Override public void mouseEntered(MouseEvent e) {}
+	@Override public void dragEnter(DropTargetDragEvent dtde) {}
+	@Override public void dragOver(DropTargetDragEvent dtde) {}
+	@Override public void dropActionChanged(DropTargetDragEvent dtde) {}
+	@Override public void dragExit(DropTargetEvent dte) {}
 }

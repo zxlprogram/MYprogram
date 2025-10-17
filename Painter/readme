@@ -1,46 +1,60 @@
 # painter
-a simple drawing app base on the surface.
-author: z.x.l
-init version: 1.0
-release date: 2025-10-13
-latest version: 1.3
+__a simple drawing app base on the surface.__
+### author:
+__z.x.l__
+### init version:
+__1.0__
+### release date: 
+__2025-10-13__
+### latest version: 
+__1.3__
 
 ## version_description
 	1.0:
     	release date: 2025-10-13
     	description:
    			we added the basic feature, like Surface, scene, point, tool, color changing system; we can add the feature with toolList, and the input controlled by class Scene
+            
 	1.1:
     	release date: 2025-10-14
     description:
     		we added some operating feature like delete, Surface bigger/smaller and wrote the readme, we rewrite the choosing system of surface, and we also make the choosing surface became the highest layer, we add the circle shape
+            
 	1.2:
     	release date: 2025-10-15
     description:
         	we added copy feature, zoom in/out and translation
-        	
+            
 	1.3:
-	release date: 2025-10-16
+	    release date: 2025-10-16
 	description:
-		rewrite the readme file, fix the bug(delete error when scene is empty), add redo feature, but it has a bug: sometimes it will redo to wrong situation, add the ctrl key event(with zoom in/out,redo, copy, ToolList move the saveInfo function to tool's constructure, toolList changed to protected
+		rewrite the readme file, fix the bug(delete error when scene is empty), added redo feature, but it has a bug: sometimes it will redo to wrong path, add the ctrl key event(with zoom in/out,redo, copy, ToolList move the saveInfo function to tool's constructure, toolList changed to protected
+
+	1.4:
+		release date:
+	description:
+		remove arrow KeyEvent's translation feature, and add it to mouse wheel, added the export/Load feature, descovered the bug of version 1.3 --when you redo a surface twice, it will redo one more time
 
 ## feature_description
 	-KeyEvent ctrl+C: copy the choosing surface
-	-KeyEvent up/right: make the choosing surface bigger(if there have surface have been choosed) or (+ctrl) zoom in
-	-KeyEvent down/left: make the choosing surface smaller(if there have surface have been choosed) or (+ctrl) zoom out
+	-KeyEvent up/right: make the choosing surface bigger(if there have surface have been choosed)
+	-KeyEvent down/left: make the choosing surface smaller(if there have surface have been choosed)
 	-keyEvent delete: delete the choosing surface(if there have surface have been choosed) or delete the highest layer surface
 	-KeyEvent ctrl+Z: redo the step
+	-KeyEvent ctrl+S: save the file
+	-ctrl+MouseWheelEvent: zoom in/out
 	-MouseEvent left: when pressed, choosing surface will became null if the mouse didn't in any surface,otherwise choosing surface will became the highest layer surface, when dragged, it will check if the choosing point were exist,if it were exist than the point will follow the mouse; otherwise it will check if the choosing surface were exist, if it were exist than the surface will follow the mouse;if nothing were been choosed, we will translation All Object(it look like canvas translation but we actually move all surfaces)
 	-MouseEvent right: change the color for choosing surface
 	-Color changing: the textfield used to enter RGB, it is only allowed to enter the number which between 0 and 1, if the format is wrong, it will show the dialog to announce the error, you must enter the number again
+	-dragging file: let the saving data add in your painter
 	-Core: this app GUI is base on java swing
 
 ## Possibly_bug
-	-sometimes it will redo to wrong step
+	-when you redo a surface twice, it will redo one more time
 	
 ## lacking_feature
-	-the save/load feature
 	-drag the object with X/Y axis(point p move if [mouseX-surface.getcertain.getX>mouseY-surface.getcertain.getY] than move(mouseX,p.Y),else move(p.X,mouse.Y))
+	-layout manager
 
 ## Requirements
 	-Java 8(1.8) or higher
@@ -50,4 +64,8 @@ latest version: 1.3
 	-https://github.com/zxlprogram/MYprogram.git/painter
     
 ## execution
-	java testing.Main
+	-cd MYprogram/Painter/bin
+	-java testing.Main
+	
+##  Custom file protocol
+	-for the scene.allSurfaces, we have N points and a color, every points have two doubles and color have three, each point's format:"X Y ",and than, " C " were followed, at last, Color format:"R G B" will followed behind

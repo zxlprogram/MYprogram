@@ -2,9 +2,12 @@ package javafile;
 
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.Image;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -78,12 +81,25 @@ class ToolList extends JPanel {
 		private static final long serialVersionUID = 1L;
 		private String name;
 		private Runnable action;
+		private Icon icon;
 		public String getName() {
 			return this.name;
 		}
 		public void setName(String name) {
 			this.name=name;
 			this.setText(name);
+		}
+		public Tool(Icon icon,Runnable r,Scene scene) {
+			super(icon);
+			this.icon=icon;
+			this.action=r;
+			addActionListener(e -> {
+	            if (this.action != null) {
+	                this.action.run(); 
+	            }
+                scene.requestFocusInWindow();
+    				scene.getNote().saveInfo(scene.getAllSurface());
+			});
 		}
 		public Tool(String name,Runnable r,Scene scene) {
 			super(name);
