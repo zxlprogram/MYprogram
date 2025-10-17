@@ -46,6 +46,7 @@ public class ExportLoadSystem {
 				Double B=Double.parseDouble(array[array.length-1]);
 				surface.setColor(R,G,B);
 				this.scene.getAllSurface().add(surface);
+				this.scene.getNote().saveInfo(this.scene.getAllSurface());
 			}
 			reader.close();
 		} 

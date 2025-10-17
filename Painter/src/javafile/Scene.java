@@ -9,7 +9,6 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.io.File;
-import java.io.IOException;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
@@ -22,6 +21,7 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Stack;
 
@@ -55,28 +55,33 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     private double scale;
     private double offsetX;
     private double offsetY;
+    
+    
     private final int POINT_RADIUS = 10;
     private ExportLoadSystem saveLoader=new ExportLoadSystem(this);
 
     protected class Note extends Stack<List<Surface>>{
 		private static final long serialVersionUID = 1L;
-			public void redo(Scene scene) {
-    			if(!this.isEmpty()) {
-    				List<Surface>repaired=this.pop();
+	    private List<Surface> copySurfaceList(List<Surface>allList) {
+    			List<Surface>copy=new ArrayList<>();
+    			for(Surface s:allList) {
+				Surface newSurface=new Surface();
+				for(Point p:s.getEdge())
+					newSurface.addPoint(new Point(p.getX(),p.getY(),newSurface));
+					newSurface.setColor(new Color(s.getColor().getR(),s.getColor().getG(),s.getColor().getB()));
+					copy.add(newSurface);
+    				}
+			return copy;
+	    }
+		public void redo(Scene scene) {
+    			if(this.size()>1) {
+    				this.pop();
+    				List<Surface>repaired=copySurfaceList(this.peek());
     				scene.setAllSurface(repaired);
-    				if(this.size()==0)
-    					this.add(new ArrayList<Surface>());
     			}
     		}
     		public void saveInfo(List<Surface>recordAllSurface) {
-    			List<Surface>newRecord=new ArrayList<>();
-    			for(Surface s:recordAllSurface) {
-    				Surface newSurface=new Surface();
-    				for(Point p:s.getEdge())
-    					newSurface.addPoint(new Point(p.getX(),p.getY(),newSurface));
-    				newSurface.setColor(new Color(s.getColor().getR(),s.getColor().getG(),s.getColor().getB()));
-    				newRecord.add(newSurface);
-    			}
+    			List<Surface>newRecord=copySurfaceList(recordAllSurface);
     			this.push(newRecord);
     		}
     }
@@ -85,8 +90,9 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 	/**
      * 
      * just like javaFx Application.start()
+	 * @throws InterruptedException 
      */
-    public void execute() {
+    public void execute() throws InterruptedException {
     		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}
@@ -104,11 +110,11 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         addMouseWheelListener(this);
         new DropTarget(this,this);
         setFocusable(true);
-        note.push(new ArrayList<Surface>());
         requestFocusInWindow();
-        if(new File("file.txt").exists())
+        note.push(new ArrayList<Surface>());
+        if(new File("file.txt").exists()) 
         		saveLoader.loadFile("file.txt");
-        Timer timer = new Timer(10,e->{repaint();});
+        	Timer timer = new Timer(10,e->{repaint();});
         timer.start();
     }
 
@@ -424,8 +430,8 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 			JOptionPane.showMessageDialog(this,"the file "+path+" is opened!","Open the file Successful", JOptionPane.INFORMATION_MESSAGE);
 		}
 		catch(Exception e) {
-			e.printStackTrace();
 			dtde.dropComplete(false);
+			JOptionPane.showMessageDialog(this,"the file were broken or it have a wrong format","File Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 	

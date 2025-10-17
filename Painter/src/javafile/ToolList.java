@@ -23,7 +23,6 @@ import javax.swing.JTextField;
 			[describe the surface here]
 			
 			scene.addSurface(t);
-			scene.getNote().saveInfo(scene.getAllSurface());
 		},scene));
 		
 		or add another component

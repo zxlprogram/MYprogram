@@ -34,7 +34,12 @@ __1.4__
 	description:
 		remove arrow KeyEvent's translation feature, and add it to mouse wheel, added the export/Load feature, descovered the bug of version 1.3 --when you redo a surface twice, it will redo one more time, added browsing mode
 
-## feature_description
+	1.5:
+		release date:
+	description:
+		fix the redo bug in version 1.3, fix the loading-format bug (when a wrong format file were been dragged into scene, it will show the dialog), descovered a new bug:  loading new file is possible to crush the refrash timer
+	
+## feature description
 	-KeyEvent ctrl+C: copy the choosing surface
 	-KeyEvent up/right: make the choosing surface bigger(if there have surface have been choosed)
 	-KeyEvent down/left: make the choosing surface smaller(if there have surface have been choosed)
@@ -48,10 +53,10 @@ __1.4__
 	-dragging file: let the saving data add in your painter
 	-Core: this app GUI is base on java swing
 
-## Possibly_bug
-	-when you redo a surface twice, it will redo one more time
+## Possibly bug
+	-loading new file is possible to crush the refrash timer (ver: 1.5)
 	
-## lacking_feature
+## lacking feature
 	-drag the object with X/Y axis(point p move if [mouseX-surface.getcertain.getX>mouseY-surface.getcertain.getY] than move(mouseX,p.Y),else move(p.X,mouse.Y))
 	-layout manager
 
