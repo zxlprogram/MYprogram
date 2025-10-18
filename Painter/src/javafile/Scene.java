@@ -8,6 +8,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -32,38 +34,76 @@ import javax.swing.*;
  * @version 1.1
  */
 public class Scene extends JPanel implements MouseListener,MouseMotionListener,KeyListener,MouseWheelListener,DropTargetListener {//AI接手mouseEvent, base-on-swing
-	
-    protected class Note extends Stack<List<Surface>>{
-		private Stack<List<Surface>>undoStack=new Stack<>();
+	protected class Event {
+		private List<Surface>graphic;
+		private double scale;
+		private double offsetX;
+		private double offsetY;
+		public Event(List<Surface>graphic,double scale,double offsetX,double offsetY) {
+			this.graphic=graphic;
+			this.scale=scale;
+			this.offsetX=offsetX;
+			this.offsetY=offsetY;
+		}
+		public List<Surface> getAllSurface() {
+			return this.graphic;
+		}
+		public double getScale() {
+			return this.scale;
+		}
+		public double getOffsetX() {
+			return this.offsetX;
+		}
+		public double getOffsetY() {
+			return this.offsetY;
+		}
+		public void setScale(double scale) {
+			this.scale=scale;
+		}
+		public void setOffsetX(double offsetX) {
+			this.offsetX=offsetX;
+		}
+		public void setOffsetY(double offsetY) {
+			this.offsetY=offsetY;
+		}
+	}
+    protected class Note extends Stack<Event>{
+		private Stack<Event>undoStack=new Stack<>();
 		private static final long serialVersionUID = 1L;
-		private List<Surface> copySurfaceList(List<Surface> allList) {
+		private Event copySurfaceList(Event allList) {
 			List<Surface> copy=new ArrayList<>();
-			for(Surface s:allList) {
+			for(Surface s:allList.getAllSurface()) {
 			Surface newSurface=new Surface();
 			for(Point p:s.getEdge())
 				newSurface.addPoint(new Point(p.getX(),p.getY(),newSurface));
 			newSurface.setColor(new Color(s.getColor().getR(),s.getColor().getG(),s.getColor().getB()));
 			copy.add(newSurface);
 			}
-		return copy;
-    }
-    public Note() {
-    		this.undoStack.push(new ArrayList<>());
-    }
-	public void redo(Scene scene) {
+			return new Event(copy,allList.getScale(),allList.getOffsetX(),allList.getOffsetY());
+		}
+		public Note(double scale,double offsetX,double offsetY) {
+			this.undoStack.push(new Event(new ArrayList<>(),scale,offsetX,offsetY));
+		}
+		public void redo(Scene scene) {
 			if(this.size()>1) {
 				this.undoStack.push(copySurfaceList(this.pop()));
-				scene.setAllSurface(copySurfaceList(this.peek()));
+				scene.setAllSurface(copySurfaceList(this.peek()).getAllSurface());
+				scene.setScale(this.peek().getScale());
+				scene.setOffsetX(this.peek().getOffsetX());
+				scene.setOffsetY(this.peek().getOffsetY());
 			}
 		}
-		public void saveInfo(List<Surface> recordAllSurface) {
-			this.push(copySurfaceList(recordAllSurface));
+		public void saveInfo(List<Surface> recordAllSurface,double scale,double offsetX,double offsetY) {
+			this.push(copySurfaceList(new Event(recordAllSurface,scale,offsetX,offsetY)));
 			this.undoStack.clear();
 		}
 		public void undo(Scene scene) {
 			if(this.undoStack.size()>0) {
-				List<Surface> undoList=copySurfaceList(this.undoStack.pop());
-				scene.setAllSurface(undoList);
+				Event undoList=copySurfaceList(this.undoStack.pop());
+				scene.setAllSurface(undoList.getAllSurface());
+				scene.setScale(undoList.scale);
+				scene.setOffsetX(undoList.offsetX);
+				scene.setOffsetY(undoList.offsetY);
     			this.push(copySurfaceList(undoList));
 			}
 		}
@@ -95,30 +135,19 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     
     private final int POINT_RADIUS = 10;
     private ExportLoadSystem saveLoader=new ExportLoadSystem(this);
-    private Note note=new Note();
+    private Note note;
     private JPanel mainPanel;
 	/**
      * 
      * just like javaFx Application.start()
 	 * @throws InterruptedException 
      */
-    public void execute() throws InterruptedException {
+    public void execute() {
+    	
+    		//圖片載體
     		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}
-
-    		
-	    int width = getWidth();
-	    int height = getHeight();
-	    scale = Math.min(width, height) / 10.0;
-	    offsetX = width / 2.0;
-	    offsetY = height / 2.0;
-	        
-        note.push(new ArrayList<>());
-    		if(new File("file.txt").exists()) {
-        		saveLoader.loadFile("file.txt");
-    		}
-    		
+		} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}	
     		JFrame frame = new JFrame(appName);
         ToolList toolList=new ToolList(this);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -135,24 +164,44 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         new DropTarget(this,this);
         setFocusable(true);
         requestFocusInWindow();
-        Thread.sleep(100);
-        	Timer timer = new Timer(10,e->{repaint();});
-        timer.start();
+
+        frame.addWindowListener(new WindowAdapter() {//to avoid GUI system crash on execution thread
+        		@Override
+        		public void windowOpened(WindowEvent e) {
+        		    int width = getWidth();
+        		    int height = getHeight();
+        		    scale = Math.min(width, height) / 10.0;
+        		    offsetX = width / 2.0;
+        		    offsetY = height / 2.0;
+        		    note=new Note(scale,offsetX,offsetY);
+        			if(new File("file.txt").exists()) {
+        	    			saveLoader.loadFile("file.txt");
+        			}
+        			
+        	        //Thread.sleep(100);//設備反應時間
+        	        
+        	        	Timer timer = new Timer(10,e2->{repaint();});
+        	        timer.start();
+        		}
+        });
     }
     
-    	public void browseMode() {
+    public void browserMode() {
 		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}
+		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}	
 		JFrame frame = new JFrame("Browser");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(400, 400);
-		frame.setContentPane(this);
+		frame.setSize(800, 400);
 		frame.setVisible(true);
+		mainPanel=new JPanel(new BorderLayout());
+		mainPanel.add(this,BorderLayout.CENTER);
+		frame.setContentPane(mainPanel);
 		new DropTarget(this,this);
-		setFocusable(true);
-		requestFocusInWindow();
-    	}
+    		note=new Note(0,0,0);
+        	Timer timer = new Timer(10,e2->{repaint();});
+        timer.start();
+    }
     
     public void addSurface(Surface s) {
         this.allSurfaces.add(s);
@@ -298,7 +347,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 
     @Override
     public void mouseReleased(MouseEvent e) {
-    			note.saveInfo(this.allSurfaces);
+    			note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
     }
 
     private boolean isPointInSurface(int mx, int my, Surface s) {//AI
@@ -328,7 +377,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
    				s.moveY(0.25);
    				this.addSurface(s);
    				draggingSurface=s;
-   				note.saveInfo(this.getAllSurface());
+   				note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
    			}
    			break;
 		case KeyEvent.VK_DELETE:
@@ -344,7 +393,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 			}
 			else if(allSurfaces.size()>0)
 				allSurfaces.removeLast();
-			note.saveInfo(this.getAllSurface());
+			note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
 			break;
 		case KeyEvent.VK_RIGHT:
 		case KeyEvent.VK_UP:
@@ -355,7 +404,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 					p.setY(p.getY()+(p.getY()-cert.getY())*0.1);
 				}
 			}
-			note.saveInfo(this.getAllSurface());
+			note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
 			break;
 		case KeyEvent.VK_LEFT:
 		case KeyEvent.VK_DOWN:
@@ -366,7 +415,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 					p.setY(p.getY()-(p.getY()-cert.getY())*0.1);
 				}
 			}
-			note.saveInfo(this.getAllSurface());
+			note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
 			break;
 		case KeyEvent.VK_Z:
 			if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
@@ -425,7 +474,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 				}
 			}
 		}
-		note.saveInfo(this.getAllSurface());
+		note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -485,7 +534,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
    					if(Rtext<0||Rtext>1||Gtext<0||Gtext>1||Btext<0||Btext>1)
    						throw new IllegalArgumentException();
    					s.setColor(Rtext,Gtext,Btext);
-   	   				note.saveInfo(this.scene.getAllSurface());
+   	    				note.saveInfo(this.scene.allSurfaces,this.scene.scale,this.scene.offsetX,this.scene.offsetY);
    					this.dispose();
    				}
    				catch(IllegalArgumentException e2) {

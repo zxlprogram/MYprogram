@@ -6,7 +6,7 @@ import javafile.Scene;
  * we have a 847 lines program,and at least 700 lines is code
  */
 public class Main {
-	public static void main(String[]args) throws InterruptedException {
+	public static void main(String[]args) {
 		Scene scene=new Scene();
 		scene.execute();
 		

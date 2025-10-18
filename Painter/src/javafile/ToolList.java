@@ -97,7 +97,7 @@ class ToolList extends JPanel {
 	                this.action.run(); 
 	            }
                 scene.requestFocusInWindow();
-    				scene.getNote().saveInfo(scene.getAllSurface());
+				scene.getNote().saveInfo(scene.getAllSurface(),scene.getScale(),scene.getOffsetX(),scene.getOffsetY());
 			});
 		}
 		public Tool(String name,Runnable r,Scene scene) {
@@ -109,7 +109,7 @@ class ToolList extends JPanel {
 	                this.action.run(); 
 	            }
                 scene.requestFocusInWindow();
-    				scene.getNote().saveInfo(scene.getAllSurface());
+    				scene.getNote().saveInfo(scene.getAllSurface(),scene.getScale(),scene.getOffsetX(),scene.getOffsetY());
 	        });
 		}
 	}

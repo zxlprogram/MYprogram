@@ -55,7 +55,7 @@ public class ExportLoadSystem {
 				returnList.add(surface);
 			}
 			this.scene.setAllSurface(returnList);
-			this.scene.getNote().saveInfo(this.scene.getAllSurface());
+			this.scene.getNote().saveInfo(this.scene.getAllSurface(),this.scene.getScale(),this.scene.getOffsetX(),this.scene.getOffsetY());
 			reader.close();
 		} 
 		catch (IOException e) {
