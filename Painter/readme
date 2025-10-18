@@ -7,7 +7,7 @@ __1.0__
 ### release date: 
 __2025-10-13__
 ### latest version: 
-__1.4.1__
+__1.5-alpha__
 ## version Description
 	1.0:
     	release date: 2025-10-13
@@ -35,16 +35,22 @@ __1.4.1__
 		remove arrow KeyEvent's translation feature, and add it to mouse wheel, added the export/Load feature, descovered the bug of version 1.3 --when you redo a surface twice, it will redo one more time, added browsing mode
 
 	1.4.1:
-		release date: 
+		release date: 2025-10-17
 	description:
 		fix the redo bug in version 1.3, fix the loading-format bug (when a wrong format file were been dragged into scene, it will show the dialog), descovered a new bug:  loading new file is possible to crush the refrash timer
 	
+	1.5-alpha:
+		release date:
+	description:
+		added the undo feature(ctrl+Y), fix the loading bug in version 1.4.1, redo the zoom in/out function and dragging function, make the offset and scale caculate only at first, make system delay 100ms at first(because I want to load the logo)
+		
 ## feature description
 	-KeyEvent ctrl+C: copy the choosing surface
 	-KeyEvent up/right: make the choosing surface bigger(if there have surface have been choosed)
 	-KeyEvent down/left: make the choosing surface smaller(if there have surface have been choosed)
 	-keyEvent delete: delete the choosing surface(if there have surface have been choosed) or delete the highest layer surface
 	-KeyEvent ctrl+Z: redo the step
+	-KeyEvent ctrl+Y: undo the step
 	-KeyEvent ctrl+S: save the file
 	-ctrl+MouseWheelEvent: zoom in/out
 	-MouseEvent left: when pressed, choosing surface will became null if the mouse didn't in any surface,otherwise choosing surface will became the highest layer surface, when dragged, it will check if the choosing point were exist,if it were exist than the point will follow the mouse; otherwise it will check if the choosing surface were exist, if it were exist than the surface will follow the mouse;if nothing were been choosed, we will translation All Object(it look like canvas translation but we actually move all surfaces)
@@ -54,16 +60,17 @@ __1.4.1__
 	-Core: this app GUI is base on java swing
 
 ## Possibly bug
-	-loading new file is possible to crush the refrash timer (ver: 1.4.1)
+	-add the scale,offset in file protocol and exportLoadSystem
 	
 ## lacking feature
 	-drag the object with X/Y axis(point p move if [mouseX-surface.getcertain.getX>mouseY-surface.getcertain.getY] than move(mouseX,p.Y),else move(p.X,mouse.Y))
 	-layout manager
+	-save file at current path
 
 ## Requirements
 	-Java 8(1.8) or higher
 	-Windows 10+
-    
+
 ## download
 	-https://github.com/zxlprogram/MYprogram.git/painter
     

@@ -32,7 +32,44 @@ import javax.swing.*;
  * @version 1.1
  */
 public class Scene extends JPanel implements MouseListener,MouseMotionListener,KeyListener,MouseWheelListener,DropTargetListener {//AI接手mouseEvent, base-on-swing
-
+	
+    protected class Note extends Stack<List<Surface>>{
+		private Stack<List<Surface>>undoStack=new Stack<>();
+		private static final long serialVersionUID = 1L;
+		private List<Surface> copySurfaceList(List<Surface> allList) {
+			List<Surface> copy=new ArrayList<>();
+			for(Surface s:allList) {
+			Surface newSurface=new Surface();
+			for(Point p:s.getEdge())
+				newSurface.addPoint(new Point(p.getX(),p.getY(),newSurface));
+			newSurface.setColor(new Color(s.getColor().getR(),s.getColor().getG(),s.getColor().getB()));
+			copy.add(newSurface);
+			}
+		return copy;
+    }
+    public Note() {
+    		this.undoStack.push(new ArrayList<>());
+    }
+	public void redo(Scene scene) {
+			if(this.size()>1) {
+				this.undoStack.push(copySurfaceList(this.pop()));
+				scene.setAllSurface(copySurfaceList(this.peek()));
+			}
+		}
+		public void saveInfo(List<Surface> recordAllSurface) {
+			this.push(copySurfaceList(recordAllSurface));
+			this.undoStack.clear();
+		}
+		public void undo(Scene scene) {
+			if(this.undoStack.size()>0) {
+				List<Surface> undoList=copySurfaceList(this.undoStack.pop());
+				scene.setAllSurface(undoList);
+    			this.push(copySurfaceList(undoList));
+			}
+		}
+    }
+    
+    
 	private static final long serialVersionUID = 1L;
     static final String appName = "Painter";
     /**
@@ -58,34 +95,8 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     
     private final int POINT_RADIUS = 10;
     private ExportLoadSystem saveLoader=new ExportLoadSystem(this);
-
-    protected class Note extends Stack<List<Surface>>{
-		private static final long serialVersionUID = 1L;
-	    private List<Surface> copySurfaceList(List<Surface>allList) {
-    			List<Surface>copy=new ArrayList<>();
-    			for(Surface s:allList) {
-				Surface newSurface=new Surface();
-				for(Point p:s.getEdge())
-					newSurface.addPoint(new Point(p.getX(),p.getY(),newSurface));
-					newSurface.setColor(new Color(s.getColor().getR(),s.getColor().getG(),s.getColor().getB()));
-					copy.add(newSurface);
-    				}
-			return copy;
-	    }
-		public void redo(Scene scene) {
-    			if(this.size()>1) {
-    				this.pop();
-    				List<Surface>repaired=copySurfaceList(this.peek());
-    				scene.setAllSurface(repaired);
-    			}
-    		}
-    		public void saveInfo(List<Surface>recordAllSurface) {
-    			List<Surface>newRecord=copySurfaceList(recordAllSurface);
-    			this.push(newRecord);
-    		}
-    }
     private Note note=new Note();
-
+    private JPanel mainPanel;
 	/**
      * 
      * just like javaFx Application.start()
@@ -95,14 +106,28 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}
-        JFrame frame = new JFrame(appName);
+
+    		
+	    int width = getWidth();
+	    int height = getHeight();
+	    scale = Math.min(width, height) / 10.0;
+	    offsetX = width / 2.0;
+	    offsetY = height / 2.0;
+	        
+        note.push(new ArrayList<>());
+    		if(new File("file.txt").exists()) {
+        		saveLoader.loadFile("file.txt");
+    		}
+    		
+    		JFrame frame = new JFrame(appName);
         ToolList toolList=new ToolList(this);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new BorderLayout());
-        frame.setSize(400, 400);
-        frame.setContentPane(this);
+        frame.setSize(800, 400);
         frame.setVisible(true);
-        this.add(toolList,BorderLayout.NORTH);
+        mainPanel=new JPanel(new BorderLayout());
+        mainPanel.add(toolList,BorderLayout.NORTH);
+        mainPanel.add(this,BorderLayout.CENTER);
+        frame.setContentPane(mainPanel);
         addMouseListener(this);
         addKeyListener(this);
         addMouseMotionListener(this);
@@ -110,13 +135,11 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         new DropTarget(this,this);
         setFocusable(true);
         requestFocusInWindow();
-        note.push(new ArrayList<Surface>());
-        if(new File("file.txt").exists()) 
-        		saveLoader.loadFile("file.txt");
+        Thread.sleep(100);
         	Timer timer = new Timer(10,e->{repaint();});
         timer.start();
-    	}
-
+    }
+    
     	public void browseMode() {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -128,7 +151,6 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 		frame.setVisible(true);
 		new DropTarget(this,this);
 		setFocusable(true);
-		note.push(new ArrayList<Surface>());
 		requestFocusInWindow();
     	}
     
@@ -184,12 +206,6 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
      */
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
-        int width = getWidth();
-        int height = getHeight();
-        scale = Math.min(width, height) / 10.0;
-        offsetX = width / 2.0;
-        offsetY = height / 2.0;
         for (Surface s : allSurfaces) {
             drawSurface(g, s);
         }
@@ -197,16 +213,9 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     /**
      * this part I let chatgpt did
      */
-    private void drawSurface(Graphics g, Surface s) {//AI method
+    private void drawSurface(Graphics g, Surface s) {
         Point[] points = s.getEdge();
         if (points.length < 2) return;
-
-        int width = getWidth();
-        int height = getHeight();
-
-        double scale = Math.min(width, height) / 10.0; // 調整比例
-        double offsetX = width / 2.0;
-        double offsetY = height / 2.0;
 
         int[] xPoints = new int[points.length];
         int[] yPoints = new int[points.length];
@@ -226,8 +235,10 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         } else {
             g.setColor(java.awt.Color.BLACK);
         }
+
         g.fillPolygon(xPoints, yPoints, points.length);
     }
+
     @Override
     public void mousePressed(MouseEvent e) {
     		draggingSurface=null;
@@ -278,10 +289,8 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
             draggingSurface.moveY(dy);
         }
         else {
-        		for(Surface s:allSurfaces) {
-        			s.moveX(dx);
-        			s.moveY(dy);
-        		}
+        		offsetX+=dx*50;
+        		offsetY+=dy*50;
         }
         prevMouseX = mx;
         prevMouseY = my;
@@ -289,7 +298,6 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 
     @Override
     public void mouseReleased(MouseEvent e) {
-    		if(draggingSurface!=null||draggingPoint!=null)
     			note.saveInfo(this.allSurfaces);
     }
 
@@ -364,6 +372,10 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 			if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
 				note.redo(this);
 			break;
+		case KeyEvent.VK_Y:
+			if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
+				note.undo(this);
+			break;
 		case KeyEvent.VK_S:
 			if((e.getModifiersEx()&KeyEvent.CTRL_DOWN_MASK)!=0) {
 				saveLoader.ExportFlie("file.txt");
@@ -396,11 +408,20 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		int rol=e.getWheelRotation();
 		if(allSurfaces.size()>0) {
-			if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
-			for(Surface s:allSurfaces) {
-				for(Point p:s.getEdge()) {
-					p.setX(p.getX()*(rol==-1?1.05:1/1.05));
-					p.setY(p.getY()*(rol==-1?1.05:1/1.05));
+			if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0) {
+	            double cx = (getWidth() / 2.0 - offsetX) / scale;
+	            double cy = (getHeight() / 2.0 - offsetY) / scale;
+	            double scaleFactor = rol == -1 ? 1.05 : 1 / 1.05;
+				for(Surface s:allSurfaces) {
+					for(Point p:s.getEdge()) {
+	                    double x = p.getX();
+	                    double y = p.getY();
+	                    double newX = cx + (x - cx) * scaleFactor;
+	                    double newY = cy + (y - cy) * scaleFactor;
+	                    p.setX(newX);
+	                    p.setY(newY);
+
+					}
 				}
 			}
 		}

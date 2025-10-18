@@ -7,8 +7,8 @@ import javafile.Scene;
  */
 public class Main {
 	public static void main(String[]args) throws InterruptedException {
-		Scene scene2=new Scene();
-		scene2.execute();
+		Scene scene=new Scene();
+		scene.execute();
 		
 	}
 }
