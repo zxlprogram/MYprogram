@@ -16,7 +16,7 @@ public class LayoutManager extends JPanel {
 	private DraggableItem draggingItem=null;
 	public LayoutManager(Scene scene) {
 		this.scene=scene;
-		this.setBackground(java.awt.Color.GRAY);
+		this.setBackground(java.awt.Color.BLACK);
 		MouseAdapter mouse=new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {

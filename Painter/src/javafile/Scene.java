@@ -9,6 +9,7 @@ import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.net.URL;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -149,7 +150,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}	
     		JFrame frame = new JFrame(appName+"(ver: "+version+")");
-        frame.setIconImage(new ImageIcon("resource/painter_logo.png").getImage());
+        frame.setIconImage(new ImageIcon(Scene.class.getResource("/painter_logo.png")).getImage());
     		ToolList toolList=new ToolList(this);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 400);
@@ -179,9 +180,8 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         		    offsetX = width / 2.0;
         		    offsetY = height / 2.0;
         		    note=new Note(scale,offsetX,offsetY);
-        			if(new File("file.txt").exists()) {
-        	    			saveLoader.loadFile("file.txt");
-        			}
+        		    URL logo=Scene.class.getResource("/file.txt");
+        		    saveLoader.loadFile(logo);
         			if(Scene.this.getLayoutManager()!=null) refrashLayerManager();
         	        	Timer timer = new Timer(10,e2->{repaint();});
         	        timer.start();
@@ -194,7 +194,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}	
 		JFrame frame = new JFrame("Browser"+"(ver: "+version+")");
-        frame.setIconImage(new ImageIcon("resource/painter_logo.png").getImage());
+        frame.setIconImage(new ImageIcon(Scene.class.getResource("/painter_logo.png")).getImage());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(800, 400);
 		frame.setVisible(true);

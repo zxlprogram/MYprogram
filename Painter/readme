@@ -6,6 +6,7 @@ __z.x.l__
 __1.0__
 ### release date: 
 __2025-10-13__
+
 ### latest version: 
 __1.6__
 ## version Description
@@ -96,7 +97,7 @@ __1.6__
 			javafile:
 				-Color.class
 				-ExportManager.class
-				-LayoutManager.class*
+				-LayoutManager.class
 				-Point.class
 				-Scene.class
 				-Surface.class
@@ -108,7 +109,7 @@ __1.6__
 			javafile:
 				-Color.java
 				-ExportManager.java
-				-LayoutManager.java*
+				-LayoutManager.java
 				-Point.java
 				-Scene.java
 				-Surface.java
@@ -117,11 +118,9 @@ __1.6__
 				-Browser.java
 				-Main.java
 		resource:
-			-browser.jar
 			-painter_logo.ico
 			-painter_logo.png
-			-painter.jar
 			-triangle.png*
-		-file.txt
+			-file.txt
 		-readme
 	__the sign * means not be used__
