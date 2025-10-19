@@ -69,6 +69,7 @@ __1.6__
 	-Color changing: the textfield used to enter RGB, it is only allowed to enter the number which between 0 and 1, if the format is wrong, it will show the dialog to announce the error, you must enter the number again
 	-dragging file: let the saving data add in your painter
 	-Core: this app GUI is base on java swing
+	-left side: the layout managing
 
 ## Possibly bug
 	-no current bug
