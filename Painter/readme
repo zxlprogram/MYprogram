@@ -7,7 +7,7 @@ __1.0__
 ### release date: 
 __2025-10-13__
 ### latest version: 
-__1.5-alpha__
+__1.6__
 ## version Description
 	1.0:
     	release date: 2025-10-13
@@ -40,9 +40,19 @@ __1.5-alpha__
 		fix the redo bug in version 1.3, fix the loading-format bug (when a wrong format file were been dragged into scene, it will show the dialog), descovered a new bug:  loading new file is possible to crush the refrash timer
 	
 	1.5-alpha:
-		release date:
+		release date: 2025-10-19
 	description:
 		added the undo feature(ctrl+Y), fix the loading bug in version 1.4.1, redo the zoom in/out function and dragging function, make the offset and scale caculate only at first, make system delay 100ms at first(because I want to load the logo)
+	
+	1.5:
+		release date: 2025-10-19
+	description:
+		fix the bug: the viewSide can save in the Event now, I added the Event class, it contains the List<Surface> and double scale,offsetX,offsetY, and let the logo add the surface in one time; I let the first step became the logo, because it is actually the first step, use the windows event listener replace the delay in execute method(which I added in version 1.5 alpha), custom file protocol changed: the first line have three number:scale, offsetX, offsetY, and belowing  line just like before
+		
+	1.6:
+		release date: 2025-10-20
+	description:
+		finally added the layout manager!!! added the folder selecter for saving data
 		
 ## feature description
 	-KeyEvent ctrl+C: copy the choosing surface
@@ -60,12 +70,10 @@ __1.5-alpha__
 	-Core: this app GUI is base on java swing
 
 ## Possibly bug
-	-add the scale,offset in file protocol and exportLoadSystem
+	-no current bug
 	
 ## lacking feature
 	-drag the object with X/Y axis(point p move if [mouseX-surface.getcertain.getX>mouseY-surface.getcertain.getY] than move(mouseX,p.Y),else move(p.X,mouse.Y))
-	-layout manager
-	-save file at current path
 
 ## Requirements
 	-Java 8(1.8) or higher
@@ -79,5 +87,41 @@ __1.5-alpha__
 	-java testing.Main
 	-java testing.Browser
 	
-##  Custom file protocol
-	-for the scene.allSurfaces, we have N points and a color, every points have two doubles and color have three, each point's format:"X Y ",and than, " C " were followed, at last, Color format:"R G B" will followed behind
+## Custom file protocol
+	-at first line we have three number for scale, offsetX, offsetY, and below next line, it record for all of the surface, for each surface, we have N points and a color, every points have two doubles and color have three, each point's format:"X Y ",and than, " C " were followed, at last, Color format:"R G B" will followed behind
+	
+## program stucture:
+	Painter:
+		bin:
+			javafile:
+				-Color.class
+				-ExportManager.class
+				-LayoutManager.class*
+				-Point.class
+				-Scene.class
+				-Surface.class
+				-ToolList.class
+			testing:
+				-Browser.class
+				-Main.class		
+		src:
+			javafile:
+				-Color.java
+				-ExportManager.java
+				-LayoutManager.java*
+				-Point.java
+				-Scene.java
+				-Surface.java
+				-ToolList.java
+			testing:
+				-Browser.java
+				-Main.java
+		resource:
+			-browser.jar
+			-painter_logo.ico
+			-painter_logo.png
+			-painter.jar
+			-triangle.png*
+		-file.txt
+		-readme
+	__the sign * means not be used__

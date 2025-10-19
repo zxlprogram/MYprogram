@@ -1,6 +1,4 @@
-
 package javafile;
-
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -12,6 +10,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.datatransfer.DataFlavor;
@@ -112,6 +111,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     
 	private static final long serialVersionUID = 1L;
     static final String appName = "Painter";
+    static final String version = "1.5";
     /**
      * @param
      * allSurfaces is the container of Surface, it is a List
@@ -135,6 +135,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     
     private final int POINT_RADIUS = 10;
     private ExportLoadSystem saveLoader=new ExportLoadSystem(this);
+    private LayoutManager layoutManager;
     private Note note;
     private JPanel mainPanel;
 	/**
@@ -143,20 +144,24 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 	 * @throws InterruptedException 
      */
     public void execute() {
-    	
     		//圖片載體
     		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}	
-    		JFrame frame = new JFrame(appName);
-        ToolList toolList=new ToolList(this);
+    		JFrame frame = new JFrame(appName+"(ver: "+version+")");
+        frame.setIconImage(new ImageIcon("resource/painter_logo.png").getImage());
+    		ToolList toolList=new ToolList(this);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 400);
-        frame.setVisible(true);
         mainPanel=new JPanel(new BorderLayout());
         mainPanel.add(toolList,BorderLayout.NORTH);
         mainPanel.add(this,BorderLayout.CENTER);
-        frame.setContentPane(mainPanel);
+        layoutManager=new LayoutManager(Scene.this);
+        JScrollPane scroll=new JScrollPane(layoutManager);
+        scroll.setPreferredSize(new Dimension(70,0));
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        mainPanel.add(scroll,BorderLayout.EAST);
+        frame.add(mainPanel);
         addMouseListener(this);
         addKeyListener(this);
         addMouseMotionListener(this);
@@ -164,7 +169,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         new DropTarget(this,this);
         setFocusable(true);
         requestFocusInWindow();
-
+        frame.setVisible(true);
         frame.addWindowListener(new WindowAdapter() {//to avoid GUI system crash on execution thread
         		@Override
         		public void windowOpened(WindowEvent e) {
@@ -177,9 +182,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         			if(new File("file.txt").exists()) {
         	    			saveLoader.loadFile("file.txt");
         			}
-        			
-        	        //Thread.sleep(100);//設備反應時間
-        	        
+        			if(Scene.this.getLayoutManager()!=null) refrashLayerManager();
         	        	Timer timer = new Timer(10,e2->{repaint();});
         	        timer.start();
         		}
@@ -190,7 +193,8 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 		try {
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}	
-		JFrame frame = new JFrame("Browser");
+		JFrame frame = new JFrame("Browser"+"(ver: "+version+")");
+        frame.setIconImage(new ImageIcon("resource/painter_logo.png").getImage());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(800, 400);
 		frame.setVisible(true);
@@ -201,6 +205,13 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     		note=new Note(0,0,0);
         	Timer timer = new Timer(10,e2->{repaint();});
         timer.start();
+    }
+    
+    private void refrashLayerManager() {
+    		this.getLayoutManager().clearAllItems();
+    		for(Surface s:this.allSurfaces) {
+    			this.getLayoutManager().addItem(s);
+    		}
     }
     
     public void addSurface(Surface s) {
@@ -246,9 +257,11 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 		return this.offsetY;
     }
     public Note getNote() {
-    	return this.note;
+    		return this.note;
     }
-    
+    public LayoutManager getLayoutManager() {
+    		return this.layoutManager;
+    }
     @Override
     /**
      * this part I let chatgpt did
@@ -321,6 +334,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
                 break;
             }
         }
+		if(this.getLayoutManager()!=null) refrashLayerManager();
     }
 
     @Override
@@ -348,6 +362,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     @Override
     public void mouseReleased(MouseEvent e) {
     			note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
+    			if(this.getLayoutManager()!=null) refrashLayerManager();
     }
 
     private boolean isPointInSurface(int mx, int my, Surface s) {//AI
@@ -427,11 +442,21 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 			break;
 		case KeyEvent.VK_S:
 			if((e.getModifiersEx()&KeyEvent.CTRL_DOWN_MASK)!=0) {
-				saveLoader.ExportFlie("file.txt");
-				JOptionPane.showMessageDialog(this,"Save file successfull!","Save successfull", JOptionPane.INFORMATION_MESSAGE);
+				JFileChooser chooser=new JFileChooser();
+				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+				chooser.setDialogTitle("choose the folder");
+				int result=chooser.showOpenDialog(this);
+				if(result==JFileChooser.APPROVE_OPTION) {
+					String path=chooser.getSelectedFile().getAbsolutePath();
+					if(!path.toLowerCase().endsWith(".txt"))
+						path+=".txt";
+					this.saveLoader.ExportFlie(path);
+					JOptionPane.showMessageDialog(this,"Save file successfull!","Save successfull", JOptionPane.INFORMATION_MESSAGE);
+				}
 			}
 			break;
 		}
+		if(this.getLayoutManager()!=null) refrashLayerManager();
    	}
    	@Override
    	public void mouseClicked(MouseEvent e) {// change color
@@ -452,6 +477,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
    	        default:
    	            break;
    	    }
+		if(this.getLayoutManager()!=null) refrashLayerManager();
    	}
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
@@ -495,6 +521,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 				}
 			}
 			dtde.dropComplete(true);
+			if(this.getLayoutManager()!=null) refrashLayerManager();
 		    repaint();// it is for browse mode
 			JOptionPane.showMessageDialog(this,"the file "+path+" is opened!","Open the file Successful", JOptionPane.INFORMATION_MESSAGE);
 		}
@@ -509,7 +536,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
    	 * if your entered is invalid, it will show a dialog told you you have a wrong operate
    	 * 
   	 */
-   	protected class ChoiceColor extends JFrame{
+   	protected class ChoiceColor extends JFrame {
    		private static final long serialVersionUID = 1L;
    		private JTextField R=new JTextField(5),G=new JTextField(5),B=new JTextField(5);
    		private JButton enter=new JButton("Enter");
@@ -526,6 +553,11 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
    			this.add(G);
    			this.add(new JLabel("B:"));
    			this.add(B);
+   			
+   			R.addActionListener(e -> enter.doClick());
+   			G.addActionListener(e -> enter.doClick());
+   			B.addActionListener(e -> enter.doClick());
+   			
    			enter.addActionListener(e-> {
    				try {
    					double Rtext=Double.parseDouble(R.getText());
@@ -535,7 +567,8 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
    						throw new IllegalArgumentException();
    					s.setColor(Rtext,Gtext,Btext);
    	    				note.saveInfo(this.scene.allSurfaces,this.scene.scale,this.scene.offsetX,this.scene.offsetY);
-   					this.dispose();
+   	    				if(Scene.this.getLayoutManager()!=null) refrashLayerManager();
+   	    				this.dispose();
    				}
    				catch(IllegalArgumentException e2) {
    					JOptionPane.showMessageDialog(this,"Please enter current number(0~1)","Enter error",JOptionPane.ERROR_MESSAGE);

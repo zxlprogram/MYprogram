@@ -2,12 +2,10 @@ package javafile;
 
 import java.awt.Component;
 import java.awt.FlowLayout;
-import java.awt.Image;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -40,11 +38,13 @@ class ToolList extends JPanel {
 			Surface t=Surface.TRIANGLE();
 			t.setColor(1,0,0);
 			scene.addSurface(t);
+			scene.getLayoutManager().addItem(t);
 		},scene));
 		toolList.add(new Tool("Quad",()->{
 			Surface t=Surface.QUAD();
 			t.setColor(1,0,0);
 			scene.addSurface(t);
+			scene.getLayoutManager().addItem(t);
 		},scene));
 		JTextField enterMoreEdge=new JTextField(2);
 				toolList.add(new Tool("Circle",()->{
@@ -55,6 +55,7 @@ class ToolList extends JPanel {
 				t.addPoint(a,-Math.sqrt(1-a*a));	
 			t.setColor(1,0,0);
 			scene.addSurface(t);
+			scene.getLayoutManager().addItem(t);
 		},scene));
 		toolList.add(new Tool("more edge:",()-> {
 			Surface t=new Surface();
@@ -69,6 +70,7 @@ class ToolList extends JPanel {
 				t.addPoint(Math.random(),Math.random());
 			t.setColor(1,0,0);
 			scene.addSurface(t);
+			scene.getLayoutManager().addItem(t);
 		},scene));
 		toolList.add(enterMoreEdge);
 
@@ -80,7 +82,6 @@ class ToolList extends JPanel {
 		private static final long serialVersionUID = 1L;
 		private String name;
 		private Runnable action;
-		private Icon icon;
 		public String getName() {
 			return this.name;
 		}
@@ -90,7 +91,6 @@ class ToolList extends JPanel {
 		}
 		public Tool(Icon icon,Runnable r,Scene scene) {
 			super(icon);
-			this.icon=icon;
 			this.action=r;
 			addActionListener(e -> {
 	            if (this.action != null) {
