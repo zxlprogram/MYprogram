@@ -1,5 +1,4 @@
 package javafile;
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
@@ -9,12 +8,12 @@ import java.util.List;
 
 import javax.swing.*;
 
-public class LayoutManager extends JPanel {
+public class LayerManager extends JPanel {
 	private static final long serialVersionUID = 7672158295712151948L;
 	private Scene scene;
 	private final List<DraggableItem>items=new ArrayList<>();
 	private DraggableItem draggingItem=null;
-	public LayoutManager(Scene scene) {
+	public LayerManager(Scene scene) {
 		this.scene=scene;
 		this.setBackground(java.awt.Color.BLACK);
 		MouseAdapter mouse=new MouseAdapter() {
@@ -30,7 +29,7 @@ public class LayoutManager extends JPanel {
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				if(draggingItem!=null) {
-					draggingItem.setLocation(0,e.getY()-25);
+					draggingItem.setLocation(0,e.getY()-draggingItem.getHeight()/2);
 					draggingItem.setBackground(java.awt.Color.LIGHT_GRAY);
 					reorderItems();
 				}
@@ -49,8 +48,7 @@ public class LayoutManager extends JPanel {
 	}
 	
 	public void addItem(Surface s) {
-		DraggableItem item=new DraggableItem();
-		item.setSurface(s);
+		DraggableItem item=new DraggableItem(s);
 		items.add(item);
 		this.add(item);
 		layoutItems();
@@ -81,6 +79,7 @@ public class LayoutManager extends JPanel {
 	
 	private void snapItems() {
 		items.sort((a,b)->Integer.compare(a.getY(),b.getY()));
+		this.scene.getNote().saveInfo(this.scene.getAllSurface(),this.scene.getScale(),this.scene.getOffsetX(),this.scene.getOffsetY());
 		layoutItems();
 	}
 	public void clearAllItems() {
@@ -89,7 +88,6 @@ public class LayoutManager extends JPanel {
 	    revalidate();
 	    repaint();
 	}
-	
 	private void reorderItems() {
 		items.sort((a,b)->Integer.compare(a.getY(), b.getY()));
 		this.scene.setAllSurface(new ArrayList<>());
@@ -169,7 +167,8 @@ public class LayoutManager extends JPanel {
 		public Surface getSurface() {
 			return this.surface;
 		}
-	    public DraggableItem() {
+	    public DraggableItem(Surface s) {
+	    		this.surface=s;
 			this.setBorder(BorderFactory.createLineBorder(java.awt.Color.BLACK));
 	        this.setBackground(java.awt.Color.WHITE);
 	    }

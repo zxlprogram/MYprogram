@@ -12,6 +12,7 @@ import java.util.List;
  * announce: if you want to copy the surface, remember to change the point's Surface-pointer(Point.surface)
  */
 public class Surface {
+	private boolean isDragging;
 	public static Surface QUAD() {
 		Surface quad = new Surface();
 		quad.addPoint(new Point(0,0,quad));
@@ -88,6 +89,12 @@ public class Surface {
 		centx/=this.getEdge().length;
 		centy/=this.getEdge().length;
 		return new Point(centx,centy,null);
+	}
+	public void setDraggable(boolean b) {
+		this.isDragging=b;
+	}
+	public boolean Draggable() {
+		return this.isDragging;
 	}
 	/**
 	 * 1.0 0.0 0.0 -1.0 -1.0 1.0 C 1.0 0.0 0.0

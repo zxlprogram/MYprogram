@@ -2,10 +2,11 @@ package javafile;
 
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.Image;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -34,28 +35,28 @@ class ToolList extends JPanel {
 		addAllTool(scene);
 	}
 	private void addAllTool(Scene scene) {
-		toolList.add(new Tool("Triangle",()->{
+		toolList.add(new Tool(ToolList.class.getResource("/triangle.png"),()->{
 			Surface t=Surface.TRIANGLE();
 			t.setColor(1,0,0);
 			scene.addSurface(t);
-			scene.getLayoutManager().addItem(t);
+			scene.getLayerManager().addItem(t);
 		},scene));
-		toolList.add(new Tool("Quad",()->{
+		toolList.add(new Tool(ToolList.class.getResource("/quad.png"),()->{
 			Surface t=Surface.QUAD();
 			t.setColor(1,0,0);
 			scene.addSurface(t);
-			scene.getLayoutManager().addItem(t);
+			scene.getLayerManager().addItem(t);
 		},scene));
 		JTextField enterMoreEdge=new JTextField(2);
-				toolList.add(new Tool("Circle",()->{
+		toolList.add(new Tool(ToolList.class.getResource("/circle.png"),()->{
 			Surface t=new Surface();
-			for(double a=-1;a<=1;a+=0.01)
+			for(double a=-1;a<=1;a+=0.01)		
 				t.addPoint(a,Math.sqrt(1-a*a));	
 			for(double a=1;a>=-1;a-=0.01)
 				t.addPoint(a,-Math.sqrt(1-a*a));	
 			t.setColor(1,0,0);
 			scene.addSurface(t);
-			scene.getLayoutManager().addItem(t);
+			scene.getLayerManager().addItem(t);
 		},scene));
 		toolList.add(new Tool("more edge:",()-> {
 			Surface t=new Surface();
@@ -70,7 +71,7 @@ class ToolList extends JPanel {
 				t.addPoint(Math.random(),Math.random());
 			t.setColor(1,0,0);
 			scene.addSurface(t);
-			scene.getLayoutManager().addItem(t);
+			scene.getLayerManager().addItem(t);
 		},scene));
 		toolList.add(enterMoreEdge);
 
@@ -89,10 +90,13 @@ class ToolList extends JPanel {
 			this.name=name;
 			this.setText(name);
 		}
-		public Tool(Icon icon,Runnable r,Scene scene) {
-			super(icon);
+		public Tool(URL url,Runnable r,Scene scene) {
+			ImageIcon ico=new ImageIcon(url);
+			Image scaledImage=ico.getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH);
+			ImageIcon scaledIcon=new ImageIcon(scaledImage);
+			super(scaledIcon);
 			this.action=r;
-			addActionListener(e -> {
+			addActionListener(_ -> {
 	            if (this.action != null) {
 	                this.action.run(); 
 	            }
@@ -104,7 +108,7 @@ class ToolList extends JPanel {
 			super(name);
 			this.name=name;
 			this.action=r;
-			addActionListener(e -> {
+			addActionListener(_-> {
 	            if (this.action != null) {
 	                this.action.run(); 
 	            }

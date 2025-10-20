@@ -68,7 +68,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 		}
 	}
     protected class Note extends Stack<Event>{
-		private Stack<Event>undoStack=new Stack<>();
+		private Stack<Event>redoStack=new Stack<>();
 		private static final long serialVersionUID = 1L;
 		private Event copySurfaceList(Event allList) {
 			List<Surface> copy=new ArrayList<>();
@@ -82,29 +82,33 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 			return new Event(copy,allList.getScale(),allList.getOffsetX(),allList.getOffsetY());
 		}
 		public Note(double scale,double offsetX,double offsetY) {
-			this.undoStack.push(new Event(new ArrayList<>(),scale,offsetX,offsetY));
+			this.redoStack.push(new Event(new ArrayList<>(),scale,offsetX,offsetY));
 		}
 		public void redo(Scene scene) {
-			if(this.size()>1) {
-				this.undoStack.push(copySurfaceList(this.pop()));
-				scene.setAllSurface(copySurfaceList(this.peek()).getAllSurface());
-				scene.setScale(this.peek().getScale());
-				scene.setOffsetX(this.peek().getOffsetX());
-				scene.setOffsetY(this.peek().getOffsetY());
-			}
-		}
-		public void saveInfo(List<Surface> recordAllSurface,double scale,double offsetX,double offsetY) {
-			this.push(copySurfaceList(new Event(recordAllSurface,scale,offsetX,offsetY)));
-			this.undoStack.clear();
-		}
-		public void undo(Scene scene) {
-			if(this.undoStack.size()>0) {
-				Event undoList=copySurfaceList(this.undoStack.pop());
+			if(this.redoStack.size()>0) {
+				Event undoList=copySurfaceList(this.redoStack.pop());
 				scene.setAllSurface(undoList.getAllSurface());
 				scene.setScale(undoList.scale);
 				scene.setOffsetX(undoList.offsetX);
 				scene.setOffsetY(undoList.offsetY);
     			this.push(copySurfaceList(undoList));
+			}
+
+		}
+		
+		public void saveInfo(List<Surface> recordAllSurface,double scale,double offsetX,double offsetY) {
+			this.push(copySurfaceList(new Event(recordAllSurface,scale,offsetX,offsetY)));
+			if(this.size()>50)
+				this.removeFirst();
+			this.redoStack.clear();
+		}
+		public void undo(Scene scene) {
+			if(this.size()>1) {
+				this.redoStack.push(copySurfaceList(this.pop()));
+				scene.setAllSurface(copySurfaceList(this.peek()).getAllSurface());
+				scene.setScale(this.peek().getScale());
+				scene.setOffsetX(this.peek().getOffsetX());
+				scene.setOffsetY(this.peek().getOffsetY());
 			}
 		}
     }
@@ -128,7 +132,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
      * 
      * this part I let chatgpt did
      */
-    private int prevMouseX, prevMouseY;
+    private int prevMouseX, prevMouseY, pressedLocationX,pressedLocationY;
     private double scale;
     private double offsetX;
     private double offsetY;
@@ -136,7 +140,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     
     private final int POINT_RADIUS = 10;
     private ExportLoadSystem saveLoader=new ExportLoadSystem(this);
-    private LayoutManager layoutManager;
+    private LayerManager layerManager;
     private Note note;
     private JPanel mainPanel;
 	/**
@@ -152,13 +156,14 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     		JFrame frame = new JFrame(appName+"(ver: "+version+")");
         frame.setIconImage(new ImageIcon(Scene.class.getResource("/painter_logo.png")).getImage());
     		ToolList toolList=new ToolList(this);
+    		toolList.setBackground(new java.awt.Color(0,0,120));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 400);
         mainPanel=new JPanel(new BorderLayout());
         mainPanel.add(toolList,BorderLayout.NORTH);
         mainPanel.add(this,BorderLayout.CENTER);
-        layoutManager=new LayoutManager(Scene.this);
-        JScrollPane scroll=new JScrollPane(layoutManager);
+        layerManager=new LayerManager(Scene.this);
+        JScrollPane scroll=new JScrollPane(layerManager);
         scroll.setPreferredSize(new Dimension(70,0));
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         mainPanel.add(scroll,BorderLayout.EAST);
@@ -182,8 +187,8 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         		    note=new Note(scale,offsetX,offsetY);
         		    URL logo=Scene.class.getResource("/file.txt");
         		    saveLoader.loadFile(logo);
-        			if(Scene.this.getLayoutManager()!=null) refrashLayerManager();
-        	        	Timer timer = new Timer(10,e2->{repaint();});
+        			if(Scene.this.getLayerManager()!=null) refrashLayerManager();
+        	        	Timer timer = new Timer(10,_->{repaint();});
         	        timer.start();
         		}
         });
@@ -203,14 +208,14 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 		frame.setContentPane(mainPanel);
 		new DropTarget(this,this);
     		note=new Note(0,0,0);
-        	Timer timer = new Timer(10,e2->{repaint();});
+        	Timer timer = new Timer(10,_->{repaint();});
         timer.start();
     }
     
     private void refrashLayerManager() {
-    		this.getLayoutManager().clearAllItems();
+    		this.getLayerManager().clearAllItems();
     		for(Surface s:this.allSurfaces) {
-    			this.getLayoutManager().addItem(s);
+    			this.getLayerManager().addItem(s);
     		}
     }
     
@@ -259,8 +264,8 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     public Note getNote() {
     		return this.note;
     }
-    public LayoutManager getLayoutManager() {
-    		return this.layoutManager;
+    public LayerManager getLayerManager() {
+    		return this.layerManager;
     }
     @Override
     /**
@@ -278,35 +283,44 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     private void drawSurface(Graphics g, Surface s) {
         Point[] points = s.getEdge();
         if (points.length < 2) return;
-
         int[] xPoints = new int[points.length];
         int[] yPoints = new int[points.length];
-
         for (int i = 0; i < points.length; i++) {
             xPoints[i] = (int)(points[i].getX() * scale + offsetX);
             yPoints[i] = (int)(points[i].getY() * scale + offsetY);
         }
-
         Color color = s.getColor();
         if (color != null) {
-            g.setColor(new java.awt.Color(
-                (float)color.getR(),
-                (float)color.getG(),
-                (float)color.getB()
-            ));
+        		if(!s.Draggable()) {
+        			g.setColor(new java.awt.Color(
+        					(float)color.getR(),
+        					(float)color.getG(),
+        					(float)color.getB()
+        					));
+        		}
+        		else {
+        			float alpha=0.5F;
+        			g.setColor(new java.awt.Color(
+        					(float)color.getR()*(1-alpha),
+        					(float)color.getG()*(1-alpha),
+        					(float)color.getB()*(1-alpha)+alpha
+        					));
+        		}
         } else {
             g.setColor(java.awt.Color.BLACK);
         }
-
         g.fillPolygon(xPoints, yPoints, points.length);
     }
-
     @Override
     public void mousePressed(MouseEvent e) {
     		draggingSurface=null;
     		draggingPoint=null;
+    		for(Surface s:this.allSurfaces)
+    			s.setDraggable(false);
     		prevMouseX=e.getX();
     		prevMouseY=e.getY();
+    		pressedLocationX=e.getX();
+    		pressedLocationY=e.getY();
     		this.requestFocusInWindow();
         int mx = e.getX();
         int my = e.getY();
@@ -325,16 +339,14 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         }
         for (int i=allSurfaces.size()-1;i>=0;i--) {
             if (isPointInSurface(mx, my, allSurfaces.get(i))) {
+            		this.allSurfaces.get(i).setDraggable(true);
                 draggingSurface = this.allSurfaces.get(i);
-                int index=i;
-                this.allSurfaces.add(this.allSurfaces.get(i));
-                this.allSurfaces.remove(index);
                 prevMouseX = mx;
                 prevMouseY = my;
                 break;
             }
         }
-		if(this.getLayoutManager()!=null) refrashLayerManager();
+		if(this.getLayerManager()!=null) refrashLayerManager();
     }
 
     @Override
@@ -361,8 +373,10 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 
     @Override
     public void mouseReleased(MouseEvent e) {
-    			note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
-    			if(this.getLayoutManager()!=null) refrashLayerManager();
+    			if(e.getX()!=pressedLocationX&&e.getY()!=pressedLocationY) 
+    				note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
+    			if(this.getLayerManager()!=null)
+    				refrashLayerManager();
     }
 
     private boolean isPointInSurface(int mx, int my, Surface s) {//AI
@@ -434,11 +448,11 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 			break;
 		case KeyEvent.VK_Z:
 			if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
-				note.redo(this);
+				note.undo(this);
 			break;
 		case KeyEvent.VK_Y:
 			if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
-				note.undo(this);
+				note.redo(this);
 			break;
 		case KeyEvent.VK_S:
 			if((e.getModifiersEx()&KeyEvent.CTRL_DOWN_MASK)!=0) {
@@ -456,7 +470,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 			}
 			break;
 		}
-		if(this.getLayoutManager()!=null) refrashLayerManager();
+		if(this.getLayerManager()!=null) refrashLayerManager();
    	}
    	@Override
    	public void mouseClicked(MouseEvent e) {// change color
@@ -477,7 +491,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
    	        default:
    	            break;
    	    }
-		if(this.getLayoutManager()!=null) refrashLayerManager();
+		if(this.getLayerManager()!=null) refrashLayerManager();
    	}
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
@@ -521,7 +535,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 				}
 			}
 			dtde.dropComplete(true);
-			if(this.getLayoutManager()!=null) refrashLayerManager();
+			if(this.getLayerManager()!=null) refrashLayerManager();
 		    repaint();// it is for browse mode
 			JOptionPane.showMessageDialog(this,"the file "+path+" is opened!","Open the file Successful", JOptionPane.INFORMATION_MESSAGE);
 		}
@@ -554,11 +568,11 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
    			this.add(new JLabel("B:"));
    			this.add(B);
    			
-   			R.addActionListener(e -> enter.doClick());
-   			G.addActionListener(e -> enter.doClick());
-   			B.addActionListener(e -> enter.doClick());
+   			R.addActionListener(_ -> enter.doClick());
+   			G.addActionListener(_ -> enter.doClick());
+   			B.addActionListener(_ -> enter.doClick());
    			
-   			enter.addActionListener(e-> {
+   			enter.addActionListener(_-> {
    				try {
    					double Rtext=Double.parseDouble(R.getText());
    					double Gtext=Double.parseDouble(G.getText());
@@ -567,10 +581,10 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
    						throw new IllegalArgumentException();
    					s.setColor(Rtext,Gtext,Btext);
    	    				note.saveInfo(this.scene.allSurfaces,this.scene.scale,this.scene.offsetX,this.scene.offsetY);
-   	    				if(Scene.this.getLayoutManager()!=null) refrashLayerManager();
+   	    				if(Scene.this.getLayerManager()!=null) refrashLayerManager();
    	    				this.dispose();
    				}
-   				catch(IllegalArgumentException e2) {
+   				catch(IllegalArgumentException _) {
    					JOptionPane.showMessageDialog(this,"Please enter current number(0~1)","Enter error",JOptionPane.ERROR_MESSAGE);
    				}
 

@@ -8,7 +8,7 @@ __1.0__
 __2025-10-13__
 
 ### latest version: 
-__1.6__
+__1.7__
 ## version Description
 	1.0:
     	release date: 2025-10-13
@@ -28,7 +28,7 @@ __1.6__
 	1.3:
 	    release date: 2025-10-16
 	description:
-		rewrite the readme file, fix the bug(delete error when scene is empty), added redo feature, but it has a bug: sometimes it will redo to wrong path, add the ctrl key event(with zoom in/out,redo, copy, ToolList move the saveInfo function to tool's constructure, toolList changed to protected
+		rewrite the readme file, fix the bug(delete error when scene is empty), added undo feature, but it has a bug: sometimes it will undo to wrong path, add the ctrl key event(with zoom in/out,undo, copy, ToolList move the saveInfo function to tool's constructure, toolList changed to protected
 
 	1.4:
 		release date: 2025-10-17
@@ -43,7 +43,7 @@ __1.6__
 	1.5-alpha:
 		release date: 2025-10-19
 	description:
-		added the undo feature(ctrl+Y), fix the loading bug in version 1.4.1, redo the zoom in/out function and dragging function, make the offset and scale caculate only at first, make system delay 100ms at first(because I want to load the logo)
+		added the redo feature(ctrl+Y), fix the loading bug in version 1.4.1, undo the zoom in/out function and dragging function, make the offset and scale caculate only at first, make system delay 100ms at first(because I want to load the logo)
 	
 	1.5:
 		release date: 2025-10-19
@@ -53,15 +53,20 @@ __1.6__
 	1.6:
 		release date: 2025-10-20
 	description:
-		finally added the layout manager!!! added the folder selecter for saving data
+		finally added the layer manager!!! added the folder selecter for saving data
+	
+	1.7:
+		release date: 2025-10-20
+	description:
+		let UI/UX great again!! we mark the choosing surface and add the picture on the shape generating tool and also rename undo,redo and layer to right English name, and choosing surface will not change the layer anymore, layer job will always work in layer manager
 		
 ## feature description
 	-KeyEvent ctrl+C: copy the choosing surface
 	-KeyEvent up/right: make the choosing surface bigger(if there have surface have been choosed)
 	-KeyEvent down/left: make the choosing surface smaller(if there have surface have been choosed)
 	-keyEvent delete: delete the choosing surface(if there have surface have been choosed) or delete the highest layer surface
-	-KeyEvent ctrl+Z: redo the step
-	-KeyEvent ctrl+Y: undo the step
+	-KeyEvent ctrl+Z: undo the step
+	-KeyEvent ctrl+Y: redo the step
 	-KeyEvent ctrl+S: save the file
 	-ctrl+MouseWheelEvent: zoom in/out
 	-MouseEvent left: when pressed, choosing surface will became null if the mouse didn't in any surface,otherwise choosing surface will became the highest layer surface, when dragged, it will check if the choosing point were exist,if it were exist than the point will follow the mouse; otherwise it will check if the choosing surface were exist, if it were exist than the surface will follow the mouse;if nothing were been choosed, we will translation All Object(it look like canvas translation but we actually move all surfaces)
@@ -69,20 +74,21 @@ __1.6__
 	-Color changing: the textfield used to enter RGB, it is only allowed to enter the number which between 0 and 1, if the format is wrong, it will show the dialog to announce the error, you must enter the number again
 	-dragging file: let the saving data add in your painter
 	-Core: this app GUI is base on java swing
-	-left side: the layout managing
+	-left side: the layer managing
 
 ## Possibly bug
 	-no current bug
 	
 ## lacking feature
 	-drag the object with X/Y axis(point p move if [mouseX-surface.getcertain.getX>mouseY-surface.getcertain.getY] than move(mouseX,p.Y),else move(p.X,mouse.Y))
-
+	-better color choosing UX
+	
 ## Requirements
 	-Java 8(1.8) or higher
 	-Windows 10+
 
 ## download
-	-https://github.com/zxlprogram/MYprogram.git/painter
+	-https://github.com/zxlprogram/MYprogram/tree/master/Painter
     
 ## execution
 	-cd MYprogram/Painter/bin
@@ -121,7 +127,12 @@ __1.6__
 		resource:
 			-painter_logo.ico
 			-painter_logo.png
-			-triangle.png*
+			-triangle.png
+			-circle.png
+			-quad.png
 			-file.txt
 		-readme
+		-painter_browser.jar
+		-painter.jar
+		
 	__the sign * means not be used__
