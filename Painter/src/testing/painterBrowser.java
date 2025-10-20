@@ -1,9 +1,8 @@
 package testing;
 import javafile.Scene;
-public class Browser {
+public class painterBrowser {
 public static void main(String[]args) {
-	String path=args[0];
 	Scene scene=new Scene();
-	scene.browserMode(path);
+	scene.browserMode(args.length==0?null:args[0]);
 }
 }

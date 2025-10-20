@@ -208,9 +208,11 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 		frame.setContentPane(mainPanel);
 		new DropTarget(this,this);
     		note=new Note(0,0,0);
-    		this.saveLoader.loadFile(path);
+    		if(path!=null)
+    			this.saveLoader.loadFile(path);
     		repaint();
     }
+    
     
     private void refrashLayerManager() {
     		this.getLayerManager().clearAllItems();

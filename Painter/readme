@@ -104,6 +104,8 @@ __1.7.1__
 		1.open cmd, path to the folder which have painterBrowser.jar
 		2. .\painterBrowser.jar <your_painter_file_name.txt>
 			exp: ".\painterBrowser.jar C:\Users\user\desktop\file.txt"
+			
+		or double click the jar file to open it, drag the file to the browser to check the file in browser
 	
 ## Custom file protocol
 	-at first line we have three number for scale, offsetX, offsetY, and below next line, it record for all of the surface, for each surface, we have N points and a color, every points have two doubles and color have three, each point's format:"X Y ",and than, " C " were followed, at last, Color format:"R G B" will followed behind
@@ -114,25 +116,25 @@ __1.7.1__
 			javafile:
 				-Color.class
 				-ExportManager.class
-				-LayoutManager.class
+				-LayerManager.class
 				-Point.class
 				-Scene.class
 				-Surface.class
 				-ToolList.class
 			testing:
-				-Browser.class
+				-painterBrowser.class
 				-Main.class		
 		src:
 			javafile:
 				-Color.java
 				-ExportManager.java
-				-LayoutManager.java
+				-LayerManager.java
 				-Point.java
 				-Scene.java
 				-Surface.java
 				-ToolList.java
 			testing:
-				-Browser.java
+				-painterBrowser.java
 				-Main.java
 		resource:
 			-painter_logo.ico
@@ -141,8 +143,13 @@ __1.7.1__
 			-circle.png
 			-quad.png
 			-file.txt
+		Assets:
+			jar files:
+				painter.jar
+				painterBrowser.jar
+			Windows:
+				painter.exe
+				painterBrowser.exe
 		-readme
-		-painterBrowser.jar
-		-painter.jar
 		
 	__the sign * means not be used__
