@@ -82,11 +82,12 @@ __1.7.1__
 	-left side: the layer managing
 
 ## Possibly bug
-	-no current bug
+	-some java.awt exception happend in linux operating system
 	
 ## lacking feature
 	-drag the object with X/Y axis(point p move if [mouseX-surface.getcertain.getX>mouseY-surface.getcertain.getY] than move(mouseX,p.Y),else move(p.X,mouse.Y))
 	-better color choosing UX
+	-linux version
 	
 ## Requirements
 	-Java 8(1.8) or higher
@@ -144,12 +145,11 @@ __1.7.1__
 			-quad.png
 			-file.txt
 		Assets:
-			jar files:
-				painter.jar
-				painterBrowser.jar
-			Windows:
-				painter.exe
-				painterBrowser.exe
+			v1.7.1:
+				jar files:
+					painter.jar
+					painterBrowser.jar
+				Windows:
+					painter.exe
+					painterBrowser.exe
 		-readme
-		
-	__the sign * means not be used__
