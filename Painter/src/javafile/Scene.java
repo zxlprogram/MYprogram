@@ -116,7 +116,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     
 	private static final long serialVersionUID = 1L;
     static final String appName = "Painter";
-    static final String version = "1.6";
+    static final String version = "1.7.1";
     /**
      * @param
      * allSurfaces is the container of Surface, it is a List
@@ -194,7 +194,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         });
     }
     
-    public void browserMode() {
+    public void browserMode(String path) {
 		try {
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}	
@@ -208,8 +208,8 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 		frame.setContentPane(mainPanel);
 		new DropTarget(this,this);
     		note=new Note(0,0,0);
-        	Timer timer = new Timer(10,_->{repaint();});
-        timer.start();
+    		this.saveLoader.loadFile(path);
+    		repaint();
     }
     
     private void refrashLayerManager() {

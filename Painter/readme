@@ -8,7 +8,7 @@ __1.0__
 __2025-10-13__
 
 ### latest version: 
-__1.7__
+__1.7.1__
 ## version Description
 	1.0:
     	release date: 2025-10-13
@@ -59,7 +59,12 @@ __1.7__
 		release date: 2025-10-20
 	description:
 		let UI/UX great again!! we mark the choosing surface and add the picture on the shape generating tool and also rename undo,redo and layer to right English name, and choosing surface will not change the layer anymore, layer job will always work in layer manager
-		
+	
+	1.7.1:
+		release date: 2025-10-21
+	description:
+		make the browser used by cmd
+			
 ## feature description
 	-KeyEvent ctrl+C: copy the choosing surface
 	-KeyEvent up/right: make the choosing surface bigger(if there have surface have been choosed)
@@ -91,9 +96,14 @@ __1.7__
 	-https://github.com/zxlprogram/MYprogram/tree/master/Painter
     
 ## execution
-	-cd MYprogram/Painter/bin
-	-java testing.Main
-	-java testing.Browser
+	main app:
+		-cd MYprogram/Painter/bin
+		-java testing.Main
+	
+	browser:
+		1.open cmd, path to the folder which have painterBrowser.jar
+		2. .\painterBrowser.jar <your_painter_file_name.txt>
+			exp: ".\painterBrowser.jar C:\Users\user\desktop\file.txt"
 	
 ## Custom file protocol
 	-at first line we have three number for scale, offsetX, offsetY, and below next line, it record for all of the surface, for each surface, we have N points and a color, every points have two doubles and color have three, each point's format:"X Y ",and than, " C " were followed, at last, Color format:"R G B" will followed behind
@@ -132,7 +142,7 @@ __1.7__
 			-quad.png
 			-file.txt
 		-readme
-		-painter_browser.jar
+		-painterBrowser.jar
 		-painter.jar
 		
 	__the sign * means not be used__

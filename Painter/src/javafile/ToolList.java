@@ -1,6 +1,7 @@
 package javafile;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Image;
 import java.net.URL;
@@ -47,7 +48,7 @@ class ToolList extends JPanel {
 			scene.addSurface(t);
 			scene.getLayerManager().addItem(t);
 		},scene));
-		JTextField enterMoreEdge=new JTextField(2);
+		JTextField enterMoreEdge=new JTextField(5);
 		toolList.add(new Tool(ToolList.class.getResource("/circle.png"),()->{
 			Surface t=new Surface();
 			for(double a=-1;a<=1;a+=0.01)		
@@ -58,7 +59,7 @@ class ToolList extends JPanel {
 			scene.addSurface(t);
 			scene.getLayerManager().addItem(t);
 		},scene));
-		toolList.add(new Tool("more edge:",()-> {
+		Tool moreEdge=new Tool("more edge:",()-> {
 			Surface t=new Surface();
 			int edge;
 			try {
@@ -72,7 +73,10 @@ class ToolList extends JPanel {
 			t.setColor(1,0,0);
 			scene.addSurface(t);
 			scene.getLayerManager().addItem(t);
-		},scene));
+		},scene);
+		moreEdge.setPreferredSize(new Dimension(83,41));
+		enterMoreEdge.setPreferredSize(new Dimension(0,31));
+		toolList.add(moreEdge);
 		toolList.add(enterMoreEdge);
 
 		for(Component t:toolList)
