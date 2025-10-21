@@ -119,7 +119,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     
 	private static final long serialVersionUID = 1L;
     static final String appName = "Painter";
-    static final String version = "1.7.1";
+    static final String version = "1.8";
     /**
      * @param
      * allSurfaces is the container of Surface, it is a List

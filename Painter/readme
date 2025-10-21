@@ -72,7 +72,7 @@ __1.8__
 		make the browser used by cmd, made the linux version
 
 	1.8:
-		release date:
+		release date: 2025-20-22
 	description:
 		added the color selecter board, press shift to drag the object strightly, press ctrl to choosed multy surface or point, it will mark the point when the point is draggable, the draggingSurface and draggingPoint turns list instead of single object, you will never choosed the point under another object anymore
 		
@@ -195,4 +195,21 @@ __1.8__
 					-painter.exe
 					-painterBrowser.exe
 				Ubuntu:
+					-painter:
+						bin:
+							-painter
+						lib:
+							app:
+							runtime:
+							libapplauncher.so
+							painter.png
+					-painterBrowser:
+						bin:
+							painterBrowser
+						lib:
+							app:
+							runtime:
+							libapplauncher.so
+							painter.png
+				
 		-readme
