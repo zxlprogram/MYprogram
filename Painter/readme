@@ -61,9 +61,9 @@ __1.7.1__
 		let UI/UX great again!! we mark the choosing surface and added the picture on the shape generating tool and also rename undo,redo and layer to right English name, and choosing surface will not change the layer anymore, layer job will always work in layer manager
 	
 	1.7.1:
-		release date: 
+		release date: 2025-10-21
 	description:
-		make the browser used by cmd, making the linux version
+		make the browser used by cmd, made the linux version
 			
 ## feature description
 	-KeyEvent ctrl+C: copy the choosing surface
@@ -83,8 +83,7 @@ __1.7.1__
 
 ## Possibly bug
 	[linux]
-	the scene won't show the items which in List<Surface>allSurfaces
-	
+	no current bug
 
 	[windows]
 	no current bug
@@ -97,7 +96,7 @@ __1.7.1__
 	
 ## Requirements
 	-Java 25
-	-Windows 10+
+	-Windows 10+ or ubuntu
 
 ## download
 	-https://github.com/zxlprogram/MYprogram/tree/master/Painter
@@ -153,16 +152,10 @@ __1.7.1__
 		Assets:
 			v1.7.1:
 				jar files:
-					1.7.1 testing version:
-						inital testing:
-							-testing report.txt
-							-painter.jar
-							-painterBrowser.jar
-						sec. testing:													-testing report.txt
-							-painter.jar
-							-painterBrowser.jar
+					-painter.jar
+					-painterBrowser.jar
 							
 				Windows:
-					painter.exe
-					painterBrowser.exe
+					-painter.exe
+					-painterBrowser.exe
 		-readme

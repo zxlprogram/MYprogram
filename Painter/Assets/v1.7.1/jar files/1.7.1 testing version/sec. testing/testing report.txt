@@ -1,4 +1,0 @@
-change:
-	call the constructure at first, and move the initalize in windows opened listener
-report:
-	timer repaint doesn't work

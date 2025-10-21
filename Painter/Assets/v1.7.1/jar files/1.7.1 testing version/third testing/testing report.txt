@@ -1,2 +1,0 @@
-changing:
-	add swing.invokelater, change _->{} to e->{}
