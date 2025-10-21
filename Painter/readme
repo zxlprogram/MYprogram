@@ -158,4 +158,21 @@ __1.7.1__
 				Windows:
 					-painter.exe
 					-painterBrowser.exe
+				Ubuntu:
+					-painter:
+						bin:
+							-painter
+						lib:
+							app:
+							runtime:
+							libapplauncher.so
+							painter.png
+					-painterBrowser:
+						bin:
+							painterBrowser
+						lib:
+							app:
+							runtime:
+							libapplauncher.so
+							painter.png
 		-readme
