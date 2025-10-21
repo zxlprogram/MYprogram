@@ -23,7 +23,9 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 import javax.swing.*;
@@ -127,8 +129,8 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
      * @param
      * draggingSurface used to save the surface which we are choosing, when mouse pressed, it will set to null if mouse is not in any surface, and it will not forget after mouse released, so does draggingPoint
      */
-    private Surface draggingSurface = null;
-    private Point draggingPoint = null;
+    private List<Surface>draggingSurface = new ArrayList<>();
+    private List<Point> draggingPoint = new ArrayList<>();
     /**
      * 
      * this part I let chatgpt did
@@ -234,16 +236,16 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     public List<Surface>getAllSurface() {
     		return this.allSurfaces;
     }
-	public Point getDraggingPoint() {
+	public List<Point> getDraggingPoint() {
 		return this.draggingPoint;
 	}
-	public void setDraggingPoint(Point p) {
+	public void setDraggingPoint(List<Point> p) {
 		this.draggingPoint=p;
 	}
-	public Surface getDraggingSurface() {
+	public List<Surface> getDraggingSurface() {
 		return this.draggingSurface;
 	}
-	public void setDraggingSurface(Surface s) {
+	public void setDraggingSurface(List<Surface> s) {
 		this.draggingSurface=s;
 	}
     public void setScale(double d) {
@@ -278,7 +280,16 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         super.paintComponent(g);
         for (Surface s : allSurfaces) {
             drawSurface(g, s);
+            for(Point p:s.getEdge()) {
+            		drawPoint(g,p);
+            }
         }
+    }
+    private void drawPoint(Graphics g,Point p) {
+    		if(p.draggable()) {
+    			g.setColor(java.awt.Color.BLACK);
+    			g.fillOval((int)(p.getX()*scale+offsetX)-5,(int)(p.getY()*scale+offsetY)-5,10,10);
+    		}
     }
     /**
      * this part I let chatgpt did
@@ -316,10 +327,17 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     }
     @Override
     public void mousePressed(MouseEvent e) {
-    		draggingSurface=null;
-    		draggingPoint=null;
-    		for(Surface s:this.allSurfaces)
-    			s.setDraggable(false);
+
+		if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) == 0) {
+    			draggingSurface.clear();
+    			draggingPoint.clear(); 
+    			for(Surface s:this.allSurfaces) {
+        			s.setDraggable(false);
+        			for(Point p:s.getEdge())
+        				p.setDraggable(false);
+    			}
+		}
+		
     		prevMouseX=e.getX();
     		prevMouseY=e.getY();
     		pressedLocationX=e.getX();
@@ -327,44 +345,78 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     		this.requestFocusInWindow();
         int mx = e.getX();
         int my = e.getY();
-        for (Surface s : allSurfaces) {
-            for (Point p : s.getEdge()) {
+        Point point = null;
+        if(draggingSurface.isEmpty()) {
+        find:for (int i=allSurfaces.size()-1;i>=0;i--) {
+            for (Point p : allSurfaces.get(i).getEdge()) {
             	int px = (int)(p.getX() * scale + offsetX);
             int py = (int)(p.getY() * scale + offsetY);
                 double dist = Math.hypot(mx - px, my - py);
                 if (dist <= POINT_RADIUS) {
-                    draggingPoint = p;
+                		p.setDraggable(true);
+                    draggingPoint.add(p);
+                    point=p;
                     prevMouseX = mx;
                     prevMouseY = my;
-                    return;
+                    break find;
                 }
             }
         }
+        }
         for (int i=allSurfaces.size()-1;i>=0;i--) {
-            if (isPointInSurface(mx, my, allSurfaces.get(i))) {
+            if (isPointInSurface(mx, my, allSurfaces.get(i))&&(point==null||this.allSurfaces.indexOf(point.getSurface())<i)) {
             		this.allSurfaces.get(i).setDraggable(true);
-                draggingSurface = this.allSurfaces.get(i);
+                draggingSurface.add(this.allSurfaces.get(i));
                 prevMouseX = mx;
                 prevMouseY = my;
                 break;
             }
         }
+        if(!draggingSurface.isEmpty()) {
+        draggingPoint.clear();
+		for(Surface s:this.allSurfaces) {
+			for(Point p:s.getEdge())
+				p.setDraggable(false);
+		}
+        }
 		if(this.getLayerManager()!=null) refrashLayerManager();
     }
 
     @Override
-    public void mouseDragged(MouseEvent e) {//AI
+    public void mouseDragged(MouseEvent e) {
         int mx = e.getX();
         int my = e.getY();
-        double dx = (mx - prevMouseX) / scale;
-        double dy = (my - prevMouseY) / scale;
+        double dx = (mx - prevMouseX) /scale;
+        double dy = (my - prevMouseY) /scale;
 
-        if (draggingPoint != null) {
-            draggingPoint.setX(draggingPoint.getX() + dx);
-            draggingPoint.setY(draggingPoint.getY() + dy);
-        } else if (draggingSurface != null) {
-            draggingSurface.moveX(dx);
-            draggingSurface.moveY(dy);
+        if (!draggingPoint.isEmpty()) {
+        	
+        	for(Point p:draggingPoint) {
+        		if((e.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) != 0) {
+        			if(Math.abs(e.getX()-prevMouseX)>Math.abs(e.getY()-prevMouseY)*3)
+        				p.setX(p.getX() + dx);
+        			else if(Math.abs(e.getX()-prevMouseX)*3<Math.abs(e.getY()-prevMouseY))
+        				p.setY(p.getY() + dy);
+        		}
+        		else {
+        			p.setX(p.getX() + dx);
+        			p.setY(p.getY() + dy);
+        		}
+        	}
+        } else if (!draggingSurface.isEmpty()) {
+        	
+        	for(Surface surface:draggingSurface) {
+			if((e.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) != 0) {
+    				if(Math.abs(e.getX()-prevMouseX)>Math.abs(e.getY()-prevMouseY)*3)
+    					surface.moveX(dx);
+    				else if(Math.abs(e.getX()-prevMouseX)*3<Math.abs(e.getY()-prevMouseY))
+    					surface.moveY(dy);
+			}
+			else {
+				surface.moveX(dx);
+        			surface.moveY(dy);
+			}
+        	}
         }
         else {
         		offsetX+=dx*50;
@@ -399,29 +451,34 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
    		switch(e.getKeyCode()) {
    		case KeyEvent.VK_C:
    		    if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
-   			if(draggingSurface!=null) {
+   			if(!draggingSurface.isEmpty()) {
+   			for(Surface surface:draggingSurface) {
    				Surface s=new Surface();
-   				for(Point p:draggingSurface.getEdge()) {
+   				for(Point p:surface.getEdge()) {
    					s.addPoint(p.getX(),p.getY());
    				}
-   				s.setColor(draggingSurface.getColor().getR(),draggingSurface.getColor().getG(),draggingSurface.getColor().getB());
+   				s.setColor(surface.getColor().getR(),surface.getColor().getG(),surface.getColor().getB());
    				s.moveX(0.25);
    				s.moveY(0.25);
    				this.addSurface(s);
-   				draggingSurface=s;
    				note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
+   			}
    			}
    			break;
 		case KeyEvent.VK_DELETE:
-			if(draggingSurface!=null||draggingPoint!=null) {
-				if(draggingPoint==null) {
-					this.removeSurface(draggingSurface);
-					this.draggingSurface=null;
+			if(!draggingSurface.isEmpty()||!draggingPoint.isEmpty()) {
+				if(draggingSurface.isEmpty()) {
+					for(Point p:draggingPoint) {
+						p.getSurface().removePoint(p,this);
+					}
 				}
 				else {
-					draggingPoint.getSurface().removePoint(draggingPoint,this);
-					this.draggingPoint=null;
+					for(Surface s:draggingSurface) {
+						this.removeSurface(s);
+					}
+					this.draggingSurface.clear();
 				}
+				this.draggingPoint.clear();
 			}
 			else if(allSurfaces.size()>0)
 				allSurfaces.removeLast();
@@ -429,23 +486,27 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 			break;
 		case KeyEvent.VK_RIGHT:
 		case KeyEvent.VK_UP:
-			if(draggingSurface!=null) {
-				Point cert=draggingSurface.getCertain();
-				for(Point p:draggingSurface.getEdge()) {
-					p.setX(p.getX()+(p.getX()-cert.getX())*0.1);
-					p.setY(p.getY()+(p.getY()-cert.getY())*0.1);
+			if(!this.draggingSurface.isEmpty()) {
+				for(Surface surface:draggingSurface) {
+					Point cert=surface.getCertain();
+					for(Point p:surface.getEdge()) {
+						p.setX(p.getX()+(p.getX()-cert.getX())*0.1);
+						p.setY(p.getY()+(p.getY()-cert.getY())*0.1);
+					}
 				}
 			}
 			note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
 			break;
 		case KeyEvent.VK_LEFT:
 		case KeyEvent.VK_DOWN:
-			if(draggingSurface!=null) {
-				Point cert=draggingSurface.getCertain();
-				for(Point p:draggingSurface.getEdge()) {
+			if(!this.draggingSurface.isEmpty()) {
+			for(Surface surface:draggingSurface) {
+				Point cert=surface.getCertain();
+				for(Point p:surface.getEdge()) {
 					p.setX(p.getX()-(p.getX()-cert.getX())*0.1);
 					p.setY(p.getY()-(p.getY()-cert.getY())*0.1);
 				}
+			}
 			}
 			note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
 			break;
@@ -479,16 +540,17 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
    	public void mouseClicked(MouseEvent e) {// change color
    	    	switch (e.getButton()) {
    	        case MouseEvent.BUTTON3:
+   	        		draggingSurface.clear();
    	            for (int i=this.allSurfaces.size()-1;i>=0;i--) {
    	                if (isPointInSurface(e.getX(), e.getY(),this.allSurfaces.get(i))) {
    	                    prevMouseX = e.getX();
    	                    prevMouseY = e.getY();
-   	                    draggingSurface = this.allSurfaces.get(i);
+   	                    draggingSurface.add(this.allSurfaces.get(i));
    	                    break;
    	                }
    	            }
-   	            if (draggingSurface != null && draggingSurface.getColor() != null) {
-   	            		SwingUtilities.invokeLater(() -> new ChoiceColor(draggingSurface,this));
+   	            if (draggingSurface.getFirst().getColor() != null) {
+   	            		SwingUtilities.invokeLater(() -> new ChoiceColor(draggingSurface.getFirst(),this));
    	            }
    	            break;
    	        default:
@@ -519,7 +581,6 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 		}
 		note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
 	}
-	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void drop(DropTargetDropEvent dtde) {
@@ -549,51 +610,22 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 	}
 	
    	/**
-   	 * when you click mouse_keyRight on surface,it will show you three text field,you can enter the number(0~1) to change the surface's color
-   	 * if your entered is invalid, it will show a dialog told you you have a wrong operate
+   	 * click mouse_keyRight on surface to call it
    	 * 
   	 */
-   	protected class ChoiceColor extends JFrame {
+   	protected class ChoiceColor extends JPanel {
    		private static final long serialVersionUID = 1L;
-   		private JTextField R=new JTextField(5),G=new JTextField(5),B=new JTextField(5);
-   		private JButton enter=new JButton("Enter");
    		private Scene scene;
    		public ChoiceColor(Surface s,Scene scene) {
    			this.scene=scene;
-   			this.setSize(300,100);
-   			this.setTitle("choice color");
-   			this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-   			this.setLayout(new FlowLayout());
-   			this.add(new JLabel("R:"));
-   			this.add(R);
-   			this.add(new JLabel("G:"));
-   			this.add(G);
-   			this.add(new JLabel("B:"));
-   			this.add(B);
-   			
-   			R.addActionListener(e -> enter.doClick());
-   			G.addActionListener(e -> enter.doClick());
-   			B.addActionListener(e -> enter.doClick());
-   			
-   			enter.addActionListener(e-> {
-   				try {
-   					double Rtext=Double.parseDouble(R.getText());
-   					double Gtext=Double.parseDouble(G.getText());
-   					double Btext=Double.parseDouble(B.getText());
-   					if(Rtext<0||Rtext>1||Gtext<0||Gtext>1||Btext<0||Btext>1)
-   						throw new IllegalArgumentException();
-   					s.setColor(Rtext,Gtext,Btext);
-   	    				note.saveInfo(this.scene.allSurfaces,this.scene.scale,this.scene.offsetX,this.scene.offsetY);
-   	    				if(Scene.this.getLayerManager()!=null) refrashLayerManager();
-   	    				this.dispose();
-   				}
-   				catch(IllegalArgumentException e2) {
-   					JOptionPane.showMessageDialog(this,"Please enter current number(0~1)","Enter error",JOptionPane.ERROR_MESSAGE);
-   				}
+   			java.awt.Color color=JColorChooser.showDialog(this,"color choosing board", getBackground());
+   			try {
+   				s.setColor(color.getRed()/255.0,color.getGreen()/255.0,color.getBlue()/255.0);
+   	    			note.saveInfo(this.scene.allSurfaces,this.scene.scale,this.scene.offsetX,this.scene.offsetY);
+   	    			if(Scene.this.getLayerManager()!=null) refrashLayerManager();
+   			}
+   			catch(NullPointerException e) {}
 
-   			});
-   			this.add(enter);
-   			this.setVisible(true);
    		}
    	}
    	@Override public void mouseExited(MouseEvent e) {}

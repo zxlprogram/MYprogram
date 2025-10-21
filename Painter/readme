@@ -8,7 +8,13 @@ __1.0__
 __2025-10-13__
 
 ### latest version: 
-__1.7.1__
+__1.8__
+
+## enviornment
+	Windows 11: jdk-25
+	Ubuntu: jdk-25
+	macOS don't have any testing record because of the macOS EULA, we can't use the macOS in virtual box
+
 ## version Description
 	1.0:
     	release date: 2025-10-13
@@ -64,6 +70,12 @@ __1.7.1__
 		release date: 2025-10-21
 	description:
 		make the browser used by cmd, made the linux version
+
+	1.8:
+		release date:
+	description:
+		added the color selecter board, press shift to drag the object strightly, press ctrl to choosed multy surface or point, it will mark the point when the point is draggable, the draggingSurface and draggingPoint turns list instead of single object, you will never choosed the point under another object anymore
+		
 			
 ## feature description
 	-KeyEvent ctrl+C: copy the choosing surface
@@ -74,6 +86,7 @@ __1.7.1__
 	-KeyEvent ctrl+Y: redo the step
 	-KeyEvent ctrl+S: save the file
 	-ctrl+MouseWheelEvent: zoom in/out
+	-ctrl+MouseClickedEvent: choosed multy surface or point
 	-MouseEvent left: when pressed, choosing surface will became null if the mouse didn't in any surface,otherwise choosing surface will became the highest layer surface, when dragged, it will check if the choosing point were exist,if it were exist than the point will follow the mouse; otherwise it will check if the choosing surface were exist, if it were exist than the surface will follow the mouse;if nothing were been choosed, we will translation All Object(it look like canvas translation but we actually move all surfaces)
 	-MouseEvent right: change the color for choosing surface
 	-Color changing: the textfield used to enter RGB, it is only allowed to enter the number which between 0 and 1, if the format is wrong, it will show the dialog to announce the error, you must enter the number again
@@ -89,13 +102,12 @@ __1.7.1__
 	no current bug
 
 ## lacking feature
-	-drag the object with X/Y axis(point p move if [mouseX-surface.getcertain.getX>mouseY-surface.getcertain.getY] than move(mouseX,p.Y),else move(p.X,mouse.Y))
-	-better color choosing UX
-	-linux version
+	-grouping(make a new class extends surface to record the sub obj)
+	-new class: line, and class bezier&stright extends line
 	-trying work the program in Java 8 and lower java runtime enviornment
 	
 ## Requirements
-	-Java 25
+	-Java devolopment kit(JDK) 25
 	-Windows 10+ or ubuntu
 
 ## download
@@ -154,7 +166,6 @@ __1.7.1__
 				jar files:
 					-painter.jar
 					-painterBrowser.jar
-							
 				Windows:
 					-painter.exe
 					-painterBrowser.exe
@@ -175,4 +186,13 @@ __1.7.1__
 							runtime:
 							libapplauncher.so
 							painter.png
+			
+			v1.8:
+				jar files:
+					-painter.jar
+					-painterBrowser.jar
+				Windows:
+					-painter.exe
+					-painterBrowser.exe
+				Ubuntu:
 		-readme
