@@ -83,35 +83,7 @@ __1.7.1__
 
 ## Possibly bug
 	[linux]
-	when loading logo & adding the surface:
-	Exception in thread "AWT-EventQueue-0" java.lang.NullPointerException: Cannot invoke "javafile.Scene$Note.saveInfo(java. util.List, double, double, double)" because the return value of "javafile.Scene.getNote()" is null
-	at javafile.ToolList$Tool.lambda$0(ToolList.java:108)
-	at java.desktop/javax.swing.AbstractButton.fireActionPerformed (AbstractButton.java:1972)
-	at java.desktop/javax.swing.AbstractButton$Handler.actionPerformed (AbstractButton.java:2314)
-	at java.desktop/javax.swing.DefaultButtonModel.fireActionPerformed (DefaultButtonModel.java:407)	
-	at java.desktop/javax.swing.DefaultButtonModel.setPressed (DefaultButtonModel.java:262)
-	at java.desktop/javax.swing.plaf.basic.BasicButtonListener.mouseReleased (BasicButtonListener.java:279)
-	at java.desktop/java.awt.Component.process MouseEvent(Component.java:6576)
-	at java.desktop/javax.swing.JComponent.processMouseEvent(JComponent.java:3404)
-	at java.desktop/java.awt.Component.process Event (Component.java:6341)
-	at java.desktop/java.awt.Container.processEvent(Container.java:2260)	
-	at java.desktop/java.awt.Component.dispatchEventImpl(Component.java:4958)
-	at java.desktop/java.awt.Container.dispatchEventImpl(Container.java:2318)
-	at java.desktop/java.awt.Component.dispatchEvent(Component.java:4790)
-	at java.desktop/java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4917)
-	at java.desktop/java.awt.LightweightDispatcher.processMouseEvent(Container.java:4560)
-	at java.desktop/java.awt.LightweightDispatcher.dispatchEvent(Container.java:4501)
-	at java.desktop/java.awt.Container.dispatchEventImpl(Container.java:2304)	
-	at java.desktop/java.awt.Window.dispatchEventImpl(Window.java:2671)
-	at java.desktop/java.awt.Component.dispatchEvent(Component.java:4790)
-	at java.desktop/java.awt.EventQueue.dispatchEventImpl (EventQueue.java:725)
-	at java.desktop/java.awt.EventQueue.dispatchEvent(EventQueue.java:702)
-	at java.desktop/java.awt.EventDispatch Thread.pumpOneEventForFilters (EventDispatch Thread.java:203)
-	at java.desktop/java.awt.EventDispatch Thread.pumpEvents ForFilter (EventDispatch Thread.java:124)
-	at java.desktop/java.awt.EventDispatch Thread.pumpEvents ForHierarchy (EventDispatch Thread.java:113)
-	at java.desktop/java.awt.EventDispatch Thread.pumpEvents (EventDispatch Thread.java:109)
-	at java.desktop/java.awt.EventDispatchThread.pumpEvents (EventDispatchThread.java:101)
-	at java.desktop/java.awt.EventDispatch Thread.run(EventDispatch Thread.java:90)
+	the scene won't show the items which in List<Surface>allSurfaces
 	
 
 	[windows]

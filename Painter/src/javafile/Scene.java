@@ -189,16 +189,16 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         		    URL logo=Scene.class.getResource("/file.txt");
         		    saveLoader.loadFile(logo);
         			if(Scene.this.getLayerManager()!=null) refrashLayerManager();
-        	        	Timer timer = new Timer(10,_->{repaint();});
-        	        timer.start();
+        	        new javax.swing.Timer(10,e2->{repaint();}).start();
         		}
         });
     }
     
     public void browserMode(String path) {
+	
 		try {
-		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}	
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}
 		JFrame frame = new JFrame("Browser"+"(ver: "+version+")");
         frame.setIconImage(new ImageIcon(Scene.class.getResource("/painter_logo.png")).getImage());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -571,11 +571,11 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
    			this.add(new JLabel("B:"));
    			this.add(B);
    			
-   			R.addActionListener(_ -> enter.doClick());
-   			G.addActionListener(_ -> enter.doClick());
-   			B.addActionListener(_ -> enter.doClick());
+   			R.addActionListener(e -> enter.doClick());
+   			G.addActionListener(e -> enter.doClick());
+   			B.addActionListener(e -> enter.doClick());
    			
-   			enter.addActionListener(_-> {
+   			enter.addActionListener(e-> {
    				try {
    					double Rtext=Double.parseDouble(R.getText());
    					double Gtext=Double.parseDouble(G.getText());
@@ -587,7 +587,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
    	    				if(Scene.this.getLayerManager()!=null) refrashLayerManager();
    	    				this.dispose();
    				}
-   				catch(IllegalArgumentException _) {
+   				catch(IllegalArgumentException e2) {
    					JOptionPane.showMessageDialog(this,"Please enter current number(0~1)","Enter error",JOptionPane.ERROR_MESSAGE);
    				}
 

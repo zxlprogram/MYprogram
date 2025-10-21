@@ -100,7 +100,7 @@ class ToolList extends JPanel {
 			ImageIcon scaledIcon=new ImageIcon(scaledImage);
 			super(scaledIcon);
 			this.action=r;
-			addActionListener(_ -> {
+			addActionListener(e -> {
 	            if (this.action != null) {
 	                this.action.run(); 
 	            }
@@ -112,7 +112,7 @@ class ToolList extends JPanel {
 			super(name);
 			this.name=name;
 			this.action=r;
-			addActionListener(_-> {
+			addActionListener(e-> {
 	            if (this.action != null) {
 	                this.action.run(); 
 	            }
