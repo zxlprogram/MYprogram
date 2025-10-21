@@ -1,0 +1,1 @@
+note NullPointer Exception, heppended when calling Note constructure and generated the logo, and generating new surface

@@ -81,7 +81,8 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 			}
 			return new Event(copy,allList.getScale(),allList.getOffsetX(),allList.getOffsetY());
 		}
-		public Note(double scale,double offsetX,double offsetY) {
+		public Note() {};
+		public void prepareNote(double scale,double offsetX,double offsetY) {
 			this.redoStack.push(new Event(new ArrayList<>(),scale,offsetX,offsetY));
 		}
 		public void redo(Scene scene) {
@@ -141,8 +142,8 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     private final int POINT_RADIUS = 10;
     private ExportLoadSystem saveLoader=new ExportLoadSystem(this);
     private LayerManager layerManager;
-    private Note note;
-    private JPanel mainPanel;
+    private Note note=new Note();
+    private JPanel mainPanel=new JPanel();
 	/**
      * 
      * just like javaFx Application.start()
@@ -159,7 +160,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     		toolList.setBackground(new java.awt.Color(0,0,120));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 400);
-        mainPanel=new JPanel(new BorderLayout());
+        mainPanel.setLayout(new BorderLayout());
         mainPanel.add(toolList,BorderLayout.NORTH);
         mainPanel.add(this,BorderLayout.CENTER);
         layerManager=new LayerManager(Scene.this);
@@ -184,7 +185,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         		    scale = Math.min(width, height) / 10.0;
         		    offsetX = width / 2.0;
         		    offsetY = height / 2.0;
-        		    note=new Note(scale,offsetX,offsetY);
+        		    note.prepareNote(scale,offsetX,offsetY);
         		    URL logo=Scene.class.getResource("/file.txt");
         		    saveLoader.loadFile(logo);
         			if(Scene.this.getLayerManager()!=null) refrashLayerManager();
@@ -207,7 +208,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 		mainPanel.add(this,BorderLayout.CENTER);
 		frame.setContentPane(mainPanel);
 		new DropTarget(this,this);
-    		note=new Note(0,0,0);
+    		note=new Note();
     		if(path!=null)
     			this.saveLoader.loadFile(path);
     		repaint();
