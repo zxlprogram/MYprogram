@@ -165,32 +165,7 @@ __1.9__
 			-quad.png
 			-file.txt
 		Assets:
-			v1.7.1:
-				jar files:
-					-painter.jar
-					-painterBrowser.jar
-				Windows:
-					-painter.exe
-					-painterBrowser.exe
-				Ubuntu:
-					-painter:
-						bin:
-							-painter
-						lib:
-							app:
-							runtime:
-							libapplauncher.so
-							painter.png
-					-painterBrowser:
-						bin:
-							painterBrowser
-						lib:
-							app:
-							runtime:
-							libapplauncher.so
-							painter.png
-			
-			v1.8:
+			v1.7.1~v1.9:
 				jar files:
 					-painter.jar
 					-painterBrowser.jar
