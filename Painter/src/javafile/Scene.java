@@ -33,7 +33,7 @@ import javax.swing.*;
 /**
  * @since 2025-10-13
  * @author z.x.l
- * @version 1.1
+ * @version 1.9
  */
 public class Scene extends JPanel implements MouseListener,MouseMotionListener,KeyListener,MouseWheelListener,DropTargetListener {//AI接手mouseEvent, base-on-swing
 	protected class Event {
@@ -325,7 +325,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 						));
 			}
 			else {
-				float alpha=0.5F;
+				float alpha=0.3F;
 				g.setColor(new java.awt.Color(
 						(float)color.getR()*(1-alpha),
 						(float)color.getG()*(1-alpha),
