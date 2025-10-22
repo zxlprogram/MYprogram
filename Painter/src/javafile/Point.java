@@ -6,11 +6,11 @@ package javafile;
 public class Point {
 	private boolean draggable=false;
 	private double X,Y;
-	private Surface surface;
-	public Point(double x,double y,Surface surface) {
+	private PainterObj painterObj;
+	public Point(double x,double y,PainterObj quad) {
 		this.X=x;
 		this.Y=y;
-		this.surface=surface;
+		this.painterObj=quad;
 	}
 	public void setX(double x) {
 		this.X=x;
@@ -24,8 +24,8 @@ public class Point {
 	public double getY() {
 		return this.Y;
 	}
-	public Surface getSurface() {
-		return this.surface;
+	public PainterObj getSurface() {
+		return this.painterObj;
 	}
 	@Override
 	public String toString() {

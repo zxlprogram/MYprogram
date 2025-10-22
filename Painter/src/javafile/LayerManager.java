@@ -3,34 +3,49 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.*;
 
-public class LayerManager extends JPanel {
+public class LayerManager extends JPanel implements MouseListener{
 	private static final long serialVersionUID = 7672158295712151948L;
 	private Scene scene;
 	private final List<DraggableItem>items=new ArrayList<>();
+	private boolean isOperating=false;
 	private DraggableItem draggingItem=null;
 	public LayerManager(Scene scene) {
 		this.scene=scene;
 		this.setBackground(java.awt.Color.BLACK);
+		addMouseListener(this);
 		MouseAdapter mouse=new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
+	    			scene.getDraggingSurface().clear();
+	    			scene.getDraggingPoint().clear(); 
+	    			for(PainterObj s:scene.getAllSurface()) {
+	    				s.setDraggable(false);
+	    				for(Point p:s.getEdge())
+	    					p.setDraggable(false);
+	    			}
 				for(DraggableItem item:items) {
 					if(item.getBounds().contains(e.getPoint())) {
 						draggingItem=item;
+						scene.getDraggingSurface().clear();
+						scene.getDraggingPoint().clear();
+						scene.getDraggingSurface().add(draggingItem.getSurface());
+						draggingItem.getSurface().setDraggable(true);
 						break;
 					}
 				}
+				if(draggingItem!=null)
+					draggingItem.setBackground(java.awt.Color.LIGHT_GRAY);
 			}
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				if(draggingItem!=null) {
 					draggingItem.setLocation(0,e.getY()-draggingItem.getHeight()/2);
-					draggingItem.setBackground(java.awt.Color.LIGHT_GRAY);
 					reorderItems();
 				}
 			}
@@ -47,7 +62,7 @@ public class LayerManager extends JPanel {
 		addMouseMotionListener(mouse);
 	}
 	
-	public void addItem(Surface s) {
+	public void addItem(PainterObj s) {
 		DraggableItem item=new DraggableItem(s);
 		items.add(item);
 		this.add(item);
@@ -113,12 +128,11 @@ public class LayerManager extends JPanel {
 	}
 	
 
-	private void drawSurface(Graphics g, Surface s) {
-	    Point[] points = s.getEdge();
-	    if (points.length < 2) return;
+	private void drawSurface(Graphics g, PainterObj surface) {
+	    if (surface.getEdge().length < 2) return;
 	    double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE;
 	    double maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
-	    for (Point p : points) {
+	    for (Point p : surface.getEdge()) {
 	        if (p.getX() < minX) minX = p.getX();
 	        if (p.getY() < minY) minY = p.getY();
 	        if (p.getX() > maxX) maxX = p.getX();
@@ -127,16 +141,10 @@ public class LayerManager extends JPanel {
 	    double width = maxX - minX;
 	    double height = maxY - minY;
 	    if (width == 0 || height == 0) return;
-	    int[] xPoints = new int[points.length];
-	    int[] yPoints = new int[points.length];
-
 	    int panelWidth = 50;
 	    int panelHeight = 50;
-	    for (int i = 0; i < points.length; i++) {
-	        xPoints[i] = (int) ((points[i].getX() - minX) / width * panelWidth);
-	        yPoints[i] = (int) ((points[i].getY() - minY) / height * panelHeight);
-	    }
-	    Color color = s.getColor();
+	    
+	    Color color = surface.getColor();
 	    if (color != null) {
 	        g.setColor(new java.awt.Color(
 	            (float)color.getR(),
@@ -146,7 +154,11 @@ public class LayerManager extends JPanel {
 	    } else {
 	        g.setColor(java.awt.Color.BLACK);
 	    }
-	    g.fillPolygon(xPoints, yPoints, points.length);
+	    double tranB=(Math.max(width,height));
+	    surface.draw(g,Math.min(panelWidth, panelHeight)/tranB,-minX*panelWidth/tranB,-minY*panelHeight/tranB);
+	    //(x-a)*b==>(x*r)+d  --> (x*b)-(a*b), a=minX & minY,b=panelWidth/Width & panelHeight/height
+	    //(x-minX)*50/width=x*50/width - minX*50/width
+	    //(x-minY)*50/Height=x*50/height - minY*50/height
 	}
 
 	
@@ -159,19 +171,32 @@ public class LayerManager extends JPanel {
 	    }
 		
 		private static final long serialVersionUID = 191952922949924862L;
-		private Surface surface;
-		public void setSurface(Surface s) {
+		private PainterObj surface;
+		public void setSurface(PainterObj s) {
 			this.surface=s;
 			repaint();
 		}
-		public Surface getSurface() {
+		public PainterObj getSurface() {
 			return this.surface;
 		}
-	    public DraggableItem(Surface s) {
+	    public DraggableItem(PainterObj s) {
 	    		this.surface=s;
 			this.setBorder(BorderFactory.createLineBorder(java.awt.Color.BLACK));
 	        this.setBackground(java.awt.Color.WHITE);
 	    }
 	}
+	public boolean isOperating() {
+		return this.isOperating;
+	}
+	@Override public void mousePressed(MouseEvent e) {
+		LayerManager.this.isOperating=true;
+	}
+	@Override public void mouseReleased(MouseEvent e) {
+		LayerManager.this.isOperating=false;
+	}
+	@Override public void mouseEntered(MouseEvent e) {}
+	@Override public void mouseExited(MouseEvent e) {}
+	@Override public void mouseClicked(MouseEvent e) {}
+
 }	
 

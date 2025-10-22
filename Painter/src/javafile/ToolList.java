@@ -14,18 +14,6 @@ import javax.swing.JTextField;
 /**
  * this is a bar used to save the tool which used to add surface
  * it have a sub-class: Tool
- * when you want to add new Tool, goto function addAllTool(Scene),and write like this:
- * 
- * 		toolList.add(new Tool("{@value}"
-			Surface t=new Surface();
-			
-			
-			[describe the surface here]
-			
-			scene.addSurface(t);
-		},scene));
-		
-		or add another component
  * 
  */
 class ToolList extends JPanel {
@@ -40,26 +28,21 @@ class ToolList extends JPanel {
 			Surface t=Surface.TRIANGLE();
 			t.setColor(1,0,0);
 			scene.addSurface(t);
-			scene.getLayerManager().addItem(t);
 		},scene));
 		toolList.add(new Tool(ToolList.class.getResource("/quad.png"),()->{
 			Surface t=Surface.QUAD();
 			t.setColor(1,0,0);
 			scene.addSurface(t);
-			scene.getLayerManager().addItem(t);
 		},scene));
-		JTextField enterMoreEdge=new JTextField(5);
 		toolList.add(new Tool(ToolList.class.getResource("/circle.png"),()->{
-			Surface t=new Surface();
-			for(double a=-1;a<=1;a+=0.01)		
-				t.addPoint(a,Math.sqrt(1-a*a));	
-			for(double a=1;a>=-1;a-=0.01)
-				t.addPoint(a,-Math.sqrt(1-a*a));	
+			Circle t=Circle.CIRCLE();
 			t.setColor(1,0,0);
 			scene.addSurface(t);
-			scene.getLayerManager().addItem(t);
 		},scene));
-		Tool moreEdge=new Tool("more edge:",()-> {
+		JTextField enterMoreEdge=new JTextField(5);
+		enterMoreEdge.setPreferredSize(new Dimension(0,31));
+		toolList.add(new Tool(ToolList.class.getResource("/Nedge_SS.png"),()-> {
+			this.setPreferredSize(new Dimension(83,41));
 			Surface t=new Surface();
 			int edge;
 			try {
@@ -72,13 +55,62 @@ class ToolList extends JPanel {
 				t.addPoint(Math.random(),Math.random());
 			t.setColor(1,0,0);
 			scene.addSurface(t);
-			scene.getLayerManager().addItem(t);
-		},scene);
-		moreEdge.setPreferredSize(new Dimension(83,41));
-		enterMoreEdge.setPreferredSize(new Dimension(0,31));
-		toolList.add(moreEdge);
+		},scene));
 		toolList.add(enterMoreEdge);
-
+		JTextField enterMoreBezierEdge=new JTextField(5);
+		enterMoreBezierEdge.setPreferredSize(new Dimension(0,31));
+		toolList.add(new Tool(ToolList.class.getResource("/Nedge_BS.png"),()-> {
+			this.setPreferredSize(new Dimension(83,41));
+			BezierSurface t=new BezierSurface();
+			int edge;
+			try {
+				edge=Integer.parseInt(enterMoreBezierEdge.getText());
+			}
+			catch(IllegalArgumentException e) {
+				edge=4;
+			}
+			for(int i=0;i<edge;i++)
+				t.addPoint(Math.random(),Math.random());
+			t.setColor(1,0,0);
+			scene.addSurface(t);
+		},scene));
+		toolList.add(enterMoreBezierEdge);
+		JTextField enterMoreLine=new JTextField(5);
+		enterMoreLine.setPreferredSize(new Dimension(0,31));
+		toolList.add(new Tool(ToolList.class.getResource("/Nedge_SL.png"),()-> {
+			this.setPreferredSize(new Dimension(83,41));
+			Line t=new Line();
+			int edge;
+			try {
+				edge=Integer.parseInt(enterMoreLine.getText());
+			}
+			catch(IllegalArgumentException e) {
+				edge=4;
+			}
+			for(int i=0;i<edge;i++)
+				t.addPoint(Math.random(),Math.random());
+			t.setColor(1,0,0);
+			scene.addSurface(t);
+		},scene));
+		toolList.add(enterMoreLine);
+		JTextField enterMoreBezLine=new JTextField(5);
+		enterMoreBezLine.setPreferredSize(new Dimension(0,31));
+		toolList.add(new Tool(ToolList.class.getResource("/Nedge_BL.png"),()-> {
+			this.setPreferredSize(new Dimension(83,41));
+			BezierLine t=new BezierLine();
+			int edge;
+			try {
+				edge=Integer.parseInt(enterMoreBezLine.getText());
+			}
+			catch(IllegalArgumentException e) {
+				edge=4;
+			}
+			for(int i=0;i<edge;i++)
+				t.addPoint(Math.random(),Math.random());
+			t.setColor(1,0,0);
+			scene.addSurface(t);
+		},scene));
+		toolList.add(enterMoreBezLine);
 		for(Component t:toolList)
 			super.add(t);
 		
@@ -94,6 +126,7 @@ class ToolList extends JPanel {
 			this.name=name;
 			this.setText(name);
 		}
+		@SuppressWarnings("unused")
 		public Tool(URL url,Runnable r,Scene scene) {
 			ImageIcon ico=new ImageIcon(url);
 			Image scaledImage=ico.getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH);
@@ -108,6 +141,7 @@ class ToolList extends JPanel {
 				scene.getNote().saveInfo(scene.getAllSurface(),scene.getScale(),scene.getOffsetX(),scene.getOffsetY());
 			});
 		}
+		@SuppressWarnings("unused")
 		public Tool(String name,Runnable r,Scene scene) {
 			super(name);
 			this.name=name;

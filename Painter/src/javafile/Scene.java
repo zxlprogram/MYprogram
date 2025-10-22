@@ -9,10 +9,10 @@ import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -23,9 +23,9 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.Stack;
 
 import javax.swing.*;
@@ -37,17 +37,17 @@ import javax.swing.*;
  */
 public class Scene extends JPanel implements MouseListener,MouseMotionListener,KeyListener,MouseWheelListener,DropTargetListener {//AI接手mouseEvent, base-on-swing
 	protected class Event {
-		private List<Surface>graphic;
+		private List<PainterObj>graphic;
 		private double scale;
 		private double offsetX;
 		private double offsetY;
-		public Event(List<Surface>graphic,double scale,double offsetX,double offsetY) {
+		public Event(List<PainterObj>graphic,double scale,double offsetX,double offsetY) {
 			this.graphic=graphic;
 			this.scale=scale;
 			this.offsetX=offsetX;
 			this.offsetY=offsetY;
 		}
-		public List<Surface> getAllSurface() {
+		public List<PainterObj> getAllSurface() {
 			return this.graphic;
 		}
 		public double getScale() {
@@ -73,13 +73,19 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 		private Stack<Event>redoStack=new Stack<>();
 		private static final long serialVersionUID = 1L;
 		private Event copySurfaceList(Event allList) {
-			List<Surface> copy=new ArrayList<>();
-			for(Surface s:allList.getAllSurface()) {
-			Surface newSurface=new Surface();
+			List<PainterObj> copy=new ArrayList<>();
+			for(PainterObj s:allList.getAllSurface()) {
+			PainterObj newObj=new PainterObj();
+			try {
+				newObj=s.getClass().getDeclaredConstructor().newInstance();
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException| InvocationTargetException | NoSuchMethodException e) {
+				e.printStackTrace();
+			}
+			
 			for(Point p:s.getEdge())
-				newSurface.addPoint(new Point(p.getX(),p.getY(),newSurface));
-			newSurface.setColor(new Color(s.getColor().getR(),s.getColor().getG(),s.getColor().getB()));
-			copy.add(newSurface);
+				newObj.addPoint(new Point(p.getX(),p.getY(),newObj));
+			newObj.setColor(new Color(s.getColor().getR(),s.getColor().getG(),s.getColor().getB()));
+			copy.add(newObj);
 			}
 			return new Event(copy,allList.getScale(),allList.getOffsetX(),allList.getOffsetY());
 		}
@@ -99,8 +105,8 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 
 		}
 		
-		public void saveInfo(List<Surface> recordAllSurface,double scale,double offsetX,double offsetY) {
-			this.push(copySurfaceList(new Event(recordAllSurface,scale,offsetX,offsetY)));
+		public void saveInfo(List<PainterObj> list,double scale,double offsetX,double offsetY) {
+			this.push(copySurfaceList(new Event(list,scale,offsetX,offsetY)));
 			if(this.size()>50)
 				this.removeFirst();
 			this.redoStack.clear();
@@ -119,17 +125,17 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     
 	private static final long serialVersionUID = 1L;
     static final String appName = "Painter";
-    static final String version = "1.8";
+    static final String version = "1.9";
     /**
      * @param
      * allSurfaces is the container of Surface, it is a List
      */
-    private java.util.List<Surface> allSurfaces = new ArrayList<>();
+    private java.util.List<PainterObj> allSurfaces = new ArrayList<>();
     /**
      * @param
      * draggingSurface used to save the surface which we are choosing, when mouse pressed, it will set to null if mouse is not in any surface, and it will not forget after mouse released, so does draggingPoint
      */
-    private List<Surface>draggingSurface = new ArrayList<>();
+    private List<PainterObj>draggingSurface = new ArrayList<>();
     private List<Point> draggingPoint = new ArrayList<>();
     /**
      * 
@@ -139,7 +145,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     private double scale;
     private double offsetX;
     private double offsetY;
-    
+	private Map<String,Class<? extends PainterObj>>trans=new HashMap<>();
     
     private final int POINT_RADIUS = 10;
     private ExportLoadSystem saveLoader=new ExportLoadSystem(this);
@@ -156,6 +162,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}	
+    		this.buildFileFormat();
     		JFrame frame = new JFrame(appName+"(ver: "+version+")");
         frame.setIconImage(new ImageIcon(Scene.class.getResource("/painter_logo.png")).getImage());
     		ToolList toolList=new ToolList(this);
@@ -180,7 +187,8 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         requestFocusInWindow();
         frame.setVisible(true);
         frame.addWindowListener(new WindowAdapter() {//to avoid GUI system crash on execution thread
-        		@Override
+        		@SuppressWarnings("unused")
+				@Override
         		public void windowOpened(WindowEvent e) {
         		    int width = getWidth();
         		    int height = getHeight();
@@ -190,7 +198,6 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         		    note.prepareNote(scale,offsetX,offsetY);
         		    URL logo=Scene.class.getResource("/file.txt");
         		    saveLoader.loadFile(logo);
-        			if(Scene.this.getLayerManager()!=null) refrashLayerManager();
         	        new javax.swing.Timer(10,e2->{repaint();}).start();
         		}
         });
@@ -201,6 +208,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}
+		this.buildFileFormat();
 		JFrame frame = new JFrame("Browser"+"(ver: "+version+")");
         frame.setIconImage(new ImageIcon(Scene.class.getResource("/painter_logo.png")).getImage());
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -217,23 +225,23 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     }
     
     
-    private void refrashLayerManager() {
+    private void refreshLayerManager() {
     		this.getLayerManager().clearAllItems();
-    		for(Surface s:this.allSurfaces) {
+    		for(PainterObj s:this.allSurfaces) {
     			this.getLayerManager().addItem(s);
     		}
     }
     
-    public void addSurface(Surface s) {
+    public void addSurface(PainterObj s) {
         this.allSurfaces.add(s);
     }
-    public void setAllSurface(List<Surface>allsurface) {
-    		this.allSurfaces=allsurface;
+    public void setAllSurface(List<PainterObj> list) {
+    		this.allSurfaces=list;
     }
-    public void removeSurface(Surface s) {
+    public void removeSurface(PainterObj s) {
         this.allSurfaces.remove(s);
     }
-    public List<Surface>getAllSurface() {
+    public List<PainterObj>getAllSurface() {
     		return this.allSurfaces;
     }
 	public List<Point> getDraggingPoint() {
@@ -242,11 +250,20 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 	public void setDraggingPoint(List<Point> p) {
 		this.draggingPoint=p;
 	}
-	public List<Surface> getDraggingSurface() {
+	public void addDraggingPoint(Point p) {
+		if(!this.draggingPoint.contains(p)) {
+			this.draggingPoint.add(p);
+		}
+	}
+	public List<PainterObj> getDraggingSurface() {
 		return this.draggingSurface;
 	}
-	public void setDraggingSurface(List<Surface> s) {
+	public void setDraggingSurface(List<PainterObj> s) {
 		this.draggingSurface=s;
+	}
+	public void addDraggingSurface(PainterObj p) {
+		if(!this.draggingSurface.contains(p))
+			this.draggingSurface.add(p);
 	}
     public void setScale(double d) {
     		this.scale=d;
@@ -277,8 +294,11 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
      * this part I let chatgpt did
      */
     protected void paintComponent(Graphics g) {
+    		if(this.getLayerManager()!=null&&!this.getLayerManager().isOperating()) {
+    			refreshLayerManager();
+    		}
         super.paintComponent(g);
-        for (Surface s : allSurfaces) {
+        for (PainterObj s : allSurfaces) {
             drawSurface(g, s);
             for(Point p:s.getEdge()) {
             		drawPoint(g,p);
@@ -286,7 +306,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         }
     }
     private void drawPoint(Graphics g,Point p) {
-    		if(p.draggable()) {
+    		if(p.draggable()||p.getSurface().Draggable()) {
     			g.setColor(java.awt.Color.BLACK);
     			g.fillOval((int)(p.getX()*scale+offsetX)-5,(int)(p.getY()*scale+offsetY)-5,10,10);
     		}
@@ -294,44 +314,36 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     /**
      * this part I let chatgpt did
      */
-    private void drawSurface(Graphics g, Surface s) {
-        Point[] points = s.getEdge();
-        if (points.length < 2) return;
-        int[] xPoints = new int[points.length];
-        int[] yPoints = new int[points.length];
-        for (int i = 0; i < points.length; i++) {
-            xPoints[i] = (int)(points[i].getX() * scale + offsetX);
-            yPoints[i] = (int)(points[i].getY() * scale + offsetY);
-        }
-        Color color = s.getColor();
-        if (color != null) {
-        		if(!s.Draggable()) {
-        			g.setColor(new java.awt.Color(
-        					(float)color.getR(),
-        					(float)color.getG(),
-        					(float)color.getB()
-        					));
-        		}
-        		else {
-        			float alpha=0.5F;
-        			g.setColor(new java.awt.Color(
-        					(float)color.getR()*(1-alpha),
-        					(float)color.getG()*(1-alpha),
-        					(float)color.getB()*(1-alpha)+alpha
-        					));
-        		}
-        } else {
-            g.setColor(java.awt.Color.BLACK);
-        }
-        g.fillPolygon(xPoints, yPoints, points.length);
+    private void drawSurface(Graphics g, PainterObj s) {
+		Color color = s.getColor();
+		if (color != null) {
+			if(!s.Draggable()) {
+				g.setColor(new java.awt.Color(
+						(float)color.getR(),
+						(float)color.getG(),
+						(float)color.getB()
+						));
+			}
+			else {
+				float alpha=0.5F;
+				g.setColor(new java.awt.Color(
+						(float)color.getR()*(1-alpha),
+						(float)color.getG()*(1-alpha),
+						(float)color.getB()*(1-alpha)+alpha
+						));
+			}	
+		} else {
+			g.setColor(java.awt.Color.BLACK);
+		}
+		s.draw(g,this.scale,this.offsetX,this.offsetY);
     }
     @Override
     public void mousePressed(MouseEvent e) {
 
 		if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) == 0) {
-    			draggingSurface.clear();
-    			draggingPoint.clear(); 
-    			for(Surface s:this.allSurfaces) {
+    			this.getDraggingSurface().clear();
+    			this.getDraggingPoint().clear(); 
+    			for(PainterObj s:this.allSurfaces) {
         			s.setDraggable(false);
         			for(Point p:s.getEdge())
         				p.setDraggable(false);
@@ -346,7 +358,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         int mx = e.getX();
         int my = e.getY();
         Point point = null;
-        if(draggingSurface.isEmpty()) {
+        if(this.getDraggingSurface().isEmpty()) {
         find:for (int i=allSurfaces.size()-1;i>=0;i--) {
             for (Point p : allSurfaces.get(i).getEdge()) {
             	int px = (int)(p.getX() * scale + offsetX);
@@ -354,7 +366,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
                 double dist = Math.hypot(mx - px, my - py);
                 if (dist <= POINT_RADIUS) {
                 		p.setDraggable(true);
-                    draggingPoint.add(p);
+                    addDraggingPoint(p);
                     point=p;
                     prevMouseX = mx;
                     prevMouseY = my;
@@ -365,8 +377,8 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         }
         for (int i=allSurfaces.size()-1;i>=0;i--) {
             if (isPointInSurface(mx, my, allSurfaces.get(i))&&(point==null||this.allSurfaces.indexOf(point.getSurface())<i)) {
-            		this.allSurfaces.get(i).setDraggable(true);
-                draggingSurface.add(this.allSurfaces.get(i));
+            		this.getAllSurface().get(i).setDraggable(true);
+                this.addDraggingSurface(this.allSurfaces.get(i));
                 prevMouseX = mx;
                 prevMouseY = my;
                 break;
@@ -374,12 +386,16 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         }
         if(!draggingSurface.isEmpty()) {
         draggingPoint.clear();
-		for(Surface s:this.allSurfaces) {
+		for(PainterObj s:this.allSurfaces) {
 			for(Point p:s.getEdge())
 				p.setDraggable(false);
 		}
         }
-		if(this.getLayerManager()!=null) refrashLayerManager();
+       if(e.getButton()==MouseEvent.BUTTON3) {
+           if (!draggingSurface.isEmpty()&&draggingSurface.getFirst().getColor() != null) {
+           		SwingUtilities.invokeLater(() -> new ChoiceColor(draggingSurface.getFirst(),this));
+           }
+       }
     }
 
     @Override
@@ -405,7 +421,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         	}
         } else if (!draggingSurface.isEmpty()) {
         	
-        	for(Surface surface:draggingSurface) {
+        	for(PainterObj surface:draggingSurface) {
 			if((e.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) != 0) {
     				if(Math.abs(e.getX()-prevMouseX)>Math.abs(e.getY()-prevMouseY)*3)
     					surface.moveX(dx);
@@ -430,12 +446,10 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     public void mouseReleased(MouseEvent e) {
     			if(e.getX()!=pressedLocationX&&e.getY()!=pressedLocationY) 
     				note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
-    			if(this.getLayerManager()!=null)
-    				refrashLayerManager();
     }
 
-    private boolean isPointInSurface(int mx, int my, Surface s) {//AI
-        Point[] points = s.getEdge();
+    private boolean isPointInSurface(int mx, int my, PainterObj painterObj) {//AI
+        Point[] points = painterObj.getEdge();
         int[] xPoints = new int[points.length];
         int[] yPoints = new int[points.length];
         for (int i = 0; i < points.length; i++) {
@@ -452,8 +466,8 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
    		case KeyEvent.VK_C:
    		    if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
    			if(!draggingSurface.isEmpty()) {
-   			for(Surface surface:draggingSurface) {
-   				Surface s=new Surface();
+   			for(PainterObj surface:draggingSurface) {
+   				PainterObj s=new Surface();
    				for(Point p:surface.getEdge()) {
    					s.addPoint(p.getX(),p.getY());
    				}
@@ -473,12 +487,12 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 					}
 				}
 				else {
-					for(Surface s:draggingSurface) {
+					for(PainterObj s:draggingSurface) {
 						this.removeSurface(s);
 					}
-					this.draggingSurface.clear();
+					this.getDraggingSurface().clear();
 				}
-				this.draggingPoint.clear();
+				this.getDraggingPoint().clear();
 			}
 			else if(allSurfaces.size()>0)
 				allSurfaces.removeLast();
@@ -487,7 +501,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 		case KeyEvent.VK_RIGHT:
 		case KeyEvent.VK_UP:
 			if(!this.draggingSurface.isEmpty()) {
-				for(Surface surface:draggingSurface) {
+				for(PainterObj surface:draggingSurface) {
 					Point cert=surface.getCertain();
 					for(Point p:surface.getEdge()) {
 						p.setX(p.getX()+(p.getX()-cert.getX())*0.1);
@@ -500,7 +514,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 		case KeyEvent.VK_LEFT:
 		case KeyEvent.VK_DOWN:
 			if(!this.draggingSurface.isEmpty()) {
-			for(Surface surface:draggingSurface) {
+			for(PainterObj surface:draggingSurface) {
 				Point cert=surface.getCertain();
 				for(Point p:surface.getEdge()) {
 					p.setX(p.getX()-(p.getX()-cert.getX())*0.1);
@@ -534,30 +548,9 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 			}
 			break;
 		}
-		if(this.getLayerManager()!=null) refrashLayerManager();
    	}
    	@Override
-   	public void mouseClicked(MouseEvent e) {// change color
-   	    	switch (e.getButton()) {
-   	        case MouseEvent.BUTTON3:
-   	        		draggingSurface.clear();
-   	            for (int i=this.allSurfaces.size()-1;i>=0;i--) {
-   	                if (isPointInSurface(e.getX(), e.getY(),this.allSurfaces.get(i))) {
-   	                    prevMouseX = e.getX();
-   	                    prevMouseY = e.getY();
-   	                    draggingSurface.add(this.allSurfaces.get(i));
-   	                    break;
-   	                }
-   	            }
-   	            if (draggingSurface.getFirst().getColor() != null) {
-   	            		SwingUtilities.invokeLater(() -> new ChoiceColor(draggingSurface.getFirst(),this));
-   	            }
-   	            break;
-   	        default:
-   	            break;
-   	    }
-		if(this.getLayerManager()!=null) refrashLayerManager();
-   	}
+   	public void mouseClicked(MouseEvent e) {}
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		int rol=e.getWheelRotation();
@@ -566,7 +559,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 	            double cx = (getWidth() / 2.0 - offsetX) / scale;
 	            double cy = (getHeight() / 2.0 - offsetY) / scale;
 	            double scaleFactor = rol == -1 ? 1.05 : 1 / 1.05;
-				for(Surface s:allSurfaces) {
+				for(PainterObj s:allSurfaces) {
 					for(Point p:s.getEdge()) {
 	                    double x = p.getX();
 	                    double y = p.getY();
@@ -599,7 +592,6 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 				}
 			}
 			dtde.dropComplete(true);
-			if(this.getLayerManager()!=null) refrashLayerManager();
 		    repaint();// it is for browse mode
 			JOptionPane.showMessageDialog(this,"the file "+path+" is opened!","Open the file Successful", JOptionPane.INFORMATION_MESSAGE);
 		}
@@ -616,13 +608,12 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
    	protected class ChoiceColor extends JPanel {
    		private static final long serialVersionUID = 1L;
    		private Scene scene;
-   		public ChoiceColor(Surface s,Scene scene) {
+   		public ChoiceColor(PainterObj painterObj,Scene scene) {
    			this.scene=scene;
    			java.awt.Color color=JColorChooser.showDialog(this,"color choosing board", getBackground());
    			try {
-   				s.setColor(color.getRed()/255.0,color.getGreen()/255.0,color.getBlue()/255.0);
+   				painterObj.setColor(color.getRed()/255.0,color.getGreen()/255.0,color.getBlue()/255.0);
    	    			note.saveInfo(this.scene.allSurfaces,this.scene.scale,this.scene.offsetX,this.scene.offsetY);
-   	    			if(Scene.this.getLayerManager()!=null) refrashLayerManager();
    			}
    			catch(NullPointerException e) {}
 
@@ -637,4 +628,14 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 	@Override public void dragOver(DropTargetDragEvent dtde) {}
 	@Override public void dropActionChanged(DropTargetDragEvent dtde) {}
 	@Override public void dragExit(DropTargetEvent dte) {}
+	public void buildFileFormat() {
+		trans.put("SS",Surface.class);
+		trans.put("SL", Line.class);
+		trans.put("BS",BezierSurface.class);
+		trans.put("BL", BezierLine.class);
+		trans.put("Cr",Circle.class);
+	}
+	public Map<String, Class<? extends PainterObj>> getObjTranslator() {
+		return this.trans;
+	}
 }

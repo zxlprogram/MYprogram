@@ -1,8 +1,6 @@
 package javafile;
 /**
- * we allowed the input is bigger than 1 or smaller than 0, and the value will be change to the legal value 
- * 
- * we remove that allow now, it's possible to make the bug
+ *we should take the value and call java.awt.Color when coloring, it just a pack
  */
 public class Color {
 	private double R,G,B;
