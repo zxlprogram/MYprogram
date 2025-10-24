@@ -14,17 +14,17 @@ import java.util.List;
  * it's used to initialize logo loading and load file, also can ctrl+S to save the file on desktop
  * 
  **/
-public class ExportLoadSystem {
-	private Scene scene;
-	public ExportLoadSystem(Scene scene) {
-		this.scene=scene;
+class Exporter {
+	private ExportLoadSystem sys;
+	public Exporter(ExportLoadSystem sys) {
+		this.sys=sys;
 	}
 	public void ExportFlie(String path) {
-		List<PainterObj>data=this.scene.getAllSurface();
+		List<PainterObj>data=sys.getScene().getAllSurface();
 		try {
 			File file=new File(path);
 			FileWriter writer=new FileWriter(file);
-			writer.write(this.scene.getScale()+" "+this.scene.getOffsetX()+" "+this.scene.getOffsetY()+"\n");
+			writer.write(sys.getScene().getScale()+" "+sys.getScene().getOffsetX()+" "+sys.getScene().getOffsetY()+"\n");
 			for(PainterObj s:data) {
 				writer.write(s.toString()+"\n");
 			}
@@ -33,39 +33,34 @@ public class ExportLoadSystem {
 			e.printStackTrace();
 		}
 	}
-	/**
-	 * @see Surface#toString()
-	*/
+}
+class Loader {
+	private ExportLoadSystem sys;
+	public Loader(ExportLoadSystem sys) {
+		this.sys=sys;
+	}
 	private void loading(BufferedReader reader) {
 		try {
-			this.scene.getAllSurface().clear();
+			sys.getScene().getAllSurface().clear();
 			List<PainterObj>returnList=new ArrayList<>();
 			String line=reader.readLine();
 			String[]view=line.split(" ");
-			this.scene.setScale(Double.parseDouble(view[0]));
-			this.scene.setOffsetX(Double.parseDouble(view[1]));
-			this.scene.setOffsetY(Double.parseDouble(view[2]));
+			sys.getScene().setScale(Double.parseDouble(view[0]));
+			sys.getScene().setOffsetX(Double.parseDouble(view[1]));
+			sys.getScene().setOffsetY(Double.parseDouble(view[2]));
 			while((line=reader.readLine())!=null) {
 				String []array=line.split(" ");
-				PainterObj surface = new PainterObj();
+				PainterObj surface = new PainterObj(this.sys.getScene());
 				try {
-					surface = this.scene.getObjTranslator().get(array[0]).getDeclaredConstructor().newInstance();
+					surface = sys.getScene().getObjTranslator().get(array[0]).getDeclaredConstructor(Scene.class).newInstance(sys.getScene());
 				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException| InvocationTargetException | NoSuchMethodException e) {
 					e.printStackTrace();
 				}
-				for(int i=1;i<array.length-5;i+=2) {
-					Double X=Double.parseDouble(array[i]);
-					Double Y=Double.parseDouble(array[i+1]);
-					surface.addPoint(new Point(X,Y,surface));
-				}
-				Double R=Double.parseDouble(array[array.length-3]);
-				Double G=Double.parseDouble(array[array.length-2]);
-				Double B=Double.parseDouble(array[array.length-1]);
-				surface.setColor(R,G,B);
+				surface.loadfile(array);
 				returnList.add(surface);
 			}
-			this.scene.setAllSurface(returnList);
-			this.scene.getNote().saveInfo(this.scene.getAllSurface(),this.scene.getScale(),this.scene.getOffsetX(),this.scene.getOffsetY());
+			sys.getScene().setAllSurface(returnList);
+			sys.getScene().getNote().saveInfo(sys.getScene().getAllSurface(),sys.getScene().getScale(),sys.getScene().getOffsetX(),sys.getScene().getOffsetY());
 			reader.close();
 		}catch(IOException e) {}
 	}
@@ -81,4 +76,26 @@ public class ExportLoadSystem {
 		}
 		catch(IOException e) {}
 	}
+}
+public class ExportLoadSystem {
+	private Scene scene;
+	private Exporter exporter;
+	private Loader loader;
+	public Scene getScene() {
+		return this.scene;
+	}
+	public ExportLoadSystem(Scene scene) {
+		this.scene=scene;
+		this.exporter=new Exporter(this);
+		this.loader=new Loader(this);
+	}
+	public Exporter getExporter() {
+		return this.exporter;
+	}
+	public Loader getLoader() {
+		return this.loader;
+	}
+	/**
+	 * @see Surface#toString()
+	*/
 }

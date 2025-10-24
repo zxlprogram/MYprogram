@@ -19,10 +19,44 @@ import java.util.List;
 public class PainterObj {
 	private boolean isDragging;
 	private Color color=new Color(1,0,0);
+	private Scene scene;
 	private List<Point>Edge=new ArrayList<>();
-	public void draw(Graphics g,double scale,double offsetX,double offsetY) {
-		
+	
+	public void setDrawingColor(Graphics g,PainterObj p) {
+		Color color=null;
+		if(p.getColor()!=null)
+			color =p.getColor();
+		if (color != null) {
+			if(!p.Draggable()) {
+				g.setColor(new java.awt.Color(
+						(float)color.getR(),
+						(float)color.getG(),
+						(float)color.getB()
+						));
+			}
+			else {//choosing
+				float alpha=0.3F;
+				g.setColor(new java.awt.Color(
+						(float)color.getR()*(1-alpha),
+						(float)color.getG()*(1-alpha),
+						(float)color.getB()*(1-alpha)+alpha
+						));
+			}	
+		} else {
+			g.setColor(java.awt.Color.BLACK);
+		}
 	}
+    public void drawSurface(Graphics g) {
+    		setDrawingColor(g,this);
+		this.draw(g,getScene().getScale(),getScene().getOffsetX(),getScene().getOffsetY());
+    }
+	public PainterObj(Scene scene) {
+		this.scene=scene;
+	}
+	public Scene getScene() {
+		return this.scene;
+	}
+	public void draw(Graphics g,double scale,double offsetX,double offsetY) {}
 	public void setDraggable(boolean b) {
 		this.isDragging=b;
 	}
@@ -63,16 +97,10 @@ public class PainterObj {
 			p.setY(p.getY()+y);
 	}
 	public Color getColor() {
-		if(this.color==null)
-			this.color=new Color(1,0,0);
 		return this.color;
 	}
 	public void setColor(Color c) {
 		this.color=c;
-	}
-	public PainterObj(Point...point) {
-		for(Point p:point)
-			this.Edge.add(p);
 	}
 	public void addPoint(Point...p) {
 		if(p==null)
@@ -83,7 +111,7 @@ public class PainterObj {
 	public void addPoint(double a,double b) {
 		this.Edge.add(new Point(a,b,this));
 	}
-	public void removePoint(Point point,Scene scene) {
+	public void removePoint(Point point) {
 		this.Edge.remove(point);
 		if(this.getEdge().length<3) {
 			scene.removeSurface(this);
@@ -100,11 +128,36 @@ public class PainterObj {
 		s+=" C "+this.getColor().getR()+" "+this.getColor().getG()+" "+this.getColor().getB();
 		return s;
 	}
+    public boolean isPointInSurface(int mx, int my,double scale,double offsetX,double offsetY) {//AI
+        Point[] points = this.getEdge();
+        int[] xPoints = new int[points.length];
+        int[] yPoints = new int[points.length];
+        for (int i = 0; i < points.length; i++) {
+        	xPoints[i] = (int)(points[i].getX() * scale + offsetX);
+        	yPoints[i] = (int)(points[i].getY() * scale + offsetY);
+        }
+        java.awt.Polygon polygon = new java.awt.Polygon(xPoints, yPoints, points.length);
+        return polygon.contains(mx, my);
+    }
+    public void loadfile(String[]array) {
+    		for(int i=1;i<array.length-5;i+=2) {
+    			Double X=Double.parseDouble(array[i]);
+    			Double Y=Double.parseDouble(array[i+1]);
+    			this.addPoint(new Point(X,Y,this));
+    		}
+    		Double R=Double.parseDouble(array[array.length-3]);
+    		Double G=Double.parseDouble(array[array.length-2]);
+    		Double B=Double.parseDouble(array[array.length-1]);
+    		this.setColor(R,G,B);
+    }
 }
 
 class BezierLine extends PainterObj {
-	public static BezierLine INSTANCE() {
-		BezierLine l=new BezierLine();
+	public BezierLine(Scene scene) {
+		super(scene);
+	}
+	public static BezierLine INSTANCE(Scene scene) {
+		BezierLine l=new BezierLine(scene);
 		l.addPoint(0,0);
 		l.addPoint(1,1);
 		l.addPoint(0,2);
@@ -130,8 +183,11 @@ class BezierLine extends PainterObj {
 	}
 }
 class BezierSurface extends PainterObj {
-	public static BezierSurface INSTANCE() {
-		BezierSurface s=new BezierSurface();
+	public BezierSurface(Scene scene) {
+		super(scene);
+	}
+	public static BezierSurface INSTANCE(Scene scene) {
+		BezierSurface s=new BezierSurface(scene);
 		s.addPoint(0,0);
 		s.addPoint(0,1);
 		s.addPoint(1,1);
@@ -164,17 +220,20 @@ class BezierSurface extends PainterObj {
 	}
 }
 class Line extends PainterObj{
-	public static Line STRIGHT() {
-		Line l=new Line();
+	public Line(Scene scene) {
+		super(scene);
+	}
+	public static Line STRIGHT(Scene scene) {
+		Line l=new Line(scene);
 		l.addPoint(0,0);
 		l.addPoint(0,1);
 		return l;
 	}
 	@Override
-	public void removePoint(Point point, Scene scene) {
+	public void removePoint(Point point) {
 		this.getRawEdge().remove(point);
 		if(this.getEdge().length<2) {
-			scene.removeSurface(this);
+			getScene().removeSurface(this);
 		}
 	}
 	@Override 
@@ -189,16 +248,19 @@ class Line extends PainterObj{
 	}
 }
 class Surface extends PainterObj{
-	public static Surface QUAD() {
-		Surface quad = new Surface();
+	public Surface(Scene scene) {
+		super(scene);
+	}
+	public static Surface QUAD(Scene scene) {
+		Surface quad = new Surface(scene);
 		quad.addPoint(new Point(0,0,quad));
 		quad.addPoint(new Point(0,1,quad));
 		quad.addPoint(new Point(1,1,quad));
 		quad.addPoint(new Point(1,0,quad));
 		return quad;
 	}
-	public static Surface TRIANGLE() {
-		Surface tria=new Surface();
+	public static Surface TRIANGLE(Scene scene) {
+		Surface tria=new Surface(scene);
 		tria.addPoint(new Point(0,0,tria));
 		tria.addPoint(new Point(0,1,tria));
 		tria.addPoint(new Point(1,1,tria));
@@ -222,18 +284,21 @@ class Surface extends PainterObj{
 	}
 }
 class Circle extends PainterObj {
-	public static Circle CIRCLE() {
-		Circle c=new Circle();
+	public Circle(Scene scene) {
+		super(scene);
+	}
+	public static Circle CIRCLE(Scene scene) {
+		Circle c=new Circle(scene);
 		c.addPoint(0,0);
 		c.addPoint(1,0);
 		c.addPoint(0,1);
 		return c;
 	}
 	@Override
-	public void removePoint(Point point, Scene scene) {
+	public void removePoint(Point point) {
 		this.getRawEdge().remove(point);
 		if(this.getEdge().length!=3) {
-			scene.removeSurface(this);
+			getScene().removeSurface(this);
 		}
 	}
 	@Override
@@ -243,6 +308,17 @@ class Circle extends PainterObj {
 		int width=Math.abs((int)(this.getEdge()[1].getX()* scale+offsetX)-x)*2;
 		int height=Math.abs((int)(this.getEdge()[2].getY()*scale+offsetY)-y)*2;
 		g.fillOval(x-width/2,y-height/2,width,height);
+	}
+	@Override
+	public boolean isPointInSurface(int mx, int my,double scale,double offsetX,double offsetY) {
+		double x=(this.getEdge()[0].getX()*scale+offsetX);
+		double y=(this.getEdge()[0].getY()*scale+offsetY);
+		double width=Math.abs((this.getEdge()[1].getX()* scale+offsetX)-x);
+		double height=Math.abs((this.getEdge()[2].getY()*scale+offsetY)-y);
+		if((((mx-x)*(mx-x))/(width*width)+((my-y)*(my-y))/(height*height))<=1) {
+			return true;
+		}
+		return false;
 	}
 	@Override
 	public String toString() {

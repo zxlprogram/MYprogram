@@ -26,6 +26,7 @@ public class LayerManager extends JPanel implements MouseListener{
 	    			scene.getDraggingPoint().clear(); 
 	    			for(PainterObj s:scene.getAllSurface()) {
 	    				s.setDraggable(false);
+	    				if(s.getEdge()!=null)
 	    				for(Point p:s.getEdge())
 	    					p.setDraggable(false);
 	    			}
@@ -34,7 +35,7 @@ public class LayerManager extends JPanel implements MouseListener{
 						draggingItem=item;
 						scene.getDraggingSurface().clear();
 						scene.getDraggingPoint().clear();
-						scene.getDraggingSurface().add(draggingItem.getSurface());
+						scene.addDraggingSurface(draggingItem.getSurface());
 						draggingItem.getSurface().setDraggable(true);
 						break;
 					}
@@ -128,8 +129,7 @@ public class LayerManager extends JPanel implements MouseListener{
 	}
 	
 
-	private void drawSurface(Graphics g, PainterObj surface) {
-	    if (surface.getEdge().length < 2) return;
+	private void drawSurface(Graphics g, PainterObj surface) {//the logic is promise that all point is in the panel(if your painting is out of your point, it possibly shows weird
 	    double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE;
 	    double maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
 	    for (Point p : surface.getEdge()) {
@@ -143,19 +143,10 @@ public class LayerManager extends JPanel implements MouseListener{
 	    if (width == 0 || height == 0) return;
 	    int panelWidth = 50;
 	    int panelHeight = 50;
-	    
-	    Color color = surface.getColor();
-	    if (color != null) {
-	        g.setColor(new java.awt.Color(
-	            (float)color.getR(),
-	            (float)color.getG(),
-	            (float)color.getB()
-	        ));
-	    } else {
-	        g.setColor(java.awt.Color.BLACK);
-	    }
 	    double tranB=(Math.max(width,height));
+	    surface.setDrawingColor(g,surface);
 	    surface.draw(g,Math.min(panelWidth, panelHeight)/tranB,-minX*panelWidth/tranB,-minY*panelHeight/tranB);
+	    
 	    //(x-a)*b==>(x*r)+d  --> (x*b)-(a*b), a=minX & minY,b=panelWidth/Width & panelHeight/height
 	    //(x-minX)*50/width=x*50/width - minX*50/width
 	    //(x-minY)*50/Height=x*50/height - minY*50/height

@@ -81,7 +81,11 @@ __1.9__
 	description:
 		added the bezier line, bezier surface, stright line, and added root class PainterObj, moved all object to extends that,and write new feature on file format: the object line first record is a vocabilary descripted the class, moved the layermanager's refresher to the main refresher, fix the circle, move the draw method to PainterObj, and let the subclass Override it, rebuild the structure of layermanager: remove the drawing method let the PainterObj method to done this
 		
-			
+	1.10:
+		release date:
+	description:
+		add ctrl+A keys, fix the bug:the copy items noted in surface, keep rebuild structure
+		
 ## feature description
 	-KeyEvent ctrl+C: copy the choosing surface
 	-KeyEvent up/right: make the choosing surface bigger(if there have surface have been choosed)
@@ -90,6 +94,7 @@ __1.9__
 	-KeyEvent ctrl+Z: undo the step
 	-KeyEvent ctrl+Y: redo the step
 	-KeyEvent ctrl+S: save the file
+	-KeyEvent ctrl+A: select all
 	-ctrl+MouseWheelEvent: zoom in/out
 	-ctrl+MouseClickedEvent: choosed multy surface or point
 	-MouseEvent left: when pressed, choosing surface will became null if the mouse didn't in any surface,otherwise choosing surface will became the highest layer surface, when dragged, it will check if the choosing point were exist,if it were exist than the point will follow the mouse; otherwise it will check if the choosing surface were exist, if it were exist than the surface will follow the mouse;if nothing were been choosed, we will translation All Object(it look like canvas translation but we actually move all surfaces)
@@ -107,7 +112,7 @@ __1.9__
 	no current bug
 
 ## lacking feature
-	-grouping(make a new class extends PainterObj to record the sub obj)
+	-grouping(Union find or PainterObj subclass:group)
 	-trying work the program in Java 8 and lower java runtime enviornment	
 ## Requirements
 	-Java devolopment kit(JDK) 25
