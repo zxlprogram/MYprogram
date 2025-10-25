@@ -26,9 +26,6 @@ public class LayerManager extends JPanel implements MouseListener{
 	    			scene.getDraggingPoint().clear(); 
 	    			for(PainterObj s:scene.getAllSurface()) {
 	    				s.setDraggable(false);
-	    				if(s.getEdge()!=null)
-	    				for(Point p:s.getEdge())
-	    					p.setDraggable(false);
 	    			}
 				for(DraggableItem item:items) {
 					if(item.getBounds().contains(e.getPoint())) {
@@ -144,7 +141,6 @@ public class LayerManager extends JPanel implements MouseListener{
 	    int panelWidth = 50;
 	    int panelHeight = 50;
 	    double tranB=(Math.max(width,height));
-	    surface.setDrawingColor(g,surface);
 	    surface.draw(g,Math.min(panelWidth, panelHeight)/tranB,-minX*panelWidth/tranB,-minY*panelHeight/tranB);
 	    
 	    //(x-a)*b==>(x*r)+d  --> (x*b)-(a*b), a=minX & minY,b=panelWidth/Width & panelHeight/height

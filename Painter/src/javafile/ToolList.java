@@ -113,6 +113,25 @@ class ToolList extends JPanel {
 			scene.addSurface(t);
 		}));
 		toolList.add(enterMoreBezLine);
+		toolList.add(new Tool("Group",()-> {
+			Group group=new Group(this.scene);
+			for(PainterObj p:this.scene.getDraggingSurface())
+				group.addGroup(p);
+			this.scene.getDraggingSurface().clear();
+			if(!group.getGroup().isEmpty())
+			scene.addSurface(group);
+		}));
+		toolList.add(new Tool("disGroup",()-> {
+			List<Group>removeList=new ArrayList<>();
+			for(PainterObj obj:this.scene.getDraggingSurface()) {
+				if(obj.getClass().equals(Group.class)) {
+					Group g=(Group)obj;
+					removeList.add(g);
+				}
+			}
+			for(Group obj:removeList)
+				obj.disGroup();
+		}));
 		for(Component t:toolList)
 			super.add(t);
 	}

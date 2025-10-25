@@ -9,7 +9,6 @@ import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -76,26 +75,10 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     		}
 		private Stack<Event>redoStack=new Stack<>();
 		private static final long serialVersionUID = 1L;
-		
-		public  PainterObj copyPainterObj(PainterObj s) {
-			PainterObj newObj=new PainterObj(Scene.this);
-			try {
-				newObj=s.getClass().getDeclaredConstructor(Scene.class).newInstance(Scene.this);
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException| InvocationTargetException | NoSuchMethodException e) {
-				e.printStackTrace();
-			}
-			if(s.getEdge()!=null)
-			for(Point p:s.getEdge()) {
-				newObj.addPoint(new Point(p.getX(),p.getY(),newObj));
-			}
-			if(s.getColor()!=null)
-			newObj.setColor(new Color(s.getColor().getR(),s.getColor().getG(),s.getColor().getB()));
-			return newObj;
-		}
 		private Event copySurfaceList(Event allList) {
 			List<PainterObj> copy=new ArrayList<>();
 			for(PainterObj s:allList.getAllSurface()) {
-				copy.add(copyPainterObj(s));
+				copy.add(s.clone());
 			}
 			return new Event(copy,allList.getScale(),allList.getOffsetX(),allList.getOffsetY());
 		}
@@ -135,20 +118,20 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
    	protected class ChoiceColor extends JPanel {
    		private static final long serialVersionUID = 1L;
    		private Scene scene;
-   		public ChoiceColor(PainterObj painterObj,Scene scene) {
+   		public ChoiceColor(List<PainterObj>painterObj,Scene scene) {
    			this.scene=scene;
    			java.awt.Color color=JColorChooser.showDialog(this,"color choosing board", getBackground());
    			try {
-   				painterObj.setColor(color.getRed()/255.0,color.getGreen()/255.0,color.getBlue()/255.0);
+   				for(PainterObj p:painterObj)
+   				p.setColor(color.getRed()/255.0,color.getGreen()/255.0,color.getBlue()/255.0);
    	    			note.saveInfo(this.scene.allSurfaces,this.scene.scale,this.scene.offsetX,this.scene.offsetY);
    			}
    			catch(NullPointerException e) {}
-
    		}
    	}
 	private static final long serialVersionUID = 1L;
     static final String appName = "Painter";
-    static final String version = "1.9";
+    static final String version = "1.10-alpha";
     
     //operating
     /**
@@ -183,6 +166,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 		trans.put("BS",BezierSurface.class);
 		trans.put("BL", BezierLine.class);
 		trans.put("Cr",Circle.class);
+		trans.put("G:", Group.class);
 	}
 	public Map<String, Class<? extends PainterObj>> getObjTranslator() {
 		return this.trans;
@@ -317,94 +301,95 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     }
     
     //graphic control
+
     @Override//be called when repaint()
     protected void paintComponent(Graphics g) {
-    		if(this.getLayerManager()!=null&&!this.getLayerManager().isOperating()) {
-    			this.getLayerManager().clearAllItems();
-    			for(PainterObj s:this.allSurfaces) {
-    				this.getLayerManager().addItem(s);
-    			}
+    	if(this.getLayerManager()!=null&&!this.getLayerManager().isOperating()) {
+    		this.getLayerManager().clearAllItems();
+    		for(PainterObj s:this.allSurfaces) {
+    			this.getLayerManager().addItem(s);
     		}
+    	}
         super.paintComponent(g);
         for (PainterObj s : allSurfaces) {
-            s.drawSurface(g);
-            if(s.getEdge()!=null)
+            s.draw(g, scale, offsetX, offsetY);
             for(Point p:s.getEdge()) {
+            	if(p.draggable()||p.getSurface().Draggable())
             		drawPoint(g,p);
             }
         }
     }
     private void drawPoint(Graphics g,Point p) {
-    		if(p.draggable()||p.getSurface().Draggable()) {
-    			g.setColor(java.awt.Color.BLACK);
-    			g.fillOval((int)(p.getX()*scale+offsetX)-POINT_RADIUS/2,(int)(p.getY()*scale+offsetY)-POINT_RADIUS/2,POINT_RADIUS,POINT_RADIUS);
-    		}
+    	g.setColor(java.awt.Color.BLACK);
+    	g.fillOval((int)(p.getX()*scale+offsetX)-POINT_RADIUS/2,(int)(p.getY()*scale+offsetY)-POINT_RADIUS/2,POINT_RADIUS,POINT_RADIUS);
     }
-    
-    
+    private void selectItems(MouseEvent e) {
+		if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) == 0) {
+			this.getDraggingSurface().clear();
+			this.getDraggingPoint().clear(); 
+			for(PainterObj s:this.allSurfaces) {
+				s.setDraggable(false);
+				if(s.getEdge()!=null)
+					for(Point p:s.getEdge())
+						p.setDraggable(false);
+			}
+		}
+		prevMouseX=e.getX();
+		prevMouseY=e.getY();
+		pressedLocationX=e.getX();
+		pressedLocationY=e.getY();
+		this.requestFocusInWindow();
+		int mx = e.getX();
+		int my = e.getY();
+		Point point = null;
+		if(this.getDraggingSurface().isEmpty()) {
+			find:for (int i=allSurfaces.size()-1;i>=0;i--) {
+				if(allSurfaces.get(i).getEdge()!=null) {
+					for (Point p : allSurfaces.get(i).getEdge()) {
+						int px = (int)(p.getX() * scale + offsetX);
+						int py = (int)(p.getY() * scale + offsetY);
+						double dist = Math.hypot(mx - px, my - py);
+						if (dist <= POINT_RADIUS) {
+							p.setDraggable(true);
+							addDraggingPoint(p);
+							point=p;
+							prevMouseX = mx;
+							prevMouseY = my;
+							break find;
+						}
+					}
+				}
+			}
+		}
+		for (int i=allSurfaces.size()-1;i>=0;i--) {
+			if (allSurfaces.get(i).isPointInSurface(mx, my,scale,offsetX,offsetY)&&(point==null||this.allSurfaces.indexOf(point.getSurface())<i)) {
+				this.getAllSurface().get(i).setDraggable(true);
+				this.addDraggingSurface(this.allSurfaces.get(i));
+				prevMouseX = mx;
+				prevMouseY = my;
+				break;
+			}	
+		}
+		if(!draggingSurface.isEmpty()) {
+			draggingPoint.clear();
+			for(PainterObj s:this.allSurfaces) {
+				if(s.getEdge()!=null)
+					for(Point p:s.getEdge())
+						p.setDraggable(false);
+			}
+		}
+    }
     @Override
     public void mousePressed(MouseEvent e) {
-		if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) == 0) {
-    			this.getDraggingSurface().clear();
-    			this.getDraggingPoint().clear(); 
-    			for(PainterObj s:this.allSurfaces) {
-        			s.setDraggable(false);
-        			if(s.getEdge()!=null)
-        			for(Point p:s.getEdge())
-        				p.setDraggable(false);
-    			}
-		}
-		
-    		prevMouseX=e.getX();
-    		prevMouseY=e.getY();
-    		pressedLocationX=e.getX();
-    		pressedLocationY=e.getY();
-    		this.requestFocusInWindow();
-        int mx = e.getX();
-        int my = e.getY();
-        Point point = null;
-        if(this.getDraggingSurface().isEmpty()) {
-        find:for (int i=allSurfaces.size()-1;i>=0;i--) {
-        		if(allSurfaces.get(i).getEdge()!=null) {
-            for (Point p : allSurfaces.get(i).getEdge()) {
-            	int px = (int)(p.getX() * scale + offsetX);
-            int py = (int)(p.getY() * scale + offsetY);
-                double dist = Math.hypot(mx - px, my - py);
-                if (dist <= POINT_RADIUS) {
-                		p.setDraggable(true);
-                    addDraggingPoint(p);
-                    point=p;
-                    prevMouseX = mx;
-                    prevMouseY = my;
-                    break find;
-                }
-            }
-        		}
-        }
-        }
-        for (int i=allSurfaces.size()-1;i>=0;i--) {
-            if (allSurfaces.get(i).isPointInSurface(mx, my,scale,offsetX,offsetY)&&(point==null||this.allSurfaces.indexOf(point.getSurface())<i)) {
-            		this.getAllSurface().get(i).setDraggable(true);
-                this.addDraggingSurface(this.allSurfaces.get(i));
-                prevMouseX = mx;
-                prevMouseY = my;
-                break;
-            }
-        }
-        if(!draggingSurface.isEmpty()) {
-        draggingPoint.clear();
-		for(PainterObj s:this.allSurfaces) {
-			if(s.getEdge()!=null)
-			for(Point p:s.getEdge())
-				p.setDraggable(false);
-		}
-        }
-       if(e.getButton()==MouseEvent.BUTTON3) {
-           if (!draggingSurface.isEmpty()&&draggingSurface.getFirst().getColor() != null) {
-           		SwingUtilities.invokeLater(() -> new ChoiceColor(draggingSurface.getFirst(),this));
-           }
-       }
-    }
+		selectItems(e);
+    	switch(e.getButton()) {
+    		case MouseEvent.BUTTON3:
+    			if (!draggingSurface.isEmpty())	
+    			SwingUtilities.invokeLater(() -> new ChoiceColor(draggingSurface,this));
+    			break;
+       		}
+       		
+    	}
     @Override
     public void mouseDragged(MouseEvent e) {
         int mx = e.getX();
@@ -437,7 +422,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 			}
 			else {
 				surface.moveX(dx);
-        			surface.moveY(dy);
+        		surface.moveY(dy);
 			}
         	}
         }
@@ -450,30 +435,17 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     }
     @Override
     public void mouseReleased(MouseEvent e) {
-    			if(e.getX()!=pressedLocationX&&e.getY()!=pressedLocationY) 
-    				note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
+    	if(e.getX()!=pressedLocationX&&e.getY()!=pressedLocationY) 
+    		note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
     }
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
-		int rol=e.getWheelRotation();
-		if(allSurfaces.size()>0) {
-			if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0) {
-	            double cx = (getWidth() / 2.0 - offsetX) / scale;
-	            double cy = (getHeight() / 2.0 - offsetY) / scale;
-	            double scaleFactor = rol == -1 ? 1.05 : 1 / 1.05;
-				for(PainterObj s:allSurfaces) {
-					if(s.getEdge()!=null)
-					for(Point p:s.getEdge()) {
-	                    double x = p.getX();
-	                    double y = p.getY();
-	                    double newX = cx + (x - cx) * scaleFactor;
-	                    double newY = cy + (y - cy) * scaleFactor;
-	                    p.setX(newX);
-	                    p.setY(newY);
-
-					}
-				}
-			}
+		if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0) {
+			double rol=e.getWheelRotation();
+			double cx = (getWidth() / 2.0 - getOffsetX()) / getScale();
+			double cy = (getHeight() / 2.0 -getOffsetY()) / getScale();
+			for(PainterObj s:allSurfaces)
+				s.changeSize(rol==-1?1.05:1/1.05,cx,cy);
 		}
 		note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
 	}
@@ -500,6 +472,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 		catch(Exception e) {
 			dtde.dropComplete(false);
 			JOptionPane.showMessageDialog(this,"the file were broken or it have a wrong format","File Error", JOptionPane.ERROR_MESSAGE);
+			e.printStackTrace();
 		}
 	}
    	public void keyPressed(KeyEvent e) {
@@ -507,19 +480,22 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
    		case KeyEvent.VK_C:
    		    if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
    			if(!draggingSurface.isEmpty()) {
+   				List<PainterObj>copied=new ArrayList<>();
    			for(PainterObj surface:draggingSurface) {
-   				PainterObj s=new PainterObj(this);
-   				if(surface.getEdge()!=null)
-   				for(Point p:surface.getEdge()) {
-   					s.addPoint(p.getX(),p.getY());
-   				}
-   				if(surface.getColor()!=null)
-   				s.setColor(surface.getColor().getR(),surface.getColor().getG(),surface.getColor().getB());
+   				PainterObj s=surface.clone();
    				s.moveX(0.25);
    				s.moveY(0.25);
    				this.addSurface(s);
-   				note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
+   				copied.add(s);
    			}
+   			for(PainterObj p:this.draggingSurface) {
+   				p.setDraggable(false);
+   			}
+   			for(PainterObj p:copied) {
+   				p.setDraggable(true);
+   			}
+   			setDraggingSurface(copied);
+   			note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
    			}
    			break;
 		case KeyEvent.VK_DELETE:
@@ -531,26 +507,32 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 				}
 				else {
 					for(PainterObj s:draggingSurface) {
-						this.removeSurface(s);
+							this.removeSurface(s);
 					}
 					this.getDraggingSurface().clear();
 				}
 				this.getDraggingPoint().clear();
 			}
 			else if(allSurfaces.size()>0)
-				allSurfaces.removeLast();
+				getAllSurface().removeLast();
 			note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
 			break;
 		case KeyEvent.VK_RIGHT:
 		case KeyEvent.VK_UP:
 			if(!this.draggingSurface.isEmpty()) {
+				double certX=0,certY=0;
+				int amount=0;
 				for(PainterObj surface:draggingSurface) {
-					Point cert=surface.getCertain();
-					if(surface.getEdge()!=null)
 					for(Point p:surface.getEdge()) {
-						p.setX(p.getX()+(p.getX()-cert.getX())*0.1);
-						p.setY(p.getY()+(p.getY()-cert.getY())*0.1);
+						certX+=p.getX();
+						certY+=p.getY();
+						amount++;
 					}
+				}
+				certX/=amount;
+				certY/=amount;
+				for(PainterObj surface:draggingSurface) {
+					surface.changeSize(1.05,certX,certY);
 				}
 			}
 			note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
@@ -558,14 +540,20 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 		case KeyEvent.VK_LEFT:
 		case KeyEvent.VK_DOWN:
 			if(!this.draggingSurface.isEmpty()) {
-			for(PainterObj surface:draggingSurface) {
-				Point cert=surface.getCertain();
-				if(surface.getEdge()!=null)
-				for(Point p:surface.getEdge()) {
-					p.setX(p.getX()-(p.getX()-cert.getX())*0.1);
-					p.setY(p.getY()-(p.getY()-cert.getY())*0.1);
+				double certX=0,certY=0;
+				int amount=0;
+				for(PainterObj surface:draggingSurface) {
+					for(Point p:surface.getEdge()) {
+						certX+=p.getX();
+						certY+=p.getY();
+						amount++;
+					}
 				}
-			}
+				certX/=amount;
+				certY/=amount;
+				for(PainterObj surface:draggingSurface) {
+					surface.changeSize(1/1.05,certX,certY);
+				}
 			}
 			note.saveInfo(this.allSurfaces,this.scale,this.offsetX,this.offsetY);
 			break;

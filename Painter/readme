@@ -8,7 +8,7 @@ __1.0__
 __2025-10-13__
 
 ### latest version: 
-__1.9__
+__1.10-alpha__
 
 ## enviornment
 	Windows 11: jdk-25
@@ -72,19 +72,19 @@ __1.9__
 		make the browser used by cmd, made the linux version
 
 	1.8:
-		release date: 2025-20-22
+		release date: 2025-10-22
 	description:
 		added the color selecter board, press shift to drag the object strightly, press ctrl to choosed multy surface or point, it will mark the point when the point is draggable, the draggingSurface and draggingPoint turns list instead of single object, you will never choosed the point under another object anymore
 		
 	1.9:
-		release date: 
+		release date: 2025-10-23
 	description:
 		added the bezier line, bezier surface, stright line, and added root class PainterObj, moved all object to extends that,and write new feature on file format: the object line first record is a vocabilary descripted the class, moved the layermanager's refresher to the main refresher, fix the circle, move the draw method to PainterObj, and let the subclass Override it, rebuild the structure of layermanager: remove the drawing method let the PainterObj method to done this
 		
-	1.10:
-		release date:
+	1.10-alpha:
+		release date: 2025-10-25
 	description:
-		add ctrl+A keys, fix the bug:the copy items noted in surface, keep rebuild structure
+		add ctrl+A keys, fix the bug:the copy items noted in surface, keep rebuild structure, added the group and disgroup
 		
 ## feature description
 	-KeyEvent ctrl+C: copy the choosing surface
@@ -208,9 +208,25 @@ __1.9__
 		draw method(Graphics g,scale,offsetX,offsetY)
 			use g and Point list to draw graphic
 			all Point will * scale + (offsetX,offsetY)
+		
+		drawSurface method(PainterObj)
+		
+		descripted and load file
+		
+		isPointInSurface(detacted whether the point is in the PointObj)
+		
+		changeSize method
+		
+		move method
 			
-		-Circle
-		-N-Edge surface/line (stright & Bezier)
+			Stright surface
+			bezier surface
+			strignt line
+			bezier line
+			circle
+			Group:
+				add element to Group
+				disGroup
 ________________________________________________
 
 		-vehiecle:
@@ -233,12 +249,11 @@ ________________________________________________
 				Point
 			drawer:
 				drawPoint method
-				drawSurface method(PainterObj)
-			isPointInSurface(detacted whether the point is in the PointObj)
+				call all painterObj draw it self
 			refresher:
 				refresh layer manager
 				refresh scene panel
-		
+				
 		-export&load system:
 		
 			-custom file protocol
@@ -266,3 +281,34 @@ ________________________________________________
 			mouse listener
 			key listener
 			file dropped listener
+			
+## API descripted
+	PainterObj:
+		addPoint():	give the PainterObj a new Point, you can add Point...p or (double a,double b,PainterObj p), and the p is about which PainterObj have that point
+		changeSize(double rol,double cx,double cy): the changeSize method descripted by PainterObj, rol means the changed degree, cx and cy means the certain coordinate
+		clone(): give a new but same value PainterObj
+		DescriptPoint: it returns the point list to String, actually it's only for the subclass
+		draggable():returns wether the painterObj were draggable
+		draw(Graphics g:double scale,double offsetX,double offsetY): it's for scene to repaint the painterObj
+		getCertain():return a painterObj's certain coordinate
+		-getter/setter
+		isPointInSurface(int mx,int my,double scale,double offsetX,double offsetY): return whether the point(mx,my) is in the painterObj, at most situation, it means the point's ploygen
+		loadfile(String[]array): it's for export load system, it catched the outside file's format,descripted by subclass
+		moveX,Y: descripted by painterObj
+	
+	Scene:
+		choice color 
+		Note: saveInfo, undo, redo
+		addDraggingSurface,Point: let the choosed painterObj or point to be draggable, but don't forget to painterObj.setDraggable(true)
+		browserMode: only shows the file,readonly
+		execute:start the main painter app
+		getAllSurface: returns all painterObj in the scene
+		getDraggingPoint,Surface: return the PainterObj which were been choosed
+		-getter/setter
+		removeSurface: remove the current PainterObj
+	
+	Export load system:
+		exporter
+		loader:
+			url loading
+			files loading(txt loading)

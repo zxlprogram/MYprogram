@@ -43,15 +43,18 @@ class Loader {
 		try {
 			sys.getScene().getAllSurface().clear();
 			List<PainterObj>returnList=new ArrayList<>();
+			
 			String line=reader.readLine();
 			String[]view=line.split(" ");
 			sys.getScene().setScale(Double.parseDouble(view[0]));
 			sys.getScene().setOffsetX(Double.parseDouble(view[1]));
 			sys.getScene().setOffsetY(Double.parseDouble(view[2]));
+			
 			while((line=reader.readLine())!=null) {
 				String []array=line.split(" ");
 				PainterObj surface = new PainterObj(this.sys.getScene());
 				try {
+					
 					surface = sys.getScene().getObjTranslator().get(array[0]).getDeclaredConstructor(Scene.class).newInstance(sys.getScene());
 				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException| InvocationTargetException | NoSuchMethodException e) {
 					e.printStackTrace();
@@ -59,10 +62,11 @@ class Loader {
 				surface.loadfile(array);
 				returnList.add(surface);
 			}
+			
 			sys.getScene().setAllSurface(returnList);
 			sys.getScene().getNote().saveInfo(sys.getScene().getAllSurface(),sys.getScene().getScale(),sys.getScene().getOffsetX(),sys.getScene().getOffsetY());
 			reader.close();
-		}catch(IOException e) {}
+		}catch(IOException e) {e.printStackTrace();}
 	}
 	public void loadFile(String path) {
 		try(BufferedReader reader=new BufferedReader(new FileReader(path))) {

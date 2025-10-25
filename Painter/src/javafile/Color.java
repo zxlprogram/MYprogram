@@ -23,4 +23,8 @@ public class Color {
 		this.G=g;
 		this.B=b;
 	}
+	@Override
+	public String toString() {
+		return R+" "+G+" "+B;
+	}
 }
