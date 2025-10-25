@@ -12,9 +12,16 @@ import javax.swing.*;
 public class LayerManager extends JPanel implements MouseListener{
 	private static final long serialVersionUID = 7672158295712151948L;
 	private Scene scene;
+	private int iconSize=50;
 	private final List<DraggableItem>items=new ArrayList<>();
 	private boolean isOperating=false;
 	private DraggableItem draggingItem=null;
+	public int getIconSize() {
+		return this.iconSize;
+	}
+	public void setIconSize(int i) {
+		this.iconSize=i;
+	}
 	public LayerManager(Scene scene) {
 		this.scene=scene;
 		this.setBackground(java.awt.Color.BLACK);
@@ -22,18 +29,18 @@ public class LayerManager extends JPanel implements MouseListener{
 		MouseAdapter mouse=new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
-	    			scene.getDraggingSurface().clear();
+	    			scene.getDraggingPainterObj().clear();
 	    			scene.getDraggingPoint().clear(); 
-	    			for(PainterObj s:scene.getAllSurface()) {
+	    			for(PainterObj s:scene.getAllPainterObj()) {
 	    				s.setDraggable(false);
 	    			}
 				for(DraggableItem item:items) {
 					if(item.getBounds().contains(e.getPoint())) {
 						draggingItem=item;
-						scene.getDraggingSurface().clear();
+						scene.getDraggingPainterObj().clear();
 						scene.getDraggingPoint().clear();
-						scene.addDraggingSurface(draggingItem.getSurface());
-						draggingItem.getSurface().setDraggable(true);
+						scene.addDraggingPainterObj(draggingItem.getPainterObj());
+						draggingItem.getPainterObj().setDraggable(true);
 						break;
 					}
 				}
@@ -70,9 +77,9 @@ public class LayerManager extends JPanel implements MouseListener{
 		List<DraggableItem> removeList=new ArrayList<>();
 		int y=0;
 		for(DraggableItem item:items) {
-			if(item.surface!=null) {
-				item.setBounds(0,y,50,50);
-				y+=50;
+			if(item.painterObj!=null) {
+				item.setBounds(0,y,iconSize,iconSize);
+				y+=iconSize;
 			}
 			else {
 				removeList.add(item);
@@ -92,7 +99,7 @@ public class LayerManager extends JPanel implements MouseListener{
 	
 	private void snapItems() {
 		items.sort((a,b)->Integer.compare(a.getY(),b.getY()));
-		this.scene.getNote().saveInfo(this.scene.getAllSurface(),this.scene.getScale(),this.scene.getOffsetX(),this.scene.getOffsetY());
+		this.scene.getNote().saveInfo(this.scene.getAllPainterObj(),this.scene.getScale(),this.scene.getOffsetX(),this.scene.getOffsetY());
 		layoutItems();
 	}
 	public void clearAllItems() {
@@ -103,21 +110,21 @@ public class LayerManager extends JPanel implements MouseListener{
 	}
 	private void reorderItems() {
 		items.sort((a,b)->Integer.compare(a.getY(), b.getY()));
-		this.scene.setAllSurface(new ArrayList<>());
+		this.scene.setAllPainterObj(new ArrayList<>());
 		for(DraggableItem item:items) {
-			this.scene.addSurface(item.getSurface());
+			this.scene.addPainterObj(item.getPainterObj());
 		}
 		int y=0;
 		for(DraggableItem item:items) {
 			if(item!=draggingItem) {
-				item.setBounds(0,y,50,50);
+				item.setBounds(0,y,iconSize,iconSize);
 			}
-			y+=50;
+			y+=iconSize;
 		}
 	}
 	
 	public Dimension getPreferredSize( ) {
-		int height=items.size()*50;
+		int height=items.size()*iconSize;
 		return new Dimension(200,height);
 	}
 	@Override
@@ -126,10 +133,10 @@ public class LayerManager extends JPanel implements MouseListener{
 	}
 	
 
-	private void drawSurface(Graphics g, PainterObj surface) {//the logic is promise that all point is in the panel(if your painting is out of your point, it possibly shows weird
+	private void drawPainterObj(Graphics g, PainterObj painterObj) {//the logic is promise that all point is in the panel(if your painting is out of your point, it possibly shows weird
 	    double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE;
 	    double maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
-	    for (Point p : surface.getEdge()) {
+	    for (Point p : painterObj.getEdge()) {
 	        if (p.getX() < minX) minX = p.getX();
 	        if (p.getY() < minY) minY = p.getY();
 	        if (p.getX() > maxX) maxX = p.getX();
@@ -138,10 +145,10 @@ public class LayerManager extends JPanel implements MouseListener{
 	    double width = maxX - minX;
 	    double height = maxY - minY;
 	    if (width == 0 || height == 0) return;
-	    int panelWidth = 50;
-	    int panelHeight = 50;
+	    int panelWidth = iconSize;
+	    int panelHeight = iconSize;
 	    double tranB=(Math.max(width,height));
-	    surface.draw(g,Math.min(panelWidth, panelHeight)/tranB,-minX*panelWidth/tranB,-minY*panelHeight/tranB);
+	    painterObj.draw(g,Math.min(panelWidth, panelHeight)/tranB,-minX*panelWidth/tranB,-minY*panelHeight/tranB);
 	    
 	    //(x-a)*b==>(x*r)+d  --> (x*b)-(a*b), a=minX & minY,b=panelWidth/Width & panelHeight/height
 	    //(x-minX)*50/width=x*50/width - minX*50/width
@@ -154,20 +161,20 @@ public class LayerManager extends JPanel implements MouseListener{
 		@Override
 	    protected void paintComponent(Graphics g) {
 	        super.paintComponent(g);
-	        drawSurface(g, this.surface);
+	        drawPainterObj(g, this.painterObj);
 	    }
 		
 		private static final long serialVersionUID = 191952922949924862L;
-		private PainterObj surface;
-		public void setSurface(PainterObj s) {
-			this.surface=s;
+		private PainterObj painterObj;
+		public void setPainterObj(PainterObj s) {
+			this.painterObj=s;
 			repaint();
 		}
-		public PainterObj getSurface() {
-			return this.surface;
+		public PainterObj getPainterObj() {
+			return this.painterObj;
 		}
 	    public DraggableItem(PainterObj s) {
-	    		this.surface=s;
+	    		this.painterObj=s;
 			this.setBorder(BorderFactory.createLineBorder(java.awt.Color.BLACK));
 	        this.setBackground(java.awt.Color.WHITE);
 	    }

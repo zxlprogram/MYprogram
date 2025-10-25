@@ -29,17 +29,17 @@ class ToolList extends JPanel {
 		toolList.add(new Tool(ToolList.class.getResource("/triangle.png"),()->{
 			Surface t=Surface.TRIANGLE(this.scene);
 			t.setColor(1,0,0);
-			scene.addSurface(t);
+			scene.addPainterObj(t);
 		}));
 		toolList.add(new Tool(ToolList.class.getResource("/quad.png"),()->{
 			Surface t=Surface.QUAD(this.scene);
 			t.setColor(1,0,0);
-			scene.addSurface(t);
+			scene.addPainterObj(t);
 		}));
 		toolList.add(new Tool(ToolList.class.getResource("/circle.png"),()->{
 			Circle t=Circle.CIRCLE(this.scene);
 			t.setColor(1,0,0);
-			scene.addSurface(t);
+			scene.addPainterObj(t);
 		}));
 		JTextField enterMoreEdge=new JTextField(5);
 		enterMoreEdge.setPreferredSize(new Dimension(0,31));
@@ -56,7 +56,7 @@ class ToolList extends JPanel {
 			for(int i=0;i<edge;i++)
 				t.addPoint(Math.random(),Math.random());
 			t.setColor(1,0,0);
-			scene.addSurface(t);
+			scene.addPainterObj(t);
 		}));
 		toolList.add(enterMoreEdge);
 		JTextField enterMoreBezierEdge=new JTextField(5);
@@ -74,7 +74,7 @@ class ToolList extends JPanel {
 			for(int i=0;i<edge;i++)
 				t.addPoint(Math.random(),Math.random());
 			t.setColor(1,0,0);
-			scene.addSurface(t);
+			scene.addPainterObj(t);
 		}));
 		toolList.add(enterMoreBezierEdge);
 		JTextField enterMoreLine=new JTextField(5);
@@ -92,7 +92,7 @@ class ToolList extends JPanel {
 			for(int i=0;i<edge;i++)
 				t.addPoint(Math.random(),Math.random());
 			t.setColor(1,0,0);
-			scene.addSurface(t);
+			scene.addPainterObj(t);
 		}));
 		toolList.add(enterMoreLine);
 		JTextField enterMoreBezLine=new JTextField(5);
@@ -110,20 +110,20 @@ class ToolList extends JPanel {
 			for(int i=0;i<edge;i++)
 				t.addPoint(Math.random(),Math.random());
 			t.setColor(1,0,0);
-			scene.addSurface(t);
+			scene.addPainterObj(t);
 		}));
 		toolList.add(enterMoreBezLine);
 		toolList.add(new Tool("Group",()-> {
 			Group group=new Group(this.scene);
-			for(PainterObj p:this.scene.getDraggingSurface())
+			for(PainterObj p:this.scene.getDraggingPainterObj())
 				group.addGroup(p);
-			this.scene.getDraggingSurface().clear();
+			this.scene.getDraggingPainterObj().clear();
 			if(!group.getGroup().isEmpty())
-			scene.addSurface(group);
+			scene.addPainterObj(group);
 		}));
 		toolList.add(new Tool("disGroup",()-> {
 			List<Group>removeList=new ArrayList<>();
-			for(PainterObj obj:this.scene.getDraggingSurface()) {
+			for(PainterObj obj:this.scene.getDraggingPainterObj()) {
 				if(obj.getClass().equals(Group.class)) {
 					Group g=(Group)obj;
 					removeList.add(g);
@@ -158,7 +158,7 @@ class ToolList extends JPanel {
 	                this.action.run(); 
 	            }
                 scene.requestFocusInWindow();
-				scene.getNote().saveInfo(scene.getAllSurface(),scene.getScale(),scene.getOffsetX(),scene.getOffsetY());
+				scene.getNote().saveInfo(scene.getAllPainterObj(),scene.getScale(),scene.getOffsetX(),scene.getOffsetY());
 			});
 		}
 		@SuppressWarnings("unused")
@@ -171,7 +171,7 @@ class ToolList extends JPanel {
 	                this.action.run(); 
 	            }
                 scene.requestFocusInWindow();
-    				scene.getNote().saveInfo(scene.getAllSurface(),scene.getScale(),scene.getOffsetX(),scene.getOffsetY());
+    				scene.getNote().saveInfo(scene.getAllPainterObj(),scene.getScale(),scene.getOffsetX(),scene.getOffsetY());
 	        });
 		}
 	}

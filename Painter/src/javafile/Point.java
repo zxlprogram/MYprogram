@@ -24,7 +24,7 @@ public class Point {
 	public double getY() {
 		return this.Y;
 	}
-	public PainterObj getSurface() {
+	public PainterObj getPainterObj() {
 		return this.painterObj;
 	}
 	@Override

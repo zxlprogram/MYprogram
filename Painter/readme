@@ -112,7 +112,7 @@ __1.10-alpha__
 	no current bug
 
 ## lacking feature
-	-trying work the program in Java 8 and lower java runtime enviornment	
+	-trying work the program in Java 8 and lower java runtime enviornment
 	
 ## Requirements
 	-Java devolopment kit(JDK) 25
@@ -129,12 +129,13 @@ __1.10-alpha__
 	browser:
 		1.open cmd, path to the folder which have painterBrowser.jar
 		2. .\painterBrowser.jar <your_painter_file_name.txt>
-			exp: ".\painterBrowser.jar C:\Users\user\desktop\file.txt"
+			exp: ".\painterBrowser.jar C:\Users\user\desktop\file.vecf"
 			
 		or double click the jar file to open it, drag the file to the browser to check the file in browser
 	
 ## Custom file protocol
-	-at first line we have three number for scale, offsetX, offsetY, and below next line, it record for all of the surface, for each surface, we have a vocabilary, N points and a color,first vocabilary descripted the PaintObj class; every points have two doubles and color have three, each point's format:"X Y ",and than, " C " were followed, at last, Color format:"R G B" will followed behind
+	-file format: .vecf
+	-at first line we have three number for scale, offsetX, offsetY, and below next line, it record for all of the PainterObj, for each PainterObj, we have a vocabilary, N points and a color,first vocabilary descripted the PaintObj class; every points have two doubles and color have three, each point's format:"X Y ",and than, " C " were followed, at last, Color format:"R G B" will followed behind, if the vocabilary at first word is G: means it is a group, and then at that line will have some PainterObj descripted and splited by ","
 	
 ## program stucture
 	Painter:
@@ -194,7 +195,7 @@ __1.10-alpha__
 							runtime:
 							libapplauncher.so
 							painter.png
-				
+		-report.docx		
 		-readme
 
 ## Abstract structure

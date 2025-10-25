@@ -16,6 +16,9 @@ import java.util.List;
  *  Override the removePoint method(optional) if your shape have a limited range for point, the default range is points>=3
  *  Override
  *  
+ *  
+ *  if the point set at draw method, it will be freeze, the Object decided the point,if you didn't, the point will decide the shape
+ *  keep your point out from your shape, or it will not shows on layer manager
  */
 public class PainterObj {
 	private boolean isDragging;
@@ -137,7 +140,7 @@ public class PainterObj {
 	public void removePoint(Point point) {
 		this.Edge.remove(point);
 		if(this.getEdge().length<3) {
-			scene.removeSurface(this);
+			scene.removePainterObj(this);
 		}
 	}
 	public void removePoint(int index) {
@@ -151,7 +154,7 @@ public class PainterObj {
 		s+=" C "+this.getColor().getR()+" "+this.getColor().getG()+" "+this.getColor().getB();
 		return s;
 	}
-    public boolean isPointInSurface(int mx, int my,double scale,double offsetX,double offsetY) {//AI
+    public boolean isPointInPainterObj(int mx, int my,double scale,double offsetX,double offsetY) {//AI
         Point[] points = this.getEdge();
         int[] xPoints = new int[points.length];
         int[] yPoints = new int[points.length];
@@ -258,8 +261,8 @@ class Line extends PainterObj{
 	public void removePoint(Point point) {
 		this.getRawEdge().remove(point);
 		if(this.getEdge().length<2) {
-			getScene().removeSurface(this);
-			getScene().getDraggingSurface().remove(this);
+			getScene().removePainterObj(this);
+			getScene().getDraggingPainterObj().remove(this);
 		}
 	}
 	@Override 
@@ -320,27 +323,35 @@ class Circle extends PainterObj {
 		c.addPoint(0,0);
 		c.addPoint(1,0);
 		c.addPoint(0,1);
+		c.addPoint(-1,-1);
 		return c;
 	}
 	@Override
 	public void removePoint(Point point) {
 		this.getRawEdge().remove(point);
-		if(this.getEdge().length!=3) {
-			getScene().removeSurface(this);
+		if(this.getEdge().length!=4) {
+			getScene().removePainterObj(this);
 		}
+	}
+	@Override
+	public Point getCertain() {
+		return new Point(getEdge()[0].getX(),getEdge()[0].getY(),null);
 	}
 	@Override
 	public void draw(Graphics g,double scale,double offsetX,double offsetY) {
 		setDrawingColor(g,this);
-		int x=(int)(this.getEdge()[0].getX()*scale+offsetX);
-		int y=(int)(this.getEdge()[0].getY()*scale+offsetY);
-		int width=Math.abs((int)(this.getEdge()[1].getX()* scale+offsetX)-x)*2;
-		int height=Math.abs((int)(this.getEdge()[2].getY()*scale+offsetY)-y)*2;
-		g.fillOval(x-width/2,y-height/2,width,height);
-		
+		double x=(this.getEdge()[0].getX()*scale+offsetX);
+		double y=(this.getEdge()[0].getY()*scale+offsetY);
+		double width=Math.abs((this.getEdge()[1].getX()* scale+offsetX)-x)*2;
+		double height=Math.abs((this.getEdge()[2].getY()*scale+offsetY)-y)*2;
+		this.getEdge()[3].setX(this.getEdge()[0].getX()*2-this.getEdge()[1].getX());
+		this.getEdge()[3].setY(this.getEdge()[0].getY()*2-this.getEdge()[2].getY());
+		this.getEdge()[2].setX(this.getEdge()[0].getX());
+		this.getEdge()[1].setY(this.getEdge()[0].getY());
+		g.fillOval((int)(x-width/2),(int)(y-height/2),(int)width,(int)height);
 	}
 	@Override
-	public boolean isPointInSurface(int mx, int my,double scale,double offsetX,double offsetY) {
+	public boolean isPointInPainterObj(int mx, int my,double scale,double offsetX,double offsetY) {
 		double x=(this.getEdge()[0].getX()*scale+offsetX);
 		double y=(this.getEdge()[0].getY()*scale+offsetY);
 		double width=Math.abs((this.getEdge()[1].getX()* scale+offsetX)-x);
@@ -383,14 +394,14 @@ class Group extends PainterObj {
 		}else {
 			this.group.add(p.clone());
 		}
-		this.getScene().removeSurface(p);
+		this.getScene().removePainterObj(p);
 	}
 	public void disGroup() {
 		for(PainterObj obj:this.group) {
-			this.getScene().addSurface(obj);
+			this.getScene().addPainterObj(obj);
 		}
-		this.getScene().removeSurface(this);
-		this.getScene().getDraggingSurface().remove(this);
+		this.getScene().removePainterObj(this);
+		this.getScene().getDraggingPainterObj().remove(this);
 	}
 	@Override
 	public void changeSize(double rol,double cx,double cy) {
@@ -487,9 +498,9 @@ class Group extends PainterObj {
 		return null;
 	}
 	@Override
-	public boolean isPointInSurface(int mx,int my,double scale,double offsetX,double offsetY) {
+	public boolean isPointInPainterObj(int mx,int my,double scale,double offsetX,double offsetY) {
 		for(PainterObj obj:this.getGroup())
-			if(obj.isPointInSurface(mx,my,scale,offsetX,offsetY))
+			if(obj.isPointInPainterObj(mx,my,scale,offsetX,offsetY))
 				return true;
 		return false;
 	}
