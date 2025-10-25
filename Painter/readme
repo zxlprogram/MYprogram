@@ -170,7 +170,7 @@ __1.10-alpha__
 			-quad.png
 			-file.txt
 		Assets:
-			v1.7.1~v1.9:
+			v1.7.1~v1.10-alpha:
 				jar files:
 					-painter.jar
 					-painterBrowser.jar
