@@ -32,7 +32,7 @@ import javax.swing.*;
 /**
  * @since 2025-10-13
  * @author z.x.l
- * @version 1.9
+ * @version 1.10-alpha
  */
 public class Scene extends JPanel implements MouseListener,MouseMotionListener,KeyListener,MouseWheelListener,DropTargetListener {//AI接手mouseEvent, base-on-swing
 
@@ -185,10 +185,10 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     		this.buildFileFormat();
     		JFrame frame = new JFrame(appName+"(ver: "+version+")");
         frame.setIconImage(new ImageIcon(Scene.class.getResource("/painter_logo.png")).getImage());
-    		ToolList toolList=new ToolList(this);
-    		toolList.setBackground(new java.awt.Color(0,0,120));
+    	ToolList toolList=new ToolList(this);
+    	toolList.setBackground(new java.awt.Color(0,0,120));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 400);
+        frame.setSize(1000, 500);
         mainPanel.setLayout(new BorderLayout());
         mainPanel.add(toolList,BorderLayout.NORTH);
         mainPanel.add(this,BorderLayout.CENTER);

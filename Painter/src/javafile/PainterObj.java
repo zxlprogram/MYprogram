@@ -453,7 +453,12 @@ class Group extends PainterObj {
 		nl.setX(nlx);
 		nl.setY(nly);
 		for(PainterObj obj:this.getGroup()) {
-			obj.setDrawingColor(g,obj);
+			if(this.Draggable()) {
+				obj.setDraggable(true);
+			}
+			else {
+				obj.setDraggable(false);
+			}
 			obj.draw(g, scale, offsetX, offsetY);
 		}
 	}
@@ -522,8 +527,15 @@ class Group extends PainterObj {
 	}
 	@Override public void removePoint(Point p) {}//group don't remove point
 	@Override public void removePoint(int x) {}
-	@Override public void setColor(Color c) {}//group don't set Color
-	@Override public void setColor(double r,double g,double b) {}
+	@Override 
+	public void setColor(Color c) {
+		for(PainterObj p:this.group)
+			p.setColor(c);
+	}
+	@Override public void setColor(double r,double g,double b) {
+		for(PainterObj p:this.group)
+			p.setColor(r,g,b);
+	}
 	@Override protected void setDrawingColor(Graphics g,PainterObj p) {
 		System.out.println("group don't set drawing color : Graphics g,PainterObj p");
 	}
