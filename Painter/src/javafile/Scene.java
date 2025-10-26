@@ -34,129 +34,30 @@ import javax.swing.*;
  * @author z.x.l
  * @version 1.10-alpha
  */
-public class Scene extends JPanel implements MouseListener,MouseMotionListener,KeyListener,MouseWheelListener,DropTargetListener {//AI接手mouseEvent, base-on-swing
-
-    protected class Note extends Stack<Note.Event>{
-    		private class Event {
-    			private List<PainterObj>graphic;
-    			private double scale;
-    			private double offsetX;
-    			private double offsetY;
-    			public Event(List<PainterObj>graphic,double scale,double offsetX,double offsetY) {
-    				this.graphic=graphic;
-    				this.scale=scale;
-    				this.offsetX=offsetX;
-    				this.offsetY=offsetY;
-    			}
-    			public List<PainterObj> getAllPainterObj() {
-    				return this.graphic;
-    			}
-    			public double getScale() {
-    				return this.scale;
-    			}
-    			public double getOffsetX() {
-    				return this.offsetX;
-    			}
-    			public double getOffsetY() {
-    				return this.offsetY;
-    			}	
-    			@SuppressWarnings("unused")
-				public void setScale(double scale) {
-    				this.scale=scale;
-    			}	
-    			@SuppressWarnings("unused")
-				public void setOffsetX(double offsetX) {
-    				this.offsetX=offsetX;
-    			}	
-    			@SuppressWarnings("unused")
-				public void setOffsetY(double offsetY) {
-    				this.offsetY=offsetY;
-    			}	
-    		}
-		private Stack<Event>redoStack=new Stack<>();
-		private static final long serialVersionUID = 1L;
-		private Event copyPainterObjList(Event allList) {
-			List<PainterObj> copy=new ArrayList<>();
-			for(PainterObj s:allList.getAllPainterObj()) {
-				copy.add(s.clone());
-			}
-			return new Event(copy,allList.getScale(),allList.getOffsetX(),allList.getOffsetY());
-		}
-		private void prepareNote(double scale,double offsetX,double offsetY) {
-			this.redoStack.push(new Event(new ArrayList<>(),scale,offsetX,offsetY));
-		}
-		public void redo(Scene scene) {
-			if(this.redoStack.size()>0) {
-				Event undoList=copyPainterObjList(this.redoStack.pop());
-				scene.setAllPainterObj(undoList.getAllPainterObj());
-				scene.setScale(undoList.scale);
-				scene.setOffsetX(undoList.offsetX);
-				scene.setOffsetY(undoList.offsetY);
-    			this.push(copyPainterObjList(undoList));
-			}
-		}
-		public void undo(Scene scene) {
-			if(this.size()>1) {
-				this.redoStack.push(copyPainterObjList(this.pop()));
-				scene.setAllPainterObj(copyPainterObjList(this.peek()).getAllPainterObj());
-				scene.setScale(this.peek().getScale());
-				scene.setOffsetX(this.peek().getOffsetX());
-				scene.setOffsetY(this.peek().getOffsetY());
-			}
-		}
-		public void saveInfo(List<PainterObj> list,double scale,double offsetX,double offsetY) {
-			this.push(copyPainterObjList(new Event(list,scale,offsetX,offsetY)));
-			if(this.size()>50)
-				this.removeFirst();
-			this.redoStack.clear();
-		}
-    }
-
-   	protected class ChoiceColor extends JPanel {
-   		private static final long serialVersionUID = 1L;
-   		private Scene scene;
-   		public ChoiceColor(List<PainterObj>painterObj,Scene scene) {
-   			this.scene=scene;
-   			java.awt.Color color=JColorChooser.showDialog(this,"color choosing board", getBackground());
-   			try {
-   				for(PainterObj p:painterObj)
-   				p.setColor(color.getRed()/255.0,color.getGreen()/255.0,color.getBlue()/255.0);
-   	    			note.saveInfo(this.scene.allPainterObj,this.scene.scale,this.scene.offsetX,this.scene.offsetY);
-   			}
-   			catch(NullPointerException e) {}
-   		}
-   	}
+public class Scene extends JPanel implements MouseListener,MouseMotionListener,KeyListener,MouseWheelListener,DropTargetListener {//base-on-swing
 	private static final long serialVersionUID = 1L;
+	//_________________________________________DESCRIPTION______________________
     static final String appName = "Painter";
-    static final String version = "1.10-alpha";
-    
-    //operating
-    /**
-     * @param
-     * allSurfaces is the container of Surface, it is a List
-     */
+    static final String version = "1.10";
+
+    //_________________________________________OPERATION________________________
     private java.util.List<PainterObj> allPainterObj = new ArrayList<>();
-    /**
-     * @param
-     * draggingSurface used to save the surface which we are choosing, when mouse pressed, it will set to null if mouse is not in any surface, and it will not forget after mouse released, so does draggingPoint
-     */
     private List<PainterObj>draggingPainterObj = new ArrayList<>();
     private List<Point> draggingPoint = new ArrayList<>();
-    private final int POINT_RADIUS = 10;
     private ExportLoadSystem saveLoader=new ExportLoadSystem(this);
-    private LayerManager layerManager;
+    private LayerManager layerManager=new LayerManager(this);
+    private ToolList toolList=new ToolList(this);
     private Note note=new Note();
     private JPanel mainPanel=new JPanel();
-    
-    //events listener
-    private int prevMouseX, prevMouseY, pressedLocationX,pressedLocationY;
-    
-    //camera
-    private double scale;
-    private double offsetX;
-    private double offsetY;
+    private JFrame frame=new JFrame();
+    private JScrollPane scroll=new JScrollPane();
+    private int prevMouseX, prevMouseY, pressedLocationX,pressedLocationY;    //events listener
+    private double scale,offsetX,offsetY;	//camera
 	private Map<String,Class<? extends PainterObj>>trans=new HashMap<>();
-	
+    private final int POINT_RADIUS = 10;
+    private List<PainterObj>trash=new ArrayList<>();
+
+    //_________________________________________PAINTEROBJ_SIGN__________________
 	private void buildFileFormat() {
 		trans.put("SS",Surface.class);
 		trans.put("SL", Line.class);
@@ -168,42 +69,117 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 	public Map<String, Class<? extends PainterObj>> getObjTranslator() {
 		return this.trans;
 	}
+
+    //_________________________________________HIDDEN_CONTROLLER________________
+    protected class Note extends Stack<Note.Event>{
+		private Stack<Event>redoStack=new Stack<>();
+		private static final long serialVersionUID = 1L;
+		private int MAX_SAVING_EVENT=100;
+    	private class Event {
+			private List<PainterObj>graphic;
+			private double scale;
+			private double offsetX;
+			private double offsetY;
+			public Event(List<PainterObj>graphic,double scale,double offsetX,double offsetY) {
+				this.graphic=graphic;
+				this.scale=scale;
+				this.offsetX=offsetX;
+				this.offsetY=offsetY;
+			}
+			public List<PainterObj> getAllPainterObj() {
+				return this.graphic;
+			}
+			public double getScale() {
+				return this.scale;
+			}
+			public double getOffsetX() {
+				return this.offsetX;
+			}
+			public double getOffsetY() {
+				return this.offsetY;
+			}
+		}
+    	private Event copyPainterObjList(Event allList) {
+    		List<PainterObj> copy=new ArrayList<>();
+    		for(PainterObj s:allList.getAllPainterObj()) {
+    			copy.add(s.clone());
+    		}
+    		return new Event(copy,allList.getScale(),allList.getOffsetX(),allList.getOffsetY());
+    	}
+    	private void prepareNote(double scale,double offsetX,double offsetY) {
+    		this.redoStack.push(new Event(new ArrayList<>(),scale,offsetX,offsetY));
+    	}
+    	public void redo(Scene scene) {
+    		if(this.redoStack.size()>0) {
+    			Event undoList=copyPainterObjList(this.redoStack.pop());
+    			scene.setAllPainterObj(undoList.getAllPainterObj());
+    			scene.setScale(undoList.scale);
+    			scene.setOffsetX(undoList.offsetX);
+    			scene.setOffsetY(undoList.offsetY);
+    			this.push(copyPainterObjList(undoList));
+    		}
+    	}
+    	public void undo(Scene scene) {
+    		if(this.size()>1) {
+    			this.redoStack.push(copyPainterObjList(this.pop()));
+    			scene.setAllPainterObj(copyPainterObjList(this.peek()).getAllPainterObj());
+    			scene.setScale(this.peek().getScale());
+    			scene.setOffsetX(this.peek().getOffsetX());
+    			scene.setOffsetY(this.peek().getOffsetY());
+    		}	
+    	}
+    	public void saveInfo() {
+    		this.push(copyPainterObjList(new Event(Scene.this.allPainterObj,Scene.this.scale,Scene.this.offsetX,Scene.this.offsetY)));
+    		if(this.size()>MAX_SAVING_EVENT)
+    			this.removeFirst();
+    		this.redoStack.clear();
+    	}
+    }
+	protected class ChoiceColor extends JPanel {
+		private static final long serialVersionUID = 1L;
+		public ChoiceColor(List<PainterObj>painterObj,Scene scene) {
+			java.awt.Color color=JColorChooser.showDialog(this,"color choosing board", getBackground());
+			try {
+				for(PainterObj p:painterObj)
+				p.setColor(color.getRed()/255.0,color.getGreen()/255.0,color.getBlue()/255.0);
+	    			note.saveInfo();
+			}
+			catch(NullPointerException e) {}
+		}
+	}
 	
-	/**
-     * 
-     * just like javaFx Application.start()
-	 * @throws InterruptedException 
-     */
-    public void execute() {
-    		//圖片載體
-    		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}	
-    		this.buildFileFormat();
-    		JFrame frame = new JFrame(appName+"(ver: "+version+")");
-        frame.setIconImage(new ImageIcon(Scene.class.getResource("/painter_logo.png")).getImage());
-    	ToolList toolList=new ToolList(this);
+    //_________________________________________LAUNCH___________________________
+	private void launch(String name) {
+		this.buildFileFormat();
+		frame.setIconImage(new ImageIcon(Scene.class.getResource("/painter_logo.png")).getImage());
     	toolList.setBackground(new java.awt.Color(0,0,120));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(1000, 500);
+        frame.setTitle(name+"(ver: "+version+")");
         mainPanel.setLayout(new BorderLayout());
-        mainPanel.add(toolList,BorderLayout.NORTH);
-        mainPanel.add(this,BorderLayout.CENTER);
-        layerManager=new LayerManager(Scene.this);
-        JScrollPane scroll=new JScrollPane(layerManager);
-        scroll.setPreferredSize(new Dimension(layerManager.getIconSize()+20,0));
+		mainPanel.add(this,BorderLayout.CENTER);
+ 		frame.setVisible(true);
+		frame.setContentPane(mainPanel);
+		new DropTarget(this,this);
+
+	}
+    public void execute() {
+    	try {
+		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}	
+    	launch(appName);
+        scroll.setViewportView(layerManager);
+        scroll.setPreferredSize(new Dimension(layerManager.getIconSize()+18,0));
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         mainPanel.add(scroll,BorderLayout.EAST);
-        frame.add(mainPanel);
+        toolList.setPreferredSize(new Dimension(0,toolList.getPanelHeight()));
+        mainPanel.add(toolList,BorderLayout.NORTH);
         addMouseListener(this);
         addKeyListener(this);
         addMouseMotionListener(this);
         addMouseWheelListener(this);
-        new DropTarget(this,this);
         setFocusable(true);
-        requestFocusInWindow();
-        frame.setVisible(true);
         frame.addWindowListener(new WindowAdapter() {//to avoid GUI system crash on execution thread
         		@SuppressWarnings("unused")
 				@Override
@@ -216,120 +192,99 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         		    note.prepareNote(scale,offsetX,offsetY);
         		    URL logo=Scene.class.getResource("/file.vecf");
         		    saveLoader.getLoader().loadFile(logo);
+        	        requestFocusInWindow();
         	        new javax.swing.Timer(10,e2->{repaint();}).start();
         		}
         });
     }
-    
     public void browserMode(String path) {
 		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException|InstantiationException|IllegalAccessException|UnsupportedLookAndFeelException e) {}
-		this.buildFileFormat();
-		JFrame frame = new JFrame("Browser"+"(ver: "+version+")");
-        frame.setIconImage(new ImageIcon(Scene.class.getResource("/painter_logo.png")).getImage());
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(800, 400);
-		frame.setVisible(true);
-		mainPanel=new JPanel(new BorderLayout());
-		mainPanel.add(this,BorderLayout.CENTER);
-		frame.setContentPane(mainPanel);
-		new DropTarget(this,this);
-    		note=new Note();
-    		if(path!=null)
-    			this.saveLoader.getLoader().loadFile(path);
-    		repaint();
+		launch("Browser");
+    	if(path!=null)
+    		this.saveLoader.getLoader().loadFile(path);
+    	repaint();
     }
-    public void addPainterObj(PainterObj s) {
-        this.allPainterObj.add(s);
-    }
-    public void setAllPainterObj(List<PainterObj> list) {
-    		this.allPainterObj=list;
-    }
+
+    //_________________________________________REMOVER__________________________
     public void removePainterObj(PainterObj s) {
         this.allPainterObj.remove(s);
     }
-    public List<PainterObj>getAllPainterObj() {
-    		return this.allPainterObj;
+    @Override
+    public void removeAll() {
+    	this.allPainterObj.clear();
     }
-	public List<Point> getDraggingPoint() {
-		return this.draggingPoint;
-	}
-	public void setDraggingPoint(List<Point> p) {
-		this.draggingPoint=p;
-	}
+    //_________________________________________ADDER____________________________
+    public void addPainterObj(PainterObj s) {
+        this.allPainterObj.add(s);
+    }
 	public void addDraggingPoint(Point p) {
 		if(!this.draggingPoint.contains(p)) {
 			this.draggingPoint.add(p);
 		}
 	}
-	public List<PainterObj> getDraggingPainterObj() {
-		return this.draggingPainterObj;
-	}
-	public void setDraggingPainterObj(List<PainterObj> s) {
-		this.draggingPainterObj=s;
-	}
 	public void addDraggingPainterObj(PainterObj p) {
 		if(!this.draggingPainterObj.contains(p))
 			this.draggingPainterObj.add(p);
 	}
-    public void setScale(double d) {
-    		this.scale=d;
+    //_________________________________________GETTER___________________________
+	public List<PainterObj> getDraggingPainterObj() {
+		return this.draggingPainterObj;
+	}
+	public List<Point> getDraggingPoint() {
+		return this.draggingPoint;
+	}
+	public List<PainterObj> getAllPainterObj() {
+		return this.allPainterObj;
+	}
+    public Note getNote() {
+		return this.note;
     }
-    public double getScale() {
-    		return this.scale;
+    public LayerManager getLayerManager() {
+    	return this.layerManager;
     }
-    public void setOffsetX(double d) {
-		this.offsetX=d;
-    }	
     public double getOffsetX() {
 		return this.offsetX;
-    }
-    public void setOffsetY(double d) {
-		this.offsetY=d;
     }	
     public double getOffsetY() {
 		return this.offsetY;
     }
-    public Note getNote() {
-    		return this.note;
+    public double getScale() {
+		return this.scale;
     }
-    public LayerManager getLayerManager() {
-    		return this.layerManager;
+
+    //_________________________________________SETTER____________________________
+    public void setAllPainterObj(List<PainterObj> list) {
+    		this.allPainterObj=list;
+    }
+	public void setDraggingPainterObj(List<PainterObj> s) {
+		this.draggingPainterObj=s;
+	}
+	public void setAllPainterObjDraggable(boolean n) {
+		for(PainterObj p:this.allPainterObj)
+			p.setDraggable(n);
+	}
+	public void setDraggingPoint(List<Point> p) {
+		this.draggingPoint=p;
+	}
+	public void setOffsetX(double d) {
+		this.offsetX=d;
+    }
+    public void setOffsetY(double d) {
+		this.offsetY=d;
+    }	
+    public void setScale(double d) {
+		this.scale=d;
     }
     
-    //graphic control
-
-    @Override//be called when repaint()
-    protected void paintComponent(Graphics g) {
-    	if(this.getLayerManager()!=null&&!this.getLayerManager().isOperating()) {
-    		this.getLayerManager().clearAllItems();
-    		for(PainterObj s:this.allPainterObj) {
-    			this.getLayerManager().addItem(s);
-    		}
-    	}
-    	super.paintComponent(g);
-        for (PainterObj s : allPainterObj) {
-            s.draw(g, scale, offsetX, offsetY);
-            for(Point p:s.getEdge()) {
-            	if(p.draggable()||p.getPainterObj().Draggable())
-            		drawPoint(g,p);
-            }
-        }
-    }
-    private void drawPoint(Graphics g,Point p) {
-    	g.setColor(java.awt.Color.BLACK);
-    	g.fillOval((int)(p.getX()*scale+offsetX)-POINT_RADIUS/2,(int)(p.getY()*scale+offsetY)-POINT_RADIUS/2,POINT_RADIUS,POINT_RADIUS);
-    }
+    //_________________________________________GRAPHIC_CONTROL___________________
     private void selectItems(MouseEvent e) {
 		if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) == 0) {
 			this.getDraggingPainterObj().clear();
 			this.getDraggingPoint().clear(); 
 			for(PainterObj s:this.allPainterObj) {
 				s.setDraggable(false);
-				if(s.getEdge()!=null)
-					for(Point p:s.getEdge())
-						p.setDraggable(false);
 			}
 		}
 		prevMouseX=e.getX();
@@ -361,7 +316,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 		}
 		for (int i=allPainterObj.size()-1;i>=0;i--) {
 			if (allPainterObj.get(i).isPointInPainterObj(mx, my,scale,offsetX,offsetY)&&(point==null||this.allPainterObj.indexOf(point.getPainterObj())<i)) {
-				this.getAllPainterObj().get(i).setDraggable(true);
+				allPainterObj.get(i).setDraggable(true);
 				this.addDraggingPainterObj(this.allPainterObj.get(i));
 				prevMouseX = mx;
 				prevMouseY = my;
@@ -371,12 +326,45 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 		if(!draggingPainterObj.isEmpty()) {
 			draggingPoint.clear();
 			for(PainterObj s:this.allPainterObj) {
-				if(s.getEdge()!=null)
-					for(Point p:s.getEdge())
-						p.setDraggable(false);
+				for(Point p:s.getEdge())
+					p.setDraggable(false);
 			}
 		}
     }
+    private void drawPoint(Graphics g,Point p) {
+    	g.setColor(java.awt.Color.BLACK);
+    	g.fillOval((int)(p.getX()*scale+offsetX)-POINT_RADIUS/2,(int)(p.getY()*scale+offsetY)-POINT_RADIUS/2,POINT_RADIUS,POINT_RADIUS);
+    }
+    @Override//be called when repaint()
+    protected void paintComponent(Graphics g) {
+    	super.paintComponent(g);
+        toolList.setPreferredSize(new Dimension(0,toolList.getPanelHeight()));
+        scroll.setPreferredSize(new Dimension(layerManager.getIconSize()+18,0));
+    	if(this.getLayerManager()!=null&&!this.getLayerManager().isOperating()) {
+    		this.getLayerManager().clearAllItems();
+    		for(PainterObj s:this.allPainterObj) {
+    			this.getLayerManager().addItem(s);
+    		}
+    	}
+        for (PainterObj s : allPainterObj) {
+        	if(s.islegalObj()) {
+        		s.draw(g, scale, offsetX, offsetY);
+        		for(Point p:s.getEdge()) {
+        			if(p.draggable()||p.getPainterObj().Draggable())
+        			drawPoint(g,p);
+        		}
+        	}
+        	else {
+        		trash.add(s);
+        	}
+        }
+        for(PainterObj p:trash) {
+        	allPainterObj.remove(p);
+        	draggingPainterObj.remove(p);
+        }
+    }
+
+    //_________________________________________EVENTS____________________________
     @Override
     public void mousePressed(MouseEvent e) {
 		selectItems(e);
@@ -387,16 +375,16 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     			break;
        		}
        		
-    	}
+    }
     @Override
     public void mouseDragged(MouseEvent e) {
+    	revalidate();
         int mx = e.getX();
         int my = e.getY();
         double dx = (mx - prevMouseX) /scale;
         double dy = (my - prevMouseY) /scale;
 
         if (!draggingPoint.isEmpty()) {
-        	
         	for(Point p:draggingPoint) {
         		if((e.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) != 0) {
         			if(Math.abs(e.getX()-prevMouseX)>Math.abs(e.getY()-prevMouseY)*3)
@@ -410,7 +398,6 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         		}
         	}
         } else if (!draggingPainterObj.isEmpty()) {
-        	
         	for(PainterObj painterObj:draggingPainterObj) {
 			if((e.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) != 0) {
     				if(Math.abs(e.getX()-prevMouseX)>Math.abs(e.getY()-prevMouseY)*3)
@@ -434,7 +421,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     @Override
     public void mouseReleased(MouseEvent e) {
     	if(e.getX()!=pressedLocationX&&e.getY()!=pressedLocationY) 
-    		note.saveInfo(this.allPainterObj,this.scale,this.offsetX,this.offsetY);
+    		note.saveInfo();
     }
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
@@ -445,8 +432,9 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 			for(PainterObj s:allPainterObj)
 				s.changeSize(rol==-1?1.05:1/1.05,cx,cy);
 		}
-		note.saveInfo(this.allPainterObj,this.scale,this.offsetX,this.offsetY);
+		note.saveInfo();
 	}
+	@SuppressWarnings("unchecked")
 	@Override
 	public void drop(DropTargetDropEvent dtde) {
 		try {
@@ -493,7 +481,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
    				p.setDraggable(true);
    			}
    			setDraggingPainterObj(copied);
-   			note.saveInfo(this.allPainterObj,this.scale,this.offsetX,this.offsetY);
+   			note.saveInfo();
    			}
    			break;
 		case KeyEvent.VK_DELETE:
@@ -512,8 +500,8 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 				this.getDraggingPoint().clear();
 			}
 			else if(allPainterObj.size()>0)
-				getAllPainterObj().removeLast();
-			note.saveInfo(this.allPainterObj,this.scale,this.offsetX,this.offsetY);
+				allPainterObj.removeLast();
+			note.saveInfo();
 			break;
 		case KeyEvent.VK_RIGHT:
 		case KeyEvent.VK_UP:
@@ -522,7 +510,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 					painterObj.changeSize(1.05,painterObj.getCertain().getX(),painterObj.getCertain().getY());
 				}
 			}
-			note.saveInfo(this.allPainterObj,this.scale,this.offsetX,this.offsetY);
+			note.saveInfo();
 			break;
 		case KeyEvent.VK_LEFT:
 		case KeyEvent.VK_DOWN:
@@ -531,7 +519,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 					painterObj.changeSize(1/1.05,painterObj.getCertain().getX(),painterObj.getCertain().getY());
 				}
 			}
-			note.saveInfo(this.allPainterObj,this.scale,this.offsetX,this.offsetY);
+			note.saveInfo();
 			break;
 		case KeyEvent.VK_Z:
 			if((e.getModifiersEx() & KeyEvent.CTRL_DOWN_MASK) != 0)
@@ -558,7 +546,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 			break;
 		case KeyEvent.VK_A:
 			if((e.getModifiersEx()&KeyEvent.CTRL_DOWN_MASK)!=0) {
-				for(PainterObj p:this.getAllPainterObj()) {
+				for(PainterObj p:this.allPainterObj) {
 					this.addDraggingPainterObj(p);
 					p.setDraggable(true);
 				}

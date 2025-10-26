@@ -1,9 +1,11 @@
 package javafile;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +15,7 @@ public class LayerManager extends JPanel implements MouseListener{
 	private static final long serialVersionUID = 7672158295712151948L;
 	private Scene scene;
 	private int iconSize=50;
+	private boolean sizeChanging=false;
 	private final List<DraggableItem>items=new ArrayList<>();
 	private boolean isOperating=false;
 	private DraggableItem draggingItem=null;
@@ -22,18 +25,35 @@ public class LayerManager extends JPanel implements MouseListener{
 	public void setIconSize(int i) {
 		this.iconSize=i;
 	}
+	public List<DraggableItem>getAllDraggableItems() {
+		return items;
+	}
 	public LayerManager(Scene scene) {
 		this.scene=scene;
 		this.setBackground(java.awt.Color.BLACK);
 		addMouseListener(this);
+		addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseMoved(MouseEvent e) {
+		        if (e.getX()<=3||e.getX()>=getWidth()-3) {
+		            setCursor(Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR));
+		            sizeChanging=true;
+		        }
+		        else {
+		        	setCursor(Cursor.getDefaultCursor());
+		        	sizeChanging=false;
+		        }
+			}
+		});
 		MouseAdapter mouse=new MouseAdapter() {
+	        int mx,prevMouseX;
+	        int dx;
 			@Override
 			public void mousePressed(MouseEvent e) {
+					prevMouseX=e.getX();
 	    			scene.getDraggingPainterObj().clear();
 	    			scene.getDraggingPoint().clear(); 
-	    			for(PainterObj s:scene.getAllPainterObj()) {
-	    				s.setDraggable(false);
-	    			}
+	    			scene.setAllPainterObjDraggable(false);
 				for(DraggableItem item:items) {
 					if(item.getBounds().contains(e.getPoint())) {
 						draggingItem=item;
@@ -49,13 +69,20 @@ public class LayerManager extends JPanel implements MouseListener{
 			}
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				if(draggingItem!=null) {
-					draggingItem.setLocation(0,e.getY()-draggingItem.getHeight()/2);
+				mx=e.getX();
+				dx=(prevMouseX-mx);
+				if(sizeChanging) {
+					setIconSize(Math.max(30,getIconSize()+dx));
+				}
+				else if(draggingItem!=null) {
+					draggingItem.setBounds(0,e.getY()-iconSize/2,iconSize,iconSize);
 					reorderItems();
 				}
+				prevMouseX=e.getX();
 			}
 			@Override
 			public void mouseReleased(MouseEvent e) {
+				LayerManager.this.scene.revalidate();
 				if(draggingItem!=null) {
 					snapItems();
 					draggingItem.setBackground(java.awt.Color.WHITE);
@@ -92,14 +119,13 @@ public class LayerManager extends JPanel implements MouseListener{
 	
 	public void removeItem(DraggableItem item) {
 	    items.remove(item);
-	    this.remove(item);      // 從面板上移除元件
-	    revalidate();           // 重新驗證佈局
-	    repaint();              // 重繪畫面
+	    this.remove(item);
+	    revalidate();
 	}
 	
 	private void snapItems() {
 		items.sort((a,b)->Integer.compare(a.getY(),b.getY()));
-		this.scene.getNote().saveInfo(this.scene.getAllPainterObj(),this.scene.getScale(),this.scene.getOffsetX(),this.scene.getOffsetY());
+		this.scene.getNote().saveInfo();
 		layoutItems();
 	}
 	public void clearAllItems() {
@@ -115,8 +141,9 @@ public class LayerManager extends JPanel implements MouseListener{
 			this.scene.addPainterObj(item.getPainterObj());
 		}
 		int y=0;
+		draggingItem.getParent().setComponentZOrder(draggingItem, 0);
 		for(DraggableItem item:items) {
-			if(item!=draggingItem) {
+			if(!item.equals(draggingItem)) {
 				item.setBounds(0,y,iconSize,iconSize);
 			}
 			y+=iconSize;
@@ -132,7 +159,6 @@ public class LayerManager extends JPanel implements MouseListener{
 		layoutItems();
 	}
 	
-
 	private void drawPainterObj(Graphics g, PainterObj painterObj) {//the logic is promise that all point is in the panel(if your painting is out of your point, it possibly shows weird
 	    double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE;
 	    double maxX = Double.MIN_VALUE, maxY = Double.MIN_VALUE;
@@ -191,6 +217,4 @@ public class LayerManager extends JPanel implements MouseListener{
 	@Override public void mouseEntered(MouseEvent e) {}
 	@Override public void mouseExited(MouseEvent e) {}
 	@Override public void mouseClicked(MouseEvent e) {}
-
 }	
-

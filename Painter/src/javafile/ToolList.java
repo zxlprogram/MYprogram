@@ -1,9 +1,13 @@
 package javafile;
 
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Image;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,14 +22,69 @@ import javax.swing.JTextField;
  */
 class ToolList extends JPanel {
 	private static final long serialVersionUID = 1L;
+	private int panelHeight=55;
 	private List<Component>toolList=new ArrayList<>();
 	private Scene scene;
+	private boolean sizeChanging=false;
+	public int getPanelHeight() {
+		return this.panelHeight;
+	}
+	public void setPanelHeight(int i) {
+		this.panelHeight=i;
+	}
 	public ToolList(Scene scene) {
 		this.scene=scene;
 		super.setLayout(new FlowLayout());
+		addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseMoved(MouseEvent e) {
+		        if (e.getY()<=3||e.getY()>=getHeight()-3) {
+		            setCursor(Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR));
+		            sizeChanging=true;
+		        }
+		        else {
+		        	setCursor(Cursor.getDefaultCursor());
+		        	sizeChanging=false;
+		        }
+			}
+		});
+		MouseAdapter mouse=new MouseAdapter() {
+	        int mx,prevMouseX;
+	        int dx;
+			@Override
+			public void mousePressed(MouseEvent e) {
+					prevMouseX=e.getY();
+			}
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				ToolList.this.scene.revalidate();
+				mx=e.getY();
+				dx=(mx-prevMouseX);
+				if(sizeChanging) {
+					setPanelHeight(Math.max(50,getPanelHeight()+dx));
+				}
+				prevMouseX=e.getY();
+			}
+		};
+		addMouseListener(mouse);
+		addMouseMotionListener(mouse);
 		addAllTool();
 	}
-	private void addAllTool() {
+	private int getIntegerValue(JTextField f) {
+		int i=4;
+		try {
+			i=Integer.parseInt(f.getText());
+		}
+		catch(IllegalArgumentException e) {
+		}
+		return i;
+	}
+	public List<Component>getToolList() {
+		return this.toolList;
+	}
+	public void addAllTool() {
+		toolList.clear();
+		removeAll();
 		toolList.add(new Tool(ToolList.class.getResource("/triangle.png"),()->{
 			Surface t=Surface.TRIANGLE(this.scene);
 			t.setColor(1,0,0);
@@ -46,13 +105,7 @@ class ToolList extends JPanel {
 		toolList.add(new Tool(ToolList.class.getResource("/Nedge_SS.png"),()-> {
 			this.setPreferredSize(new Dimension(83,41));
 			Surface t=new Surface(this.scene);
-			int edge;
-			try {
-				edge=Integer.parseInt(enterMoreEdge.getText());
-			}
-			catch(IllegalArgumentException e) {
-				edge=4;
-			}
+			int edge=getIntegerValue(enterMoreEdge);
 			for(int i=0;i<edge;i++)
 				t.addPoint(Math.random(),Math.random());
 			t.setColor(1,0,0);
@@ -64,13 +117,7 @@ class ToolList extends JPanel {
 		toolList.add(new Tool(ToolList.class.getResource("/Nedge_BS.png"),()-> {
 			this.setPreferredSize(new Dimension(83,41));
 			BezierSurface t=new BezierSurface(this.scene);
-			int edge;
-			try {
-				edge=Integer.parseInt(enterMoreBezierEdge.getText());
-			}
-			catch(IllegalArgumentException e) {
-				edge=4;
-			}
+			int edge=getIntegerValue(enterMoreBezierEdge);
 			for(int i=0;i<edge;i++)
 				t.addPoint(Math.random(),Math.random());
 			t.setColor(1,0,0);
@@ -82,13 +129,7 @@ class ToolList extends JPanel {
 		toolList.add(new Tool(ToolList.class.getResource("/Nedge_SL.png"),()-> {
 			this.setPreferredSize(new Dimension(83,41));
 			Line t=new Line(this.scene);
-			int edge;
-			try {
-				edge=Integer.parseInt(enterMoreLine.getText());
-			}
-			catch(IllegalArgumentException e) {
-				edge=4;
-			}
+			int edge=getIntegerValue(enterMoreLine);
 			for(int i=0;i<edge;i++)
 				t.addPoint(Math.random(),Math.random());
 			t.setColor(1,0,0);
@@ -100,13 +141,7 @@ class ToolList extends JPanel {
 		toolList.add(new Tool(ToolList.class.getResource("/Nedge_BL.png"),()-> {
 			this.setPreferredSize(new Dimension(83,41));
 			BezierLine t=new BezierLine(this.scene);
-			int edge;
-			try {
-				edge=Integer.parseInt(enterMoreBezLine.getText());
-			}
-			catch(IllegalArgumentException e) {
-				edge=4;
-			}
+			int edge=getIntegerValue(enterMoreBezLine);
 			for(int i=0;i<edge;i++)
 				t.addPoint(Math.random(),Math.random());
 			t.setColor(1,0,0);
@@ -158,7 +193,7 @@ class ToolList extends JPanel {
 	                this.action.run(); 
 	            }
                 scene.requestFocusInWindow();
-				scene.getNote().saveInfo(scene.getAllPainterObj(),scene.getScale(),scene.getOffsetX(),scene.getOffsetY());
+				scene.getNote().saveInfo();
 			});
 		}
 		@SuppressWarnings("unused")
@@ -171,8 +206,9 @@ class ToolList extends JPanel {
 	                this.action.run(); 
 	            }
                 scene.requestFocusInWindow();
-    				scene.getNote().saveInfo(scene.getAllPainterObj(),scene.getScale(),scene.getOffsetX(),scene.getOffsetY());
+    				scene.getNote().saveInfo();
 	        });
 		}
 	}
+	
 }

@@ -85,7 +85,12 @@ __1.10-alpha__
 		release date: 2025-10-25
 	description:
 		add ctrl+A keys, fix the bug:the copy items noted in surface, keep rebuild structure, added the group and disgroup
-		
+	
+	1.10:
+		release date:
+	description:
+		compiled the API,readme,src files,testing new features,released new features in 1.10-alpha,added a little changable GUI
+
 ## feature description
 	-KeyEvent ctrl+C: copy the choosing surface
 	-KeyEvent up/right: make the choosing surface bigger(if there have surface have been choosed)
@@ -103,6 +108,7 @@ __1.10-alpha__
 	-dragging file: let the saving data added in your painter
 	-Core: this app GUI is base on java swing
 	-left side: the layer managing
+	-up side: the tool list
 
 ## Possibly bug
 	[linux]
@@ -141,10 +147,8 @@ __1.10-alpha__
 	Painter:
 		bin:
 			javafile:
-				-Color.class
 				-ExportManager.class
 				-LayerManager.class
-				-Point.class
 				-Scene.class
 				-PainterObj.class
 				-ToolList.class
@@ -153,10 +157,8 @@ __1.10-alpha__
 				-Main.class		
 		src:
 			javafile:
-				-Color.java
 				-ExportManager.java
 				-LayerManager.java
-				-Point.java
 				-Scene.java
 				-PainterObj.java
 				-ToolList.java
@@ -199,117 +201,114 @@ __1.10-alpha__
 		-readme
 
 ## Abstract structure
+	Scene----JFrame----mainPanel----AllPainterObj----Edge----Point----X/Y
+		 |						|				 |				  |
+		 |---Note----undo		|				 |				  |
+		 |		 |				|				 |				  |
+		 |		 |---redo		|				 |				  |
+		 |		 |				|				 |				  |
+		 |		 |---saveInfo	|				 |				  |
+		 |		 |				|				 |				  |
+		 |		 |---Event		|				 |				  |
+		 |						|				 |				  |
+		 |---ChoiceColor		|				 |				  |
+		 |						|				 |				  |
+		 |---Camera----scale	|				 |				  |
+		 		   |			|				 |				  |
+		 		   |---offsetX	|				 |				  |
+		 		   |			|				 |				  |
+		 		   |---offsetY	|				 |				  |
+		 						|				 |				  |
+		 						|				 |				  |---Static Point(descripted in drawingMethod)
+		 						|				 |				  |
+		 						|				 |				  |---Dynamic Point(no description)
+		 						|				 |
+		 						|				 |---Color----R/G/B
+		 						|				 |
+								|				 |---drawingMethod
+								|				 |
+								|				 |---file format
+								|
+								|---ExportManager----Exporter
+								|				 |
+								|				 |---Loader----File loading
+								|				 		   |
+								|						   |---Default loading
+								|
+								|---LayerManager----layerManagerBar----DraggableItem
+								|
+								|---ToolList----Tool
 
-	PointerObj:
-		Point List:
-			Point:
-				x,y value
-		Color:
-			RGB value
-		draw method(Graphics g,scale,offsetX,offsetY)
-			use g and Point list to draw graphic
-			all Point will * scale + (offsetX,offsetY)
-		
-		drawSurface method(PainterObj)
-		
-		descripted and load file
-		
-		isPointInSurface(detacted whether the point is in the PointObj)
-		
-		changeSize method
-		
-		move method
-			
-			Stright surface
-			bezier surface
-			strignt line
-			bezier line
-			circle
-			Group:
-				add element to Group
-				disGroup
-________________________________________________
-
-		-vehiecle:
-			frame
-			mainPanel:
-				Scene
-				toolList
-				LayerManager
-					
-		-PainterObj List:
-			PainterObj
-		
-		-camara:	
-			-scale, offsetX,offsetY value
-			
-		-Operate:
-			draggingSurface:
-				PainterObj
-			draggingPoint:
-				Point
-			drawer:
-				drawPoint method
-				call all painterObj draw it self
-			refresher:
-				refresh layer manager
-				refresh scene panel
-				
-		-export&load system:
-		
-			-custom file protocol
-			
-			loader:
-				initial loading mode
-				file loading mode
-			saver:
-				file saving
-				
-		-Layer manager:
-			Draggable item's List:
-				Draggable item:
-					pointing PainterObj
-					
-		-getter/setter
-		
-		-Tool list:
-		(Component)
-			Button:
-				-actions
-			TextField:
-			
-		-events Listener:
-			mouse listener
-			key listener
-			file dropped listener
-			
 ## API descripted
-	PainterObj:
-		addPoint():	give the PainterObj a new Point, you can add Point...p or (double a,double b,PainterObj p), and the p is about which PainterObj have that point
-		changeSize(double rol,double cx,double cy): the changeSize method descripted by PainterObj, rol means the changed degree, cx and cy means the certain coordinate
-		clone(): give a new but same value PainterObj
-		DescriptPoint: it returns the point list to String, actually it's only for the subclass
-		draggable():returns wether the painterObj were draggable
-		draw(Graphics g:double scale,double offsetX,double offsetY): it's for scene to repaint the painterObj
-		getCertain():return a painterObj's certain coordinate
-		-getter/setter
-		isPointInSurface(int mx,int my,double scale,double offsetX,double offsetY): return whether the point(mx,my) is in the painterObj, at most situation, it means the point's ploygen
-		loadfile(String[]array): it's for export load system, it catched the outside file's format,descripted by subclass
-		moveX,Y: descripted by painterObj
-	
 	Scene:
-		choice color 
-		Note: saveInfo, undo, redo
-		addDraggingSurface,Point: let the choosed painterObj or point to be draggable, but don't forget to painterObj.setDraggable(true)
-		browserMode: only shows the file,readonly
-		execute:start the main painter app
-		getAllSurface: returns all painterObj in the scene
-		getDraggingPoint,Surface: return the PainterObj which were been choosed
-		-getter/setter
-		removeSurface: remove the current PainterObj
+		Launching:
+			execute(): the main app launching
+			browserMode(): open the vecf file
 	
-	Export load system:
-		exporter
-		loader:
-			url loading
-			files loading(txt loading)
+		Object:
+			add/remove PainterObj
+			removeAll
+			getAllPainterObj
+			setAllPainterObj
+	
+		Operation:
+			add/set/get DraggingPainterObj
+			add/set/get DraggingPoint
+			setAllPainterObjDraggable(boolean b)
+		
+		Camera:	
+			set/get Scale
+			set/get offsetX
+			set/get offsetY
+		
+		Layer/Note:
+			getLayerManager
+			getNote
+		
+		Files:
+			getObjTranslator
+		
+		Event/Listener:
+			Mouse:
+				dragging
+				ChoiceColor
+				zoom in/out all object 
+			Key:
+				copy
+				redo/undo
+				delete
+				saving
+				select all
+				zoom in/out single object
+			file:
+				drop file to read
+		
+		Note:
+			undo
+			redo
+			saveInfo		
+		
+	ToolList:
+		getToolList
+		Tool(String/URL, Runnable)
+		
+	PainterObj:
+		getEdge
+		add/remove Point
+		set/get Color
+		set/get Draggable
+		move X/Y
+		changeSize
+		getCertain
+		draw
+		(boolean) isPointInPainterObj
+		
+		-Group extends PainterObj:
+			addGroup
+			disGroup
+			getGroup
+	
+		Point:
+			set/get X/Y
+			set/get Draggable
+			getPainterObj

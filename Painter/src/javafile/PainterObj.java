@@ -5,7 +5,6 @@ import java.awt.RenderingHints;
 import java.awt.geom.Path2D;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 //getEdge in group should return the corner
 /**
@@ -14,17 +13,172 @@ import java.util.List;
  * what should you do when you add a new shape:
  * 	Override the draw method
  *  Override the removePoint method(optional) if your shape have a limited range for point, the default range is points>=3
- *  Override
+ *  Override that what you need
  *  
  *  
- *  if the point set at draw method, it will be freeze, the Object decided the point,if you didn't, the point will decide the shape
+ *  if the point set at draw method, it will been frozen, the Object decided the point,if you didn't, the point will decide the shape
  *  keep your point out from your shape, or it will not shows on layer manager
  */
+class Color {
+	private double R,G,B;
+	public Color(double r,double g,double b) {
+		this.R=r;
+		this.G=g;
+		this.B=b;
+	}
+	public double getR() {
+		return this.R;
+	}
+	public double getG() {
+		return this.G;
+	}
+	public double getB() {
+		return this.B;
+	}
+	public void setColor(double r,double g,double b) {
+		this.R=r;
+		this.G=g;
+		this.B=b;
+	}
+	@Override
+	public String toString() {
+		return R+" "+G+" "+B;
+	}
+}
+class Point {
+	private boolean draggable=false;
+	private double X,Y;
+	private PainterObj painterObj;
+	public Point(double x,double y,PainterObj quad) {
+		this.X=x;
+		this.Y=y;
+		this.painterObj=quad;
+	}
+	public void setX(double x) {
+		this.X=x;
+	}
+	public void setY(double y) {
+		this.Y=y;
+	}
+	public double getX() {
+		return this.X;
+	}
+	public double getY() {
+		return this.Y;
+	}
+	public PainterObj getPainterObj() {
+		return this.painterObj;
+	}
+	@Override
+	public String toString() {
+		return "("+this.X+","+this.Y+")";
+	}
+	public void setDraggable(boolean b) {
+		this.draggable=b;
+	}
+	public boolean draggable() {
+		return this.draggable;
+	}
+}
 public class PainterObj {
 	private boolean isDragging;
 	private Color color=new Color(1,0,0);
 	private Scene scene;
 	private List<Point>Edge=new ArrayList<>();
+
+    //_________________________________________CONSTRUCTOR______________________
+	public PainterObj(Scene scene) {
+		this.scene=scene;
+	}
+
+    //_________________________________________ADDER____________________________
+	public void addPoint(Point...p) {
+		if(p==null)
+			return;
+		for(Point pp:p)
+			this.Edge.add(pp);
+	}
+	public void addPoint(double a,double b) {
+		this.Edge.add(new Point(a,b,this));
+	}
+
+    //_________________________________________SETTER___________________________
+	public void setColor(double r,double g,double b) {
+		this.color=new Color(r,g,b);
+	}
+	public void setColor(Color c) {
+		this.color=c;
+	}
+	protected void setDrawingColor(Graphics g,PainterObj p) {
+		Color color=null;
+		if(p.getColor()!=null)
+			color =p.getColor();
+		if (color != null) {
+			if(!p.Draggable()) {
+				g.setColor(new java.awt.Color(
+						(float)color.getR(),
+						(float)color.getG(),
+						(float)color.getB()
+						));
+			}
+			else {//choosing
+				float alpha=0.3F;
+				g.setColor(new java.awt.Color(
+						(float)color.getR()*(1-alpha),
+						(float)color.getG()*(1-alpha),
+						(float)color.getB()*(1-alpha)+alpha
+						));
+			}	
+		} else {
+			g.setColor(java.awt.Color.BLACK);
+		}
+	}
+	public void setDraggable(boolean b) {	
+		this.isDragging=b;
+		for(Point p:this.getEdge())
+			p.setDraggable(b);
+	}
+	
+    //_________________________________________GETTER___________________________
+	public Point getCertain() {
+		double centx=0,centy=0;
+		for(Point p:this.getEdge()) {
+			centx+=p.getX();
+			centy+=p.getY();
+		}
+		centx/=this.getEdge().length;
+		centy/=this.getEdge().length;
+		return new Point(centx,centy,null);
+	}
+	public Point[] getEdge() {
+		return Edge.toArray(new Point[0]);
+	}
+	protected List<Point>getRawEdge() {
+		return this.Edge;
+	}
+	public Scene getScene() {
+		return this.scene;
+	}
+	public Color getColor() {
+		return this.color;
+	}
+	public boolean Draggable() {
+		return this.isDragging;
+	}
+	public boolean islegalObj() {
+		if(this.getEdge().length<3) {
+			return false;
+		}
+		return true;
+	}
+
+    //_________________________________________REMOVER__________________________
+	public void removePoint(Point point) {
+		this.Edge.remove(point);
+	}
+	
+    //_________________________________________CONTROLLER_______________________
+	public void draw(Graphics g,double scale,double offsetX,double offsetY) {}
 	public void changeSize(double rol,double certainX,double certainY) {
 		for(Point p:this.getEdge()) {
 			double x = p.getX();
@@ -51,69 +205,6 @@ public class PainterObj {
 		newObj.setColor(new Color(this.getColor().getR(),this.getColor().getG(),this.getColor().getB()));
 		return newObj;
 	}
-	protected void setDrawingColor(Graphics g,PainterObj p) {
-		Color color=null;
-		if(p.getColor()!=null)
-			color =p.getColor();
-		if (color != null) {
-			if(!p.Draggable()) {
-				g.setColor(new java.awt.Color(
-						(float)color.getR(),
-						(float)color.getG(),
-						(float)color.getB()
-						));
-			}
-			else {//choosing
-				float alpha=0.3F;
-				g.setColor(new java.awt.Color(
-						(float)color.getR()*(1-alpha),
-						(float)color.getG()*(1-alpha),
-						(float)color.getB()*(1-alpha)+alpha
-						));
-			}	
-		} else {
-			g.setColor(java.awt.Color.BLACK);
-		}
-	}
-	public PainterObj(Scene scene) {
-		this.scene=scene;
-	}
-	public Scene getScene() {
-		return this.scene;
-	}
-	public void draw(Graphics g,double scale,double offsetX,double offsetY) {}
-	public void setDraggable(boolean b) {
-		this.isDragging=b;
-		for(Point p:this.getEdge())
-			p.setDraggable(b);
-	}
-	public boolean Draggable() {
-		return this.isDragging;
-	}
-	public Point getCertain() {
-		double centx=0,centy=0;
-		for(Point p:this.getEdge()) {
-			centx+=p.getX();
-			centy+=p.getY();
-		}
-		centx/=this.getEdge().length;
-		centy/=this.getEdge().length;
-		return new Point(centx,centy,null);
-	}
-	public Point[] getEdge() {
-		return Edge.toArray(new Point[0]);
-	}
-	public void setEdge(Point[] edge) {
-		this.Edge.clear();
-		for(int i=0;i<edge.length;i++)
-			this.Edge.add(edge[i]);
-	}
-	public void setColor(double r,double g,double b) {
-		this.color=new Color(r,g,b);
-	}
-	protected List<Point>getRawEdge() {
-		return this.Edge;
-	}
 	public void moveX(double x) {
 		for(Point p:Edge)
 			p.setX(p.getX()+x);
@@ -121,38 +212,6 @@ public class PainterObj {
 	public void moveY(double y) {
 		for(Point p:Edge)
 			p.setY(p.getY()+y);
-	}
-	public Color getColor() {
-		return this.color;
-	}
-	public void setColor(Color c) {
-		this.color=c;
-	}
-	public void addPoint(Point...p) {
-		if(p==null)
-			return;
-		for(Point pp:p)
-			this.Edge.add(pp);
-	}
-	public void addPoint(double a,double b) {
-		this.Edge.add(new Point(a,b,this));
-	}
-	public void removePoint(Point point) {
-		this.Edge.remove(point);
-		if(this.getEdge().length<3) {
-			scene.removePainterObj(this);
-		}
-	}
-	public void removePoint(int index) {
-		this.Edge.remove(index);
-	}
-	protected String DescriptPoint() {
-		String s="";
-		for(Point p:this.getEdge()) {
-			s+=p.getX()+" "+p.getY()+" ";
-		}
-		s+=" C "+this.getColor().getR()+" "+this.getColor().getG()+" "+this.getColor().getB();
-		return s;
 	}
     public boolean isPointInPainterObj(int mx, int my,double scale,double offsetX,double offsetY) {//AI
         Point[] points = this.getEdge();
@@ -165,8 +224,17 @@ public class PainterObj {
         java.awt.Polygon polygon = new java.awt.Polygon(xPoints, yPoints, points.length);
         return polygon.contains(mx, my);
     }
-    //[type name] [pointX pointY]...[pointX pointY] [C] [R] [G] [B]
-    public void loadfile(String[]array) {
+
+    //_________________________________________FILE_____________________________
+	protected String DescriptPoint() {
+		String s="";
+		for(Point p:this.getEdge()) {
+			s+=p.getX()+" "+p.getY()+" ";
+		}
+		s+=" C "+this.getColor().getR()+" "+this.getColor().getG()+" "+this.getColor().getB();
+		return s;
+	}
+    public void loadfile(String[]array) {//[type name] [pointX pointY]...[pointX pointY] [C] [R] [G] [B]
     		for(int i=1;i<array.length-5;i+=2) {
     			Double X=Double.parseDouble(array[i]);
     			Double Y=Double.parseDouble(array[i+1]);
@@ -178,6 +246,9 @@ public class PainterObj {
     		this.setColor(R,G,B);
     }
 }
+
+//_________________________________________SUBCLASS_____________________________
+
 class BezierLine extends PainterObj {
 	public BezierLine(Scene scene) {
 		super(scene);
@@ -191,24 +262,30 @@ class BezierLine extends PainterObj {
 	}
 	@Override
 	public void draw(Graphics g,double scale,double offsetX,double offsetY) {
-		setDrawingColor(g,this);
-		Graphics2D g2=(Graphics2D)g;
-		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
-		g2.setColor(g.getColor());
-	Path2D path=new Path2D.Double();
-	path.moveTo(this.getEdge()[0].getX()*scale+offsetX,this.getEdge()[0].getY()*scale+offsetY);
-		if(this.getEdge().length>3)
-	for(int i=1;i<this.getEdge().length-2;i++)
-			path.curveTo(this.getEdge()[i].getX()*scale+offsetX,this.getEdge()[i].getY()*scale+offsetY,this.getEdge()[i+1].getX()*scale+offsetX,this.getEdge()[i+1].getY()*scale+offsetY,this.getEdge()[i+2].getX()*scale+offsetX,this.getEdge()[i+2].getY()*scale+offsetY);
-		else
-			path.quadTo(this.getEdge()[1].getX()*scale+offsetX,this.getEdge()[1].getY()*scale+offsetY,this.getEdge()[2].getX()*scale+offsetX,this.getEdge()[2].getY()*scale+offsetY);
-		g2.draw(path);
+		if(islegalObj()) {
+			setDrawingColor(g,this);
+			Graphics2D g2=(Graphics2D)g;
+			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+			g2.setColor(g.getColor());
+			Path2D path=new Path2D.Double();
+			path.moveTo(this.getEdge()[0].getX()*scale+offsetX,this.getEdge()[0].getY()*scale+offsetY);
+			if(this.getEdge().length>3)
+				for(int i=1;i<this.getEdge().length-2;i++)
+					path.curveTo(this.getEdge()[i].getX()*scale+offsetX,this.getEdge()[i].getY()*scale+offsetY,this.getEdge()[i+1].getX()*scale+offsetX,this.getEdge()[i+1].getY()*scale+offsetY,this.getEdge()[i+2].getX()*scale+offsetX,this.getEdge()[i+2].getY()*scale+offsetY);
+			else
+				path.quadTo(this.getEdge()[1].getX()*scale+offsetX,this.getEdge()[1].getY()*scale+offsetY,this.getEdge()[2].getX()*scale+offsetX,this.getEdge()[2].getY()*scale+offsetY);
+				g2.draw(path);
+		}
 	}
 	@Override
 	public String toString() {
 		return "BL "+this.DescriptPoint();
 	}
 }
+//classical subclass: constructor & example & drawing method & file format + limited point amount(optional) (default is >=3)
+//you can design a point in drawing method, when scene called repaint, it will be frozen
+
+//_________________________________________CLASSICAL_SUBCLASS_______________
 class BezierSurface extends PainterObj {
 	public BezierSurface(Scene scene) {
 		super(scene);
@@ -223,12 +300,13 @@ class BezierSurface extends PainterObj {
 	}
 	@Override
 	public void draw(Graphics g,double scale,double offsetX,double offsetY) {
+		if(islegalObj()) {
 		setDrawingColor(g,this);
 		Graphics2D g2=(Graphics2D)g;
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
 		g2.setColor(g.getColor());
-	Path2D path=new Path2D.Double();
-	path.moveTo(this.getEdge()[0].getX()*scale+offsetX,this.getEdge()[0].getY()*scale+offsetY);
+		Path2D path=new Path2D.Double();
+		path.moveTo(this.getEdge()[0].getX()*scale+offsetX,this.getEdge()[0].getY()*scale+offsetY);
 		if(this.getEdge().length>3) {
 			for(int i=1;i<this.getEdge().length-2;i++) 
 			path.curveTo(this.getEdge()[i].getX()*scale+offsetX,this.getEdge()[i].getY()*scale+offsetY,this.getEdge()[i+1].getX()*scale+offsetX,this.getEdge()[i+1].getY()*scale+offsetY,this.getEdge()[i+2].getX()*scale+offsetX,this.getEdge()[i+2].getY()*scale+offsetY);
@@ -241,6 +319,7 @@ class BezierSurface extends PainterObj {
 		}
 		path.closePath();
 		g2.fill(path);
+		}
 	}
 	@Override
 	public String toString() {
@@ -257,14 +336,6 @@ class Line extends PainterObj{
 		l.addPoint(0,1);
 		return l;
 	}
-	@Override
-	public void removePoint(Point point) {
-		this.getRawEdge().remove(point);
-		if(this.getEdge().length<2) {
-			getScene().removePainterObj(this);
-			getScene().getDraggingPainterObj().remove(this);
-		}
-	}
 	@Override 
 	public void draw(Graphics g,double scale,double offsetX,double offsetY) {
 		setDrawingColor(g,this);
@@ -275,6 +346,13 @@ class Line extends PainterObj{
 	@Override
 	public String toString() {
 		return "SL "+this.DescriptPoint();
+	}
+	@Override
+	public boolean islegalObj() {
+		if(this.getEdge().length<2) {
+			return false;
+		}
+		return true;
 	}
 }
 class Surface extends PainterObj{
@@ -314,6 +392,7 @@ class Surface extends PainterObj{
 		return "SS "+this.DescriptPoint();
 	}
 }
+//_________________________________________NON-CLASSICAL_SUBCLASS___________
 class Circle extends PainterObj {
 	public Circle(Scene scene) {
 		super(scene);
@@ -327,15 +406,11 @@ class Circle extends PainterObj {
 		return c;
 	}
 	@Override
-	public void removePoint(Point point) {
-		this.getRawEdge().remove(point);
+	public boolean islegalObj() {
 		if(this.getEdge().length!=4) {
-			getScene().removePainterObj(this);
+			return false;
 		}
-	}
-	@Override
-	public Point getCertain() {
-		return new Point(getEdge()[0].getX(),getEdge()[0].getY(),null);
+		return true;
 	}
 	@Override
 	public void draw(Graphics g,double scale,double offsetX,double offsetY) {
@@ -351,6 +426,14 @@ class Circle extends PainterObj {
 		g.fillOval((int)(x-width/2),(int)(y-height/2),(int)width,(int)height);
 	}
 	@Override
+	public String toString() {
+		return "Cr "+this.DescriptPoint();
+	}
+	@Override
+	public Point getCertain() {
+		return new Point(getEdge()[0].getX(),getEdge()[0].getY(),null);
+	}
+	@Override
 	public boolean isPointInPainterObj(int mx, int my,double scale,double offsetX,double offsetY) {
 		double x=(this.getEdge()[0].getX()*scale+offsetX);
 		double y=(this.getEdge()[0].getY()*scale+offsetY);
@@ -360,10 +443,6 @@ class Circle extends PainterObj {
 			return true;
 		}
 		return false;
-	}
-	@Override
-	public String toString() {
-		return "Cr "+this.DescriptPoint();
 	}
 }
 class Group extends PainterObj {
@@ -399,6 +478,7 @@ class Group extends PainterObj {
 	public void disGroup() {
 		for(PainterObj obj:this.group) {
 			this.getScene().addPainterObj(obj);
+			obj.setDraggable(false);
 		}
 		this.getScene().removePainterObj(this);
 		this.getScene().getDraggingPainterObj().remove(this);
@@ -464,12 +544,7 @@ class Group extends PainterObj {
 		nl.setX(nlx);
 		nl.setY(nly);
 		for(PainterObj obj:this.getGroup()) {
-			if(this.Draggable()) {
-				obj.setDraggable(true);
-			}
-			else {
-				obj.setDraggable(false);
-			}
+			obj.setDraggable(this.Draggable());
 			obj.draw(g, scale, offsetX, offsetY);
 		}
 	}
@@ -490,11 +565,6 @@ class Group extends PainterObj {
 	@Override
 	public Color getColor() {
 		System.out.println("group don't give color");
-		return null;
-	}
-	@Override
-	protected List<Point>getRawEdge() {
-		System.out.println("group don't give point list");
 		return null;
 	}
 	@Override
@@ -536,8 +606,6 @@ class Group extends PainterObj {
 		for(PainterObj p:this.getGroup())
 			p.moveY(y);
 	}
-	@Override public void removePoint(Point p) {}//group don't remove point
-	@Override public void removePoint(int x) {}
 	@Override 
 	public void setColor(Color c) {
 		for(PainterObj p:this.group)
@@ -547,11 +615,14 @@ class Group extends PainterObj {
 		for(PainterObj p:this.group)
 			p.setColor(r,g,b);
 	}
-	@Override protected void setDrawingColor(Graphics g,PainterObj p) {
-		System.out.println("group don't set drawing color : Graphics g,PainterObj p");
-	}
 	@Override
-	public void setEdge(Point[]p) {
-		System.out.println("group don't set point list : setEdge(Point[]p)");
+	public boolean islegalObj() {
+		if(this.getEdge().length!=4) {
+			return false;
+		}
+		return true;
 	}
+	
+	@Override protected void setDrawingColor(Graphics g,PainterObj p) {}//group don't set drawing color : Graphics g,PainterObj p
+	@Override public void removePoint(Point p) {}//group don't remove point
 }

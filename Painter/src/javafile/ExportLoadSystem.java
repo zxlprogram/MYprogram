@@ -20,7 +20,7 @@ class Exporter {
 		this.sys=sys;
 	}
 	public void ExportFlie(String path) {
-		List<PainterObj>data=sys.getScene().getAllPainterObj();
+		final List<PainterObj>data=sys.getScene().getAllPainterObj();
 		try {
 			File file=new File(path);
 			FileWriter writer=new FileWriter(file);
@@ -41,7 +41,7 @@ class Loader {
 	}
 	private void loading(BufferedReader reader) {
 		try {
-			sys.getScene().getAllPainterObj().clear();
+			sys.getScene().removeAll();
 			List<PainterObj>returnList=new ArrayList<>();
 			
 			String line=reader.readLine();
@@ -64,7 +64,7 @@ class Loader {
 			}
 			
 			sys.getScene().setAllPainterObj(returnList);
-			sys.getScene().getNote().saveInfo(sys.getScene().getAllPainterObj(),sys.getScene().getScale(),sys.getScene().getOffsetX(),sys.getScene().getOffsetY());
+			sys.getScene().getNote().saveInfo();
 			reader.close();
 		}catch(IOException e) {e.printStackTrace();}
 	}
