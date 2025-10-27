@@ -1,0 +1,5 @@
+<?xml version="1.0" ?>
+<jpackage-state version="25" platform="linux">
+  <app-version>1.0</app-version>
+  <main-launcher>painterBrowser</main-launcher>
+  <main-class>testing.painterBrowser</main-class></jpackage-state>
