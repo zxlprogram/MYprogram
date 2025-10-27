@@ -87,7 +87,7 @@ __1.10-alpha__
 		add ctrl+A keys, fix the bug:the copy items noted in surface, keep rebuild structure, added the group and disgroup
 	
 	1.10:
-		release date:
+		release date: 2025-10-27
 	description:
 		compiled the API,readme,src files,testing new features,released new features in 1.10-alpha,added a little changable GUI
 
@@ -119,6 +119,7 @@ __1.10-alpha__
 
 ## lacking feature
 	-trying work the program in Java 8 and lower java runtime enviornment
+	-.png .svg support
 	
 ## Requirements
 	-Java devolopment kit(JDK) 25
