@@ -12,7 +12,7 @@ import java.util.List;
  * because I can't find all subclass of PainterObj
  * what should you do when you add a new shape:
  * 	Override the draw method
- *  Override the removePoint method(optional) if your shape have a limited range for point, the default range is points>=3
+ *  Override the legal situation
  *  Override that what you need
  *  
  *  

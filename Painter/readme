@@ -148,11 +148,7 @@ __1.10-alpha__
 	Painter:
 		bin:
 			javafile:
-				-ExportManager.class
-				-LayerManager.class
-				-Scene.class
-				-PainterObj.class
-				-ToolList.class
+				-compiled Class File
 			testing:
 				-painterBrowser.class
 				-Main.class		
@@ -171,6 +167,10 @@ __1.10-alpha__
 			-painter_logo.png
 			-triangle.png
 			-circle.png
+			-Nedge_BL.png
+			-Nedge_BS.png
+			-Nedge_SL.png
+			-Nedge_SS.png
 			-quad.png
 			-file.txt
 		Assets:
