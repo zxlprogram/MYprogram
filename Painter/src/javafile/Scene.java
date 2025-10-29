@@ -52,7 +52,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     private JFrame frame=new JFrame();
     private JScrollPane scroll=new JScrollPane();
     private int prevMouseX, prevMouseY, pressedLocationX,pressedLocationY;    //events listener
-    private double scale,offsetX,offsetY;	//camera
+    private double scale,offsetX,offsetY,zoom=1;	//camera
 	private Map<String,Class<? extends PainterObj>>trans=new HashMap<>();
     private final int POINT_RADIUS = 10;
     private List<PainterObj>trash=new ArrayList<>();
@@ -431,6 +431,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 			double cy = (getHeight() / 2.0 -getOffsetY()) / getScale();
 			for(PainterObj s:allPainterObj)
 				s.changeSize(rol==-1?1.05:1/1.05,cx,cy);
+			zoom+=rol==-1?1.05:1/1.05;
 		}
 		note.saveInfo();
 	}
