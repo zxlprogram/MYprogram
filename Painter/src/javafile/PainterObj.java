@@ -6,7 +6,6 @@ import java.awt.RenderingHints;
 import java.awt.geom.Path2D;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 //getEdge in group should return the corner
 /**
@@ -488,14 +487,7 @@ class Group extends PainterObj {
 	@Override
 	public void changeSize(double rol,double cx,double cy) {
 		for(PainterObj obj:this.getGroup()) {
-			for(Point p:obj.getEdge()) {
-				double x = p.getX();
-				double y = p.getY();
-				double newX = cx+(x-cx)*rol;
-				double newY = cy+(y-cy)*rol;
-				p.setX(newX);
-				p.setY(newY);
-			}
+			obj.changeSize(rol, cx, cy);
 		}
 	}
 	@Override
@@ -523,10 +515,10 @@ class Group extends PainterObj {
 	}
 	@Override
 	public void draw(Graphics g,double scale,double offsetX,double offsetY) {
-		double mrx=Double.MIN_VALUE,mry=Double.MIN_VALUE;
-		double mlx=Double.MAX_VALUE,mly=Double.MIN_VALUE;
-		double nrx=Double.MIN_VALUE,nry=Double.MAX_VALUE;
-		double nlx=Double.MAX_VALUE,nly=Double.MAX_VALUE;
+		double mrx=Integer.MIN_VALUE,mry=Integer.MIN_VALUE;
+		double mlx=Integer.MAX_VALUE,mly=Integer.MIN_VALUE;
+		double nrx=Integer.MIN_VALUE,nry=Integer.MAX_VALUE;
+		double nlx=Integer.MAX_VALUE,nly=Integer.MAX_VALUE;
 		for(PainterObj obj:this.getGroup())
 			for(Point point:obj.getEdge())  {
 				mrx=Math.max(mrx,point.getX());mry=Math.max(mry,point.getY());
@@ -627,4 +619,86 @@ class Group extends PainterObj {
 	
 	@Override protected void setDrawingColor(Graphics g,PainterObj p) {}//group don't set drawing color : Graphics g,PainterObj p
 	@Override public void removePoint(Point p) {}//group don't remove point
+}
+class Text extends PainterObj{
+	private String text="";
+	private double fontSize;
+	private double X,Y;
+	private Font f;
+	public Text(Scene scene) {
+		super(scene);
+	}
+	public Text(Scene scene,String text,double X,double Y,double fontSize) {
+		super(scene);
+		this.text=text;
+		this.X=X;
+		this.Y=Y;
+		this.fontSize=fontSize;
+	}
+	public String getText() {
+		return this.text;
+	}
+	public void setText(String s) {
+		this.text=s;
+	}
+	public void setFontSize(int n) {
+		this.fontSize=n;
+	}
+	public double getFontSize() {
+		return fontSize;
+	}
+	@Override
+	public boolean islegalObj() {
+		return this.text.length()>0;
+	}
+	@Override
+	public void draw(Graphics g,double scale,double offsetX,double offsetY){
+		f=new Font("Noto Sans",Font.BOLD,(int)fontSize);
+		g.setFont(f);
+		setDrawingColor(g,this);
+		g.drawString(text,(int)(offsetX+scale*X),(int)(offsetY+scale*Y));
+	}
+	@Override
+	public void loadfile(String[]array) {
+		this.text=array[1];
+		this.X=Double.parseDouble(array[2]);
+		this.Y=Double.parseDouble(array[3]);
+		this.fontSize=Double.parseDouble(array[4]);
+		this.setColor(new Color(Double.parseDouble(array[7]),Double.parseDouble(array[8]),Double.parseDouble(array[9])));
+	}
+	@Override
+	public boolean isPointInPainterObj(int mx,int my,double scale,double offsetX,double offsetY) {
+		double x=scale*this.X+offsetX;
+		double y=scale*this.Y+offsetY;
+		return (x+(fontSize*text.length())/2>mx&&mx>x&&y-fontSize<my&&my<y);
+	}
+	@Override
+	public String toString() {
+		return "Tx "+text+" "+X+" "+Y+" "+fontSize+"  C "+getColor().getR()+" "+getColor().getG()+" "+getColor().getB();
+	}
+	@Override
+	public Text clone() {
+		return new Text(this.getScene(),this.text,this.X,this.Y,this.fontSize);
+	}
+	@Override
+	public void changeSize(double rol,double cx,double cy) {
+		this.fontSize*=rol;
+        double newX = cx+(X-cx)*rol;
+        double newY = cy+(Y-cy)*rol;
+        X=newX;
+        Y=newY;
+	}
+	@Override
+	public Point getCertain() {
+		double x=(X+(X+(fontSize*text.length())/2/this.getScene().getScale()))/2,y=(Y+(Y-fontSize/this.getScene().getScale()))/2;
+		return new Point(x,y,null);
+	}
+	@Override
+	public void moveX(double X) {
+		this.X+=X;
+	}
+	@Override
+	public void moveY(double Y) {
+		this.Y+=Y;
+	}
 }

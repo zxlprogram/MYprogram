@@ -52,15 +52,14 @@ class Loader {
 			
 			while((line=reader.readLine())!=null) {
 				String []array=line.split(" ");
-				PainterObj surface = new PainterObj(this.sys.getScene());
+				PainterObj painterObj = new PainterObj(this.sys.getScene());
 				try {
-					
-					surface = sys.getScene().getObjTranslator().get(array[0]).getDeclaredConstructor(Scene.class).newInstance(sys.getScene());
+					painterObj = sys.getScene().getObjTranslator().get(array[0]).getDeclaredConstructor(Scene.class).newInstance(sys.getScene());
 				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException| InvocationTargetException | NoSuchMethodException e) {
 					e.printStackTrace();
 				}
-				surface.loadfile(array);
-				returnList.add(surface);
+				painterObj.loadfile(array);
+				returnList.add(painterObj);
 			}
 			
 			sys.getScene().setAllPainterObj(returnList);

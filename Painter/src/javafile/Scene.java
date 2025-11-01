@@ -52,7 +52,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     private JFrame frame=new JFrame();
     private JScrollPane scroll=new JScrollPane();
     private int prevMouseX, prevMouseY, pressedLocationX,pressedLocationY;    //events listener
-    private double scale,offsetX,offsetY,zoom=1;	//camera
+    private double scale,offsetX,offsetY;	//camera
 	private Map<String,Class<? extends PainterObj>>trans=new HashMap<>();
     private final int POINT_RADIUS = 10;
     private List<PainterObj>trash=new ArrayList<>();
@@ -65,6 +65,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 		trans.put("BL", BezierLine.class);
 		trans.put("Cr",Circle.class);
 		trans.put("G:", Group.class);
+		trans.put("Tx",Text.class);
 	}
 	public Map<String, Class<? extends PainterObj>> getObjTranslator() {
 		return this.trans;
@@ -117,6 +118,7 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     			scene.setOffsetX(undoList.offsetX);
     			scene.setOffsetY(undoList.offsetY);
     			this.push(copyPainterObjList(undoList));
+    			Scene.this.getDraggingPainterObj().clear();
     		}
     	}
     	public void undo(Scene scene) {
@@ -126,10 +128,14 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
     			scene.setScale(this.peek().getScale());
     			scene.setOffsetX(this.peek().getOffsetX());
     			scene.setOffsetY(this.peek().getOffsetY());
+    			Scene.this.getDraggingPainterObj().clear();
     		}	
     	}
     	public void saveInfo() {
-    		this.push(copyPainterObjList(new Event(Scene.this.allPainterObj,Scene.this.scale,Scene.this.offsetX,Scene.this.offsetY)));
+    		List<PainterObj>copyList=new ArrayList<>();
+    		for(PainterObj p:Scene.this.allPainterObj)
+    			copyList.add(p.clone());
+    		this.push(copyPainterObjList(new Event(copyList,Scene.this.scale,Scene.this.offsetX,Scene.this.offsetY)));
     		if(this.size()>MAX_SAVING_EVENT)
     			this.removeFirst();
     		this.redoStack.clear();
@@ -332,8 +338,8 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 		}
     }
     private void drawPoint(Graphics g,Point p) {
-    	g.setColor(java.awt.Color.BLACK);
-    	g.fillOval((int)(p.getX()*scale+offsetX)-POINT_RADIUS/2,(int)(p.getY()*scale+offsetY)-POINT_RADIUS/2,POINT_RADIUS,POINT_RADIUS);
+    		g.setColor(java.awt.Color.BLACK);
+    		g.fillOval((int)(p.getX()*scale+offsetX)-POINT_RADIUS/2,(int)(p.getY()*scale+offsetY)-POINT_RADIUS/2,POINT_RADIUS,POINT_RADIUS);
     }
     @Override//be called when repaint()
     protected void paintComponent(Graphics g) {
@@ -350,8 +356,9 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         	if(s.islegalObj()) {
         		s.draw(g, scale, offsetX, offsetY);
         		for(Point p:s.getEdge()) {
-        			if(p.draggable()||p.getPainterObj().Draggable())
+        			if(p.draggable()||p.getPainterObj().Draggable()) {
         			drawPoint(g,p);
+        			}
         		}
         	}
         	else {
@@ -387,9 +394,9 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         if (!draggingPoint.isEmpty()) {
         	for(Point p:draggingPoint) {
         		if((e.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) != 0) {
-        			if(Math.abs(e.getX()-prevMouseX)>Math.abs(e.getY()-prevMouseY)*3)
+        			if(Math.abs(e.getX()-pressedLocationX)>Math.abs(e.getY()-pressedLocationY))
         				p.setX(p.getX() + dx);
-        			else if(Math.abs(e.getX()-prevMouseX)*3<Math.abs(e.getY()-prevMouseY))
+        			else
         				p.setY(p.getY() + dy);
         		}
         		else {
@@ -400,9 +407,9 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
         } else if (!draggingPainterObj.isEmpty()) {
         	for(PainterObj painterObj:draggingPainterObj) {
 			if((e.getModifiersEx() & KeyEvent.SHIFT_DOWN_MASK) != 0) {
-    				if(Math.abs(e.getX()-prevMouseX)>Math.abs(e.getY()-prevMouseY)*3)
+    				if(Math.abs(e.getX()-pressedLocationX)>Math.abs(e.getY()-pressedLocationY))
     					painterObj.moveX(dx);
-    				else if(Math.abs(e.getX()-prevMouseX)*3<Math.abs(e.getY()-prevMouseY))
+    				else
     					painterObj.moveY(dy);
 			}
 			else {
@@ -431,7 +438,6 @@ public class Scene extends JPanel implements MouseListener,MouseMotionListener,K
 			double cy = (getHeight() / 2.0 -getOffsetY()) / getScale();
 			for(PainterObj s:allPainterObj)
 				s.changeSize(rol==-1?1.05:1/1.05,cx,cy);
-			zoom+=rol==-1?1.05:1/1.05;
 		}
 		note.saveInfo();
 	}

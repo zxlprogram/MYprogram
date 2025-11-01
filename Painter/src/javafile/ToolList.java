@@ -15,6 +15,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 /**
  * this is a bar used to save the tool which used to add surface
  * it have a sub-class: Tool
@@ -22,7 +24,7 @@ import javax.swing.JTextField;
  */
 class ToolList extends JPanel {
 	private static final long serialVersionUID = 1L;
-	private int panelHeight=55;
+	private int panelHeight=85;
 	private List<Component>toolList=new ArrayList<>();
 	private Scene scene;
 	private boolean sizeChanging=false;
@@ -150,8 +152,9 @@ class ToolList extends JPanel {
 		toolList.add(enterMoreBezLine);
 		toolList.add(new Tool("Group",()-> {
 			Group group=new Group(this.scene);
-			for(PainterObj p:this.scene.getDraggingPainterObj())
+			for(PainterObj p:this.scene.getDraggingPainterObj()) {
 				group.addGroup(p);
+			}
 			this.scene.getDraggingPainterObj().clear();
 			if(!group.getGroup().isEmpty())
 			scene.addPainterObj(group);
@@ -167,6 +170,26 @@ class ToolList extends JPanel {
 			for(Group obj:removeList)
 				obj.disGroup();
 		}));
+		JTextField text=new JTextField(5);
+		text.setPreferredSize(new Dimension(0,31));
+		text.getDocument().addDocumentListener(new DocumentListener() {
+		    private void update() {
+		        int len = text.getText().length();
+		        text.setColumns(Math.max(5, len));
+		        if(len>20)
+		        	text.setColumns(20);
+		        ToolList.this.revalidate();
+		    }
+		    public void insertUpdate(DocumentEvent e) { update(); }
+		    public void removeUpdate(DocumentEvent e) { update(); }
+		    public void changedUpdate(DocumentEvent e) { update(); }
+		});
+		toolList.add(new Tool("Text",()-> {
+			Text t=new Text(this.scene,text.getText(),1,1,20);
+			t.setColor(1,0,0);
+			scene.addPainterObj(t);
+		}));
+		toolList.add(text);
 		for(Component t:toolList)
 			super.add(t);
 	}

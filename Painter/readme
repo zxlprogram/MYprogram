@@ -90,6 +90,11 @@ __1.10-alpha__
 		release date: 2025-10-27
 	description:
 		compiled the API,readme,src files,testing new features,released new features in 1.10-alpha,added a little changable GUI
+		
+	1.11:
+		release date: 
+	description:
+		fix the bug:undo the movment-> undo still contains by draggingPainterObj, add the text class
 
 ## feature description
 	-KeyEvent ctrl+C: copy the choosing surface
@@ -309,6 +314,10 @@ __1.10-alpha__
 			addGroup
 			disGroup
 			getGroup
+			
+		-Text extends PaiterObj:
+			set/get Text
+			set/get FontSize
 	
 		Point:
 			set/get X/Y
