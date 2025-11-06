@@ -186,7 +186,6 @@ public class Scene extends JPanel
 		new DropTarget(this, this);
 
 	}
-
 	public void execute() {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -219,13 +218,19 @@ public class Scene extends JPanel
 				URL logo = Scene.class.getResource("/file.vecf");
 				saveLoader.getLoader().loadFile(logo);
 				requestFocusInWindow();
-				new javax.swing.Timer(10, e2 -> {
+				new javax.swing.Timer(5, e2 -> {
 					repaint();
+					counter++;
+					Runtime rt=Runtime.getRuntime();
+					long used=rt.totalMemory()-rt.freeMemory();
+					System.out.println(used/1024/1024+" "+counter);
 				}).start();
 			}
 		});
 	}
 
+	static int counter=0;
+	
 	public void browserMode(String path) {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
