@@ -220,16 +220,10 @@ public class Scene extends JPanel
 				requestFocusInWindow();
 				new javax.swing.Timer(5, e2 -> {
 					repaint();
-					counter++;
-					Runtime rt=Runtime.getRuntime();
-					long used=rt.totalMemory()-rt.freeMemory();
-					System.out.println(used/1024/1024+" "+counter);
 				}).start();
 			}
 		});
 	}
-
-	static int counter=0;
 	
 	public void browserMode(String path) {
 		try {
