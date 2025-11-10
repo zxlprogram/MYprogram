@@ -229,7 +229,7 @@ class ToolList extends JPanel {
 			ImageIcon ico = new ImageIcon(url);
 			Image scaledImage = ico.getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH);
 			ImageIcon scaledIcon = new ImageIcon(scaledImage);
-			super(scaledIcon);
+			this.setIcon(scaledIcon);
 			this.action = r;
 			addActionListener(e -> {
 				if (this.action != null) {

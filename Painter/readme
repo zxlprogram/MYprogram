@@ -2,7 +2,7 @@
 __a simple drawing app based on the surface, this is a vector graphic drawer.__
 ### Author:
 __z.x.l__
-### init version:
+### initial version:
 __1.0__
 ### release date: 
 __2025-10-13__
@@ -10,7 +10,7 @@ __2025-10-13__
 ### latest version: 
 __1.10-alpha__
 
-## enviornment
+## environment
 	Windows 11: jdk-25
 	Ubuntu: jdk-25
 	macOS don't have any testing record because of the macOS EULA, we can't use the macOS in virtual box
@@ -39,27 +39,27 @@ __1.10-alpha__
 	1.4:
 		release date: 2025-10-17
 	description:
-		remove arrow KeyEvent's translation feature, and changed to controlled by the mouse wheel, added the export/Load feature, descovered the bug of version 1.3 --when you redo a surface twice, it will redo one more time, added browsing mode
+		remove arrow KeyEvent's translation feature, and changed to controlled by the mouse wheel, added the export/Load feature, discovered the bug of version 1.3 --when you redo a surface twice, it will redo one more time, added browsing mode
 
 	1.4.1:
 		release date: 2025-10-17
 	description:
-		fix the redo bug in version 1.3, fix the loading-format bug (when a wrong format file were been dragged into scene, it will show the dialog), descovered a new bug:  loading new file is possible to crush the refrash timer
+		fix the redo bug in version 1.3, fix the loading-format bug (when a wrong format file were been dragged into scene, it will show the dialog), discovered a new bug:  loading new file is possible to crush the refresh timer
 	
 	1.5-alpha:
 		release date: 2025-10-19
 	description:
-		added the redo feature(ctrl+Y), fix the loading bug in version 1.4.1, undo the zoom in/out function and dragging function, make the offset and scale caculate only at first, make system delay 100ms at first(because I want to load the logo)
+		added the redo feature(ctrl+Y), fix the loading bug in version 1.4.1, undo the zoom in/out function and dragging function, make the offset and scale calculate only at first, make system delay 100ms at first(because I want to load the logo)
 	
 	1.5:
 		release date: 2025-10-19
 	description:
-		fix the bug: the viewSide can save in the Event now, I added the Event class, it contains the List<Surface> and double scale,offsetX,offsetY, and let the logo add the surface in one time; I let the first step became the logo, because it is actually the first step, use the windows event listener replace the delay in execute method(which I added in version 1.5 alpha), custom file protocol changed: the first line have three number:scale, offsetX, offsetY, and belowing  line just like before
+		fix the bug: the viewSide can save in the Event now, I added the Event class, it contains the List<Surface> and double scale,offsetX,offsetY, and let the logo add the surface in one time; I let the first step became the logo, because it is actually the first step, use the windows event listener replace the delay in execute method(which I added in version 1.5 alpha), custom file protocol changed: the first line have three number:scale, offsetX, offsetY, and below line just like before
 		
 	1.6:
 		release date: 2025-10-20
 	description:
-		finally added the layer manager!!! added the folder selecter for saving data
+		finally added the layer manager!!! added the folder selector for saving data
 	
 	1.7:
 		release date: 2025-10-20
@@ -74,12 +74,12 @@ __1.10-alpha__
 	1.8:
 		release date: 2025-10-22
 	description:
-		added the color selecter board, press shift to drag the object strightly, press ctrl to choosed multy surface or point, it will mark the point when the point is draggable, the draggingSurface and draggingPoint turns list instead of single object, you will never choosed the point under another object anymore
+		added the color selector board, press shift to drag the object straightly, press ctrl to choosing multi-surface or point, it will mark the point when the point is draggable, the draggingSurface and draggingPoint turns list instead of single object, you will never choose the point under another object anymore
 		
 	1.9:
 		release date: 2025-10-23
 	description:
-		added the bezier line, bezier surface, stright line, and added root class PainterObj, moved all object to extends that,and write new feature on file format: the object line first record is a vocabilary descripted the class, moved the layermanager's refresher to the main refresher, fix the circle, move the draw method to PainterObj, and let the subclass Override it, rebuild the structure of layermanager: remove the drawing method let the PainterObj method to done this
+		added the bezier line, bezier surface, straight line, and added root class PainterObj, moved all object to extends that,and write new feature on file format: the object line first record is a vocabilary descripted the class, moved the layermanager's refresher to the main refresher, fix the circle, move the draw method to PainterObj, and let the subclass Override it, rebuild the structure of layermanager: remove the drawing method let the PainterObj method to done this
 		
 	1.10-alpha:
 		release date: 2025-10-25
@@ -89,12 +89,12 @@ __1.10-alpha__
 	1.10:
 		release date: 2025-10-27
 	description:
-		compiled the API,readme,src files,testing new features,released new features in 1.10-alpha,added a little changable GUI
+		compiled the API,readme,src files,testing new features,released new features in 1.10-alpha,added a little changeable GUI
 		
 	1.11:
 		release date: 
 	description:
-		fix the bug:undo the movment-> undo still contains by draggingPainterObj, add the text class
+		fix the bug:undo the movement-> undo still contains by draggingPainterObj, added the text class, exchange a line to higher compatibility code(at javafile.ToolList), finish the paper and researching report for point-Based architecture, upgrade the straightly movement algorithm
 
 ## feature description
 	-KeyEvent ctrl+C: copy the choosing surface
@@ -106,7 +106,7 @@ __1.10-alpha__
 	-KeyEvent ctrl+S: save the file
 	-KeyEvent ctrl+A: select all
 	-ctrl+MouseWheelEvent: zoom in/out
-	-ctrl+MouseClickedEvent: choosed multy surface or point
+	-ctrl+MouseClickedEvent: choosing multi-surface or point
 	-MouseEvent left: when pressed, choosing surface will became null if the mouse didn't in any surface,otherwise choosing surface will became the highest layer surface, when dragged, it will check if the choosing point were exist,if it were exist than the point will follow the mouse; otherwise it will check if the choosing surface were exist, if it were exist than the surface will follow the mouse;if nothing were been choosed, we will translation All Object(it look like canvas translation but we actually move all surfaces)
 	-MouseEvent right: change the color for choosing surface
 	-Color changing: the textfield used to enter RGB, it is only allowed to enter the number which between 0 and 1, if the format is wrong, it will show the dialog to announce the error, you must enter the number again
@@ -123,12 +123,12 @@ __1.10-alpha__
 	no current bug
 
 ## lacking feature
-	-trying work the program in Java 8 and lower java runtime enviornment
+	-trying work the program in Java 8 and lower java runtime environment
 	-.png .svg support
-	-the unit spacing to do zoom in/out
+	-user precise setting
 	
 ## Requirements
-	-Java devolopment kit(JDK) 25
+	-Java development kit(JDK) 25
 	-Windows 10+ or ubuntu
 
 ## download
@@ -150,7 +150,7 @@ __1.10-alpha__
 	-file format: .vecf
 	-at first line we have three number for scale, offsetX, offsetY, and below next line, it record for all of the PainterObj, for each PainterObj, we have a vocabilary, N points and a color,first vocabilary descripted the PaintObj class; every points have two doubles and color have three, each point's format:"X Y ",and than, " C " were followed, at last, Color format:"R G B" will followed behind, if the vocabilary at first word is G: means it is a group, and then at that line will have some PainterObj descripted and splited by ","
 	
-## program stucture
+## program structure
 	Painter:
 		bin:
 			javafile:
@@ -218,15 +218,15 @@ __1.10-alpha__
 		 |		 |				|				 |				  |
 		 |		 |---Event		|				 |				  |
 		 |						|				 |				  |
-		 |---ChoiceColor			|				 |				  |
+		 |---ChoiceColor		|				 |				  |
 		 |						|				 |				  |
-		 |---Camera----scale		|				 |				  |
-		 		   |				|				 |				  |
+		 |---Camera----scale	|				 |				  |
+		 		   |			|				 |				  |
 		 		   |---offsetX	|				 |				  |
-		 		   |				|				 |				  |
+		 		   |			|				 |				  |
 		 		   |---offsetY	|				 |				  |
 		 						|				 |				  |
-		 						|				 |				  |---Static Point(descripted in drawingMethod)
+		 						|				 |				  |---Static Point(description in drawingMethod)
 		 						|				 |				  |
 		 						|				 |				  |---Dynamic Point(no description)
 		 						|				 |
@@ -246,7 +246,7 @@ __1.10-alpha__
 								|
 								|---ToolList----Tool
 
-## API descripted
+## API description
 	Scene:
 		Launching:
 			execute(): the main app launching
@@ -303,7 +303,7 @@ __1.10-alpha__
 		getEdge
 		add/remove Point
 		set/get Color
-		set/get Draggable
+		set/get draggable
 		move X/Y
 		changeSize
 		getCertain
