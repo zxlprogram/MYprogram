@@ -152,7 +152,7 @@ public class Scene extends JPanel
 			this.push(
 					copyPainterObjList(new Event(copyList, Scene.this.scale, Scene.this.offsetX, Scene.this.offsetY)));
 			if (this.size() > MAX_SAVING_EVENT)
-				this.removeFirst();
+				this.remove(0);
 			this.redoStack.clear();
 		}
 	}
@@ -553,7 +553,7 @@ public class Scene extends JPanel
 				}
 				this.getDraggingPoint().clear();
 			} else if (allPainterObj.size() > 0)
-				allPainterObj.removeLast();
+				allPainterObj.remove(allPainterObj.size()-1);
 			note.saveInfo();
 			break;
 		case KeyEvent.VK_RIGHT:

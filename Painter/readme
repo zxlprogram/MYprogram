@@ -94,7 +94,7 @@ __1.10-alpha__
 	1.11:
 		release date: 
 	description:
-		fix the bug:undo the movement-> undo still contains by draggingPainterObj, added the text class, exchange a line to higher compatibility code(at javafile.ToolList), finish the paper and researching report for point-Based architecture, upgrade the straightly movement algorithm
+		fix the bug:undo the movement-> undo still contains by draggingPainterObj, added the text class, exchange a line to higher compatibility code(at javafile.ToolList), finish the paper and researching report for point-Based architecture, upgrade the straightly movement algorithm,let the program runnable at java8
 
 ## feature description
 	-KeyEvent ctrl+C: copy the choosing surface
@@ -123,7 +123,6 @@ __1.10-alpha__
 	no current bug
 
 ## lacking feature
-	-trying work the program in Java 8 and lower java runtime environment
 	-.png .svg support
 	-user precise setting
 	
