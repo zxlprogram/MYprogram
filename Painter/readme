@@ -1,5 +1,5 @@
 # painter
-__a simple drawing app based on the surface, this is a vector graphic drawer.__
+__a sample drawing app Based-on Point-Based vector graphics architecture ,a vector graphic drawer.__
 ### Author:
 __z.x.l__
 ### initial version:
@@ -127,7 +127,7 @@ __1.10-alpha__
 	-user precise setting
 	
 ## Requirements
-	-Java development kit(JDK) 25
+	-Java 8
 	-Windows 10+ or ubuntu
 
 ## download
@@ -153,7 +153,7 @@ __1.10-alpha__
 	Painter:
 		bin:
 			javafile:
-				-compiled Class File
+				-"compiled Class File"
 			testing:
 				-painterBrowser.class
 				-Main.class		
@@ -177,7 +177,7 @@ __1.10-alpha__
 			-Nedge_SL.png
 			-Nedge_SS.png
 			-quad.png
-			-file.txt
+			-file.vecf
 		Assets:
 			v1.7.1~v1.10:
 				jar files:
@@ -203,7 +203,10 @@ __1.10-alpha__
 							runtime:
 							libapplauncher.so
 							painter.png
-		-report.docx		
+		quote:
+			Measureextendibilityextensibilityqualityattributeusingobjectorienteddesignmetric.pdf
+		-畢制終稿.docx
+		-專刊.docx		
 		-readme
 
 ## Abstract structure
