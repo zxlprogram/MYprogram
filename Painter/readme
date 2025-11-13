@@ -210,23 +210,23 @@ __1.10-alpha__
 		-readme
 
 ## Abstract structure
-	Scene----JFrame----mainPanel----AllPainterObj----Edge----Point----X/Y
-		 |						|				 |				  |
-		 |---Note----undo		|				 |				  |
-		 |		 |				|				 |				  |
-		 |		 |---redo		|				 |				  |
-		 |		 |				|				 |				  |
-		 |		 |---saveInfo	|				 |				  |
-		 |		 |				|				 |				  |
-		 |		 |---Event		|				 |				  |
-		 |						|				 |				  |
-		 |---ChoiceColor		|				 |				  |
-		 |						|				 |				  |
-		 |---Camera----scale	|				 |				  |
-		 		   |			|				 |				  |
-		 		   |---offsetX	|				 |				  |
-		 		   |			|				 |				  |
-		 		   |---offsetY	|				 |				  |
+	Scene----JFrame---------------------------------mainPanel--------------------AllPainterObj------------Edge------------Point----X/Y
+		      |						|				 |				  |
+		      |---Note-----undo				|				 |				  |
+		      |		      |				|				 |				  |
+		      |		      |---redo			|				 |				  |
+		      |		      |				|				 |				  |
+		      |		      |---saveInfo		|				 |				  |
+		      |		      |				|				 |				  |
+		      |		      |---Event			|				 |				  |
+		      |						|				 |				  |
+		      |---ChoiceColor				|				 |				  |
+		      |						|				 |				  |
+		      |---Camera----scale			|				 |				  |
+		 		        |			|				 |				  |
+		 		        |---offsetX		|				 |				  |
+		 		        |			|				 |				  |
+		 		        |---offsetY		|				 |				  |
 		 						|				 |				  |
 		 						|				 |				  |---Static Point(description in drawingMethod)
 		 						|				 |				  |
@@ -237,12 +237,12 @@ __1.10-alpha__
 								|				 |---drawingMethod
 								|				 |
 								|				 |---file format
-								|
-								|---ExportManager----Exporter
+								|				 |
+								|---ExportManager----Exporter	 |
 								|				 |
 								|				 |---Loader----File loading
-								|				 		   |
-								|						   |---Default loading
+								|				 		   	  |
+								|						   	  |---Default loading
 								|
 								|---LayerManager----layerManagerBar----DraggableItem
 								|
