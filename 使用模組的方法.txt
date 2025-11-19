@@ -1,0 +1,11 @@
+使用模組的方法
+1.確保模組與當前的jdk或jre版本相符
+2.環境變數設定為:在系統變數下增加JAVA_HOME，參數導向jdk的資料夾(沒有要導向bin)，在Path下新增:%JAVA_HOME%\bin
+3.在eclipse中，點windows>preferences>java>installed jres>Add>加入自己剛剛的jdk
+4.run>run configurations>arguments>VM arguments>輸入以下東西:
+--module-path "模組的lib位置" --add-modules javafx.controls,javafx.fxml,javafx.web 
+如果有碰到程式權限不夠的話可以--add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED
+例如:
+--module-path "C:\javafx-sdk-23.0.1\lib" --add-modules javafx.controls,javafx.fxml,javafx.web --add-exports=javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED
+5.project> properties>java build path>module path中，確保jdk是版本相通的>在class path中添加模組的lib下的所有jar
+6.重啟eclipse並測試模組
