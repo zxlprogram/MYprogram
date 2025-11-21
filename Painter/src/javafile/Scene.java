@@ -33,14 +33,14 @@ import javax.swing.*;
 /**
  * @since 2025-10-13
  * @author z.x.l
- * @version 1.10-alpha
+ * @version 1.11-beta
  */
 public class Scene extends JPanel
 		implements MouseListener, MouseMotionListener, KeyListener, MouseWheelListener, DropTargetListener {// base-on-swing
 	private static final long serialVersionUID = 1L;
 	// _________________________________________DESCRIPTION______________________
 	static final String appName = "Painter";
-	static final String version = "1.10";
+	static final String version = "1.11-beta";
 
 	// _________________________________________OPERATION________________________
 	private java.util.List<PainterObj> allPainterObj = new ArrayList<>();

@@ -91,8 +91,8 @@ __1.10-alpha__
 	description:
 		compiled the API,readme,src files,testing new features,released new features in 1.10-alpha,added a little changeable GUI
 		
-	1.11:
-		release date: 
+	1.11-beta:
+		release date: 2025-11-21
 	description:
 		fix the bug:undo the movement-> undo still contains by draggingPainterObj, added the text class, exchange a line to higher compatibility code(at javafile.ToolList), finish the paper and researching report for point-Based architecture, upgrade the straightly movement algorithm,let the program runnable at java8
 
@@ -117,10 +117,10 @@ __1.10-alpha__
 
 ## Possibly bug
 	[linux]
-	no current bug
+	no known bug
 
 	[windows]
-	no current bug
+	no known bug
 
 ## lacking feature
 	-.png .svg support
@@ -179,7 +179,7 @@ __1.10-alpha__
 			-quad.png
 			-file.vecf
 		Assets:
-			v1.7.1~v1.10:
+			v1.7.1~v1.11-beta:
 				jar files:
 					-painter.jar
 					-painterBrowser.jar
@@ -206,7 +206,7 @@ __1.10-alpha__
 		quote:
 			Measureextendibilityextensibilityqualityattributeusingobjectorienteddesignmetric.pdf
 		-畢制終稿.docx
-		-專刊.docx		
+		-專刊.docx
 		-readme
 
 ## Abstract structure
