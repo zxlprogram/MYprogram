@@ -143,7 +143,7 @@ __1.10-alpha__
 		2. .\painterBrowser.jar <your_painter_file_name.txt>
 			exp: ".\painterBrowser.jar C:\Users\user\desktop\file.vecf"
 			
-		or double click the jar file to open it, drag the file to the browser to check the file in browser
+		or visit the author and ask for Assets link to get the runnable file(.exe, Ubuntu binary file, .jar)
 	
 ## Custom file protocol
 	-file format: .vecf
@@ -330,3 +330,22 @@ __1.10-alpha__
 			set/get X/Y
 			set/get Draggable
 			getPainterObj
+
+## How to get Assets (client)?
+	1.ask for author and get a cloudflared webside
+	2.open at chrome
+	3.choice your file
+
+## How to share Assets (server)?
+	1. double click "Assets_sharing.bat"
+	2. copy the webside in the ascii rectangle frame
+	3. share the link to client
+	notice: you should have python and cloudflared, and connect them to the system path,the name of cloudflared should named to "cloudflared.exe"
+	notice: this sharing method is only work in windows, it doesn't work in other OS, because the bat file wrote the windows cmd code
+	notice: if you want to make a same sharing tool, you should download cloudflared and python in your OS
+
+	the abstract method to share the assets:
+		download python and connect to system path
+		download cloudflared and connect to system path
+		1.python -m http.server 8000
+		2.cloudflared tunnel --url "http://localhost:8000"
