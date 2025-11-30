@@ -1,0 +1,4 @@
+Assets/
+__pycache__/
+cloudflared.exe
+manifest.txt
