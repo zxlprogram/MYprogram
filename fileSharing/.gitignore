@@ -2,3 +2,5 @@ Assets/
 __pycache__/
 cloudflared.exe
 manifest.txt
+python-3.14.0-embed-amd64/
+server.py

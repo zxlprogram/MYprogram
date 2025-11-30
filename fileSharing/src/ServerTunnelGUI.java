@@ -11,13 +11,23 @@ public class ServerTunnelGUI {
     private Process pythonProcess;
     private Process tunnelProcess;
     private JTextArea tunnelOutput;
-    public String path = System.getProperty("user.dir");
-
+    public String path, originalPath;
     public static void main(String[] args) {
         ServerTunnelGUI gui = new ServerTunnelGUI();
         if (args.length > 0 && args[0] != null && !args[0].isEmpty())
             gui.path = args[0];
         SwingUtilities.invokeLater(gui::createAndShowGUI);
+    }
+    public ServerTunnelGUI() {
+        path = System.getProperty("user.dir");
+        try {
+            originalPath = new File(
+                    ServerTunnelGUI.class.getProtectionDomain().getCodeSource().getLocation().toURI()
+            ).getParent();
+        } catch (Exception e) {
+            e.printStackTrace();
+            originalPath = "";
+        }
     }
     private void createAndShowGUI() {
         try {
@@ -45,12 +55,30 @@ public class ServerTunnelGUI {
         frame.add(pythonScroll);
         frame.add(tunnelPanel);
         frame.setVisible(true);
-        pythonProcess = startProcess(new String[]{"python", "-m", "http.server", "8000"}, path, pythonOutput);
+        System.out.println("Python 路徑: " + originalPath + "\\python-3.14.0-embed-amd64\\python.exe");
+        System.out.println("Server.py 路徑: " + originalPath + "\\server.py");
+        pythonProcess = startProcess(
+                new String[]{
+                        originalPath + "\\python-3.14.0-embed-amd64\\python.exe",
+                        originalPath + "\\server.py",
+                        "8000"
+                },
+                path,
+                pythonOutput
+        );
         new Thread(() -> {
             try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
-            tunnelProcess = startProcess(new String[]{".\\cloudflared.exe", "tunnel", "--url", "http://localhost:8000"}, path, tunnelOutput);
+            tunnelProcess = startProcess(
+                    new String[]{
+                            originalPath + "\\cloudflared.exe",
+                            "tunnel",
+                            "--url",
+                            "http://localhost:8000"
+                    },
+                    path,
+                    tunnelOutput
+            );
         }).start();
-
         frame.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent e) {
@@ -63,12 +91,12 @@ public class ServerTunnelGUI {
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.directory(new File(dir));
         pb.redirectErrorStream(true);
-
         try {
             Process process = pb.start();
-
             new Thread(() -> {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), "UTF-8"))) {
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(process.getInputStream(), "UTF-8")
+                )) {
                     String line;
                     while ((line = reader.readLine()) != null) {
                         String finalLine = line;
@@ -76,16 +104,19 @@ public class ServerTunnelGUI {
                     }
                 } catch (IOException ignored) {}
             }).start();
+
             return process;
         } catch (IOException e) {
             outputArea.append("ERROR: " + e.getMessage() + "\n");
             return null;
         }
     }
+    
     private void shutdownProcesses() {
         killIfAlive(pythonProcess);
         killIfAlive(tunnelProcess);
     }
+    
     private void killIfAlive(Process process) {
         if (process == null) return;
         try {
@@ -98,6 +129,7 @@ public class ServerTunnelGUI {
             }
         } catch (Exception ignored) {}
     }
+
     private void copyTunnelLink() {
         String[] lines = tunnelOutput.getText().split("\\n");
         int httpsCount = 0;
@@ -110,7 +142,9 @@ public class ServerTunnelGUI {
                     if (end == -1) continue;
                     end += ".trycloudflare.com".length();
                     String link = line.substring(pos, end);
-                    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(link), null);
+                    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
+                            new StringSelection(link), null
+                    );
                     showQRCodeWindow(link);
                     JOptionPane.showMessageDialog(null, "已複製臨時連結:\n" + link);
                     return;
@@ -119,6 +153,7 @@ public class ServerTunnelGUI {
         }
         JOptionPane.showMessageDialog(null, "未找到臨時連結，請確認 tunnel 是否啟動。");
     }
+
     private void showQRCodeWindow(String link) {
         try {
             QRCodeWriter writer = new QRCodeWriter();
