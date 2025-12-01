@@ -55,8 +55,6 @@ public class ServerTunnelGUI {
         frame.add(pythonScroll);
         frame.add(tunnelPanel);
         frame.setVisible(true);
-        System.out.println("Python 路徑: " + originalPath + "\\python-3.14.0-embed-amd64\\python.exe");
-        System.out.println("Server.py 路徑: " + originalPath + "\\server.py");
         pythonProcess = startProcess(
                 new String[]{
                         originalPath + "\\python-3.14.0-embed-amd64\\python.exe",
@@ -73,7 +71,9 @@ public class ServerTunnelGUI {
                             originalPath + "\\cloudflared.exe",
                             "tunnel",
                             "--url",
-                            "http://localhost:8000"
+                            "http://localhost:8000",
+                            "--protocol",
+                            "http2"
                     },
                     path,
                     tunnelOutput
