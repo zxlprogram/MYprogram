@@ -1,3 +1,0 @@
-Main-Class: ServerTunnelGUI
-Class-Path: core-3.5.4.jar javase-3.5.4.jar
-

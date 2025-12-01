@@ -6,7 +6,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/Users/user/Desktop/MYprogram/fileSharing/core-3.5.4.jar"/>
-	<classpathentry kind="lib" path="C:/Users/user/Desktop/MYprogram/fileSharing/javase-3.5.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Desktop/MYprogram/fileSharing/fileSharing_lib/core-3.5.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/user/Desktop/MYprogram/fileSharing/fileSharing_lib/javase-3.5.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

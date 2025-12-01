@@ -77,8 +77,8 @@ public class ServerTunnelGUI {
         int port = getFreePort();
         pythonProcess = startProcess(
                 new String[]{
-                        originalPath + "\\python-3.14.0-embed-amd64\\python.exe",
-                        originalPath + "\\server.py",
+                        originalPath + "\\tool\\python-3.14.0-embed-amd64\\python.exe",
+                        originalPath + "\\tool\\server.py",
                         Integer.toString(port)
                 },
                 path,
@@ -88,7 +88,7 @@ public class ServerTunnelGUI {
             try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
             tunnelProcess = startProcess(
                     new String[]{
-                            originalPath + "\\cloudflared.exe",
+                            originalPath + "\\tool\\cloudflared.exe",
                             "tunnel",
                             "--url",
                             "http://localhost:" + port,
