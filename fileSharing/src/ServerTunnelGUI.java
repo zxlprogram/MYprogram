@@ -108,7 +108,7 @@ public class ServerTunnelGUI {
             }
         });
     }
-    private Process startProcess(String[] command, String dir, JTextArea outputArea) {
+    public Process startProcess(String[] command, String dir, JTextArea outputArea) {
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.directory(new File(dir));
         pb.redirectErrorStream(true);
