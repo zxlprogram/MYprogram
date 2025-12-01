@@ -2,12 +2,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.io.*;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import com.google.zxing.*;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 public class ServerTunnelGUI {
+    private Random r = new Random();
     private Process pythonProcess;
     private Process tunnelProcess;
     private JTextArea tunnelOutput;
@@ -28,6 +30,23 @@ public class ServerTunnelGUI {
             e.printStackTrace();
             originalPath = "";
         }
+    }
+    private boolean isPortAvailable(int port) {
+        try (java.net.ServerSocket socket = new java.net.ServerSocket(port)) {
+            socket.setReuseAddress(true);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+    private int getFreePort() {
+        for (int i = 0; i < 50; i++) {
+            int candidate = r.nextInt(1000) + 8000;
+            if (isPortAvailable(candidate)) {
+                return candidate;
+            }
+        }
+        throw new RuntimeException("找不到可用的埠");
     }
     private void createAndShowGUI() {
         try {
@@ -55,11 +74,12 @@ public class ServerTunnelGUI {
         frame.add(pythonScroll);
         frame.add(tunnelPanel);
         frame.setVisible(true);
+        int port = getFreePort();
         pythonProcess = startProcess(
                 new String[]{
                         originalPath + "\\python-3.14.0-embed-amd64\\python.exe",
                         originalPath + "\\server.py",
-                        "8000"
+                        Integer.toString(port)
                 },
                 path,
                 pythonOutput
@@ -71,7 +91,7 @@ public class ServerTunnelGUI {
                             originalPath + "\\cloudflared.exe",
                             "tunnel",
                             "--url",
-                            "http://localhost:8000",
+                            "http://localhost:" + port,
                             "--protocol",
                             "http2"
                     },
@@ -79,6 +99,7 @@ public class ServerTunnelGUI {
                     tunnelOutput
             );
         }).start();
+        System.out.println(port);
         frame.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent e) {
@@ -104,19 +125,16 @@ public class ServerTunnelGUI {
                     }
                 } catch (IOException ignored) {}
             }).start();
-
             return process;
         } catch (IOException e) {
             outputArea.append("ERROR: " + e.getMessage() + "\n");
             return null;
         }
     }
-    
     private void shutdownProcesses() {
         killIfAlive(pythonProcess);
         killIfAlive(tunnelProcess);
     }
-    
     private void killIfAlive(Process process) {
         if (process == null) return;
         try {
@@ -129,7 +147,6 @@ public class ServerTunnelGUI {
             }
         } catch (Exception ignored) {}
     }
-
     private void copyTunnelLink() {
         String[] lines = tunnelOutput.getText().split("\\n");
         int httpsCount = 0;
@@ -153,12 +170,12 @@ public class ServerTunnelGUI {
         }
         JOptionPane.showMessageDialog(null, "未找到臨時連結，請確認 tunnel 是否啟動。");
     }
-
     private void showQRCodeWindow(String link) {
         try {
             QRCodeWriter writer = new QRCodeWriter();
             BitMatrix matrix = writer.encode(link, BarcodeFormat.QR_CODE, 300, 300);
             Image qrImage = MatrixToImageWriter.toBufferedImage(matrix);
+
             JLabel label = new JLabel(new ImageIcon(qrImage));
             JFrame qrFrame = new JFrame("QRCode for Link");
             qrFrame.setSize(350, 380);
