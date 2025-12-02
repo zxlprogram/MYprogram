@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import com.google.zxing.*;
@@ -13,7 +14,7 @@ public class ServerTunnelGUI {
     private Process pythonProcess;
     private Process tunnelProcess;
     private JTextArea tunnelOutput;
-    public String path, originalPath;
+    public String path, originalPath,link;
     public static void main(String[] args) {
         ServerTunnelGUI gui = new ServerTunnelGUI();
         if (args.length > 0 && args[0] != null && !args[0].isEmpty())
@@ -60,11 +61,13 @@ public class ServerTunnelGUI {
         pythonOutput.setBackground(Color.black);
         pythonOutput.setForeground(Color.green);
         pythonOutput.setEditable(false);
+        pythonOutput.setName("SERVER");
         JScrollPane pythonScroll = new JScrollPane(pythonOutput);
         tunnelOutput = new JTextArea();
         tunnelOutput.setBackground(Color.black);
         tunnelOutput.setForeground(Color.green);
         tunnelOutput.setEditable(false);
+        tunnelOutput.setName("CLOUDFLARD");
         JScrollPane tunnelScroll = new JScrollPane(tunnelOutput);
         JButton copyButton = new JButton("複製臨時連結並顯示 QRCode");
         copyButton.addActionListener(e -> copyTunnelLink());
@@ -99,7 +102,9 @@ public class ServerTunnelGUI {
                     tunnelOutput
             );
         }).start();
-        System.out.println(port);
+        tunnelOutput.append("[FILESHARING] ["+LocalDateTime.now()+"]\n");
+        tunnelOutput.append("[FILESHARING] the tunnel path to folder: "+path+"\n");
+        tunnelOutput.append("[FILESHARING] fileSharing is using the port "+port+"\n");
         frame.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent e) {
@@ -121,12 +126,16 @@ public class ServerTunnelGUI {
                     String line;
                     while ((line = reader.readLine()) != null) {
                         String finalLine = line;
-                        SwingUtilities.invokeLater(() -> outputArea.append(finalLine + "\n"));
+                        if(line.indexOf(".trycloudflare.com")!=-1)
+                        link=line.substring(line.indexOf("https://"),line.indexOf(".trycloudflare.com")+18);
+                        if(outputArea!=null)
+                        SwingUtilities.invokeLater(() -> outputArea.append("["+outputArea.getName()+"] "+finalLine + "\n"));
                     }
                 } catch (IOException ignored) {}
             }).start();
             return process;
         } catch (IOException e) {
+        		if(outputArea!=null)
             outputArea.append("ERROR: " + e.getMessage() + "\n");
             return null;
         }
@@ -148,25 +157,13 @@ public class ServerTunnelGUI {
         } catch (Exception ignored) {}
     }
     private void copyTunnelLink() {
-        String[] lines = tunnelOutput.getText().split("\\n");
-        int httpsCount = 0;
-        for (String line : lines) {
-            int pos = line.indexOf("https://");
-            if (pos != -1) {
-                httpsCount++;
-                if (httpsCount == 2) {
-                    int end = line.indexOf(".trycloudflare.com");
-                    if (end == -1) continue;
-                    end += ".trycloudflare.com".length();
-                    String link = line.substring(pos, end);
-                    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
-                            new StringSelection(link), null
-                    );
-                    showQRCodeWindow(link);
-                    JOptionPane.showMessageDialog(null, "已複製臨時連結:\n" + link);
-                    return;
-                }
-            }
+        if(link!=null) {
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
+                    new StringSelection(link), null
+            );
+            showQRCodeWindow(link);
+            JOptionPane.showMessageDialog(null, "已複製臨時連結:\n" + link);
+        		return;
         }
         JOptionPane.showMessageDialog(null, "未找到臨時連結，請確認 tunnel 是否啟動。");
     }
