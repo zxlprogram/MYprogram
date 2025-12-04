@@ -54,6 +54,7 @@ public class ServerTunnelGUI {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ignored) {}
         JFrame frame = new JFrame("Python Server + Cloudflare Tunnel Monitor");
+        frame.setIconImage(new ImageIcon(ServerTunnelGUI.class.getResource("logo.png")).getImage());
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.setSize(900, 600);
         frame.setLayout(new GridLayout(1, 2));
