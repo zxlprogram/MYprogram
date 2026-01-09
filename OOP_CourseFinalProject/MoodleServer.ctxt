@@ -1,0 +1,25 @@
+#BlueJ class context
+comment0.target=MoodleServer
+comment1.params=
+comment1.target=MoodleServer()
+comment10.params=b
+comment10.target=void\ signOut(BaseUser)
+comment11.params=
+comment11.target=void\ showInfo()
+comment2.params=t\ mdu
+comment2.target=void\ addTask(Task,\ MoodleUser)
+comment3.params=t
+comment3.target=void\ removeTask(Task)
+comment4.params=message
+comment4.target=void\ log(java.lang.String)
+comment5.params=
+comment5.target=java.util.List\ getHomeWork()
+comment6.params=mdu\ task\ answer
+comment6.target=void\ submitAnswer(MoodleUser,\ Task,\ java.lang.Object)
+comment7.params=
+comment7.target=BaseServer\ getBaseServer()
+comment8.params=b\ i
+comment8.target=void\ register(BaseUser,\ Password)
+comment9.params=b\ i
+comment9.target=void\ signIn(BaseUser,\ Password)
+numComments=12

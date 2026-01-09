@@ -1,0 +1,19 @@
+#BlueJ class context
+comment0.target=MoodleUser
+comment1.params=server\ name\ ID\ permission
+comment1.target=MoodleUser(BaseServer,\ java.lang.String,\ int,\ java.util.Set)
+comment2.params=
+comment2.target=java.util.Set\ getPermissions()
+comment3.params=
+comment3.target=BaseUser\ getBaseUser()
+comment4.params=t
+comment4.target=void\ submitTask(Task)
+comment5.params=t\ o
+comment5.target=void\ doTask(Task,\ java.lang.Object)
+comment6.params=
+comment6.target=java.lang.String\ toString()
+comment7.params=o
+comment7.target=boolean\ equals(java.lang.Object)
+comment8.params=
+comment8.target=int\ hashCode()
+numComments=9

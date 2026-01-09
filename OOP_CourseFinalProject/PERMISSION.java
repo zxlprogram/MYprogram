@@ -1,0 +1,3 @@
+public enum PERMISSION {
+	EDIT_TASK,READ_TASK,SUBMIT_ANS
+}

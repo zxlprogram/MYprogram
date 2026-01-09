@@ -1,0 +1,15 @@
+#BlueJ class context
+comment0.target=BaseServer
+comment1.params=user
+comment1.target=void\ register(BaseUser)
+comment2.params=user
+comment2.target=void\ signOut(BaseUser)
+comment3.params=user
+comment3.target=void\ signIn(BaseUser)
+comment4.params=
+comment4.target=void\ showInfo()
+comment5.params=message
+comment5.target=void\ log(java.lang.String)
+comment6.params=usr
+comment6.target=boolean\ ask(BaseUser)
+numComments=7

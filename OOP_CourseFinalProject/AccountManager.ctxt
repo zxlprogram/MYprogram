@@ -1,0 +1,9 @@
+#BlueJ class context
+comment0.target=AccountManager
+comment1.params=b
+comment1.target=void\ signIn(BaseUser)
+comment2.params=b
+comment2.target=void\ register(BaseUser)
+comment3.params=b
+comment3.target=void\ signOut(BaseUser)
+numComments=4

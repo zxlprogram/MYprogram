@@ -1,0 +1,13 @@
+#BlueJ class context
+comment0.target=TFTask
+comment1.params=server\ t\ context\ correctAnswer
+comment1.target=TFTask(MoodleServer,\ java.lang.String,\ java.lang.String,\ boolean)
+comment2.params=mdu\ o
+comment2.target=void\ requestDoTask(MoodleUser,\ java.lang.Object)
+comment3.params=mdu
+comment3.target=boolean\ checkAnswer(MoodleUser)
+comment4.params=mdu
+comment4.target=java.lang.String\ result(MoodleUser)
+comment5.params=mdu
+comment5.target=void\ requestAddTask(MoodleUser)
+numComments=6

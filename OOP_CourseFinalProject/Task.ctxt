@@ -1,0 +1,25 @@
+#BlueJ class context
+comment0.target=Task
+comment1.params=server\ t\ context\ correctAnswer
+comment1.target=Task(MoodleServer,\ java.lang.String,\ java.lang.String,\ java.lang.Object)
+comment10.params=
+comment10.target=java.lang.String\ toString()
+comment11.params=
+comment11.target=java.util.Map\ getUserAnswer()
+comment2.params=
+comment2.target=MoodleServer\ getServer()
+comment3.params=
+comment3.target=java.lang.String\ getTitle()
+comment4.params=
+comment4.target=java.lang.String\ getContext()
+comment5.params=mdu\ o
+comment5.target=void\ requestDoTask(MoodleUser,\ java.lang.Object)
+comment6.params=mdu
+comment6.target=void\ requestAddTask(MoodleUser)
+comment7.params=mdu
+comment7.target=java.lang.String\ result(MoodleUser)
+comment8.params=mdu
+comment8.target=boolean\ checkAnswer(MoodleUser)
+comment9.params=
+comment9.target=java.lang.Object\ getCorrectAnswer()
+numComments=12

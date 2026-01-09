@@ -1,0 +1,7 @@
+#BlueJ class context
+comment0.target=Logger
+comment1.params=message
+comment1.target=void\ log(java.lang.String)
+comment2.params=
+comment2.target=void\ showInfo()
+numComments=3
