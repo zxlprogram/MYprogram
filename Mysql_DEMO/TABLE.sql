@@ -1,0 +1,9 @@
+CREATE TABLE system_log (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    log_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    log_level VARCHAR(10) NOT NULL,
+    source VARCHAR(50) NOT NULL,
+    message TEXT NOT NULL,
+    user_id INT NULL,
+    extra JSON NULL
+);
