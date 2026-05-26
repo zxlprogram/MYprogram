@@ -1,0 +1,252 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dC:/VerilogProgramWorkspace
+vALU
+Z1 !s110 1778616486
+!i10b 1
+!s100 XgcgzZ=>hkTgnETmh>D0Y0
+I;44nlgjVE0TO1RkZHPO3a2
+Z2 VDg1SIo80bB@j0V0VzS_@n1
+R0
+Z3 w1778574757
+8C:/VerilogProgramWorkspace/work/ALU.v
+FC:/VerilogProgramWorkspace/work/ALU.v
+L0 2
+Z4 OV;L;10.5b;63
+r1
+!s85 0
+31
+Z5 !s108 1778616486.000000
+!s107 C:/VerilogProgramWorkspace/work/ALU.v|
+!s90 -reportprogress|300|-work|work|C:/VerilogProgramWorkspace/work/ALU.v|
+!i113 1
+Z6 o-work work
+Z7 tCvgOpt 0
+n@a@l@u
+vALU1bit
+R1
+!i10b 1
+!s100 @PjcCn>6bNAWbzND@Ng:_1
+IMlVk3bQizhE74]0?KaE=B3
+R2
+R0
+R3
+8C:/VerilogProgramWorkspace/work/ALU1bit.v
+FC:/VerilogProgramWorkspace/work/ALU1bit.v
+L0 2
+R4
+r1
+!s85 0
+31
+R5
+!s107 C:/VerilogProgramWorkspace/work/ALU1bit.v|
+!s90 -reportprogress|300|-work|work|C:/VerilogProgramWorkspace/work/ALU1bit.v|
+!i113 1
+R6
+R7
+n@a@l@u1bit
+vALUControl
+R1
+!i10b 1
+!s100 d4MR^BWDnS8lEU3zK?6TD0
+I3lPC@GM:Ib39FP4f7>PdW1
+R2
+R0
+R3
+8C:/VerilogProgramWorkspace/work/ALUControl.v
+FC:/VerilogProgramWorkspace/work/ALUControl.v
+L0 2
+R4
+r1
+!s85 0
+31
+R5
+!s107 C:/VerilogProgramWorkspace/work/ALUControl.v|
+!s90 -reportprogress|300|-work|work|C:/VerilogProgramWorkspace/work/ALUControl.v|
+!i113 1
+R6
+R7
+n@a@l@u@control
+vDivider
+R1
+!i10b 1
+!s100 :D5OV5VRJ[ZDabXnf96gH0
+I]TWTODimm<@5TA]fTGKm83
+R2
+R0
+w1778261513
+8C:/VerilogProgramWorkspace/work/Divider.v
+FC:/VerilogProgramWorkspace/work/Divider.v
+L0 2
+R4
+r1
+!s85 0
+31
+R5
+!s107 C:/VerilogProgramWorkspace/work/Divider.v|
+!s90 -reportprogress|300|-work|work|C:/VerilogProgramWorkspace/work/Divider.v|
+!i113 1
+R6
+R7
+n@divider
+vFullAdder
+R1
+!i10b 1
+!s100 8zLo[bVV[GzHBl5YT2a_g2
+I_gUfDzlnDJko;_0bCT;_D2
+R2
+R0
+R3
+8C:/VerilogProgramWorkspace/work/FullAdder.v
+FC:/VerilogProgramWorkspace/work/FullAdder.v
+L0 2
+R4
+r1
+!s85 0
+31
+R5
+!s107 C:/VerilogProgramWorkspace/work/FullAdder.v|
+!s90 -reportprogress|300|-work|work|C:/VerilogProgramWorkspace/work/FullAdder.v|
+!i113 1
+R6
+R7
+n@full@adder
+vHiLo
+R1
+!i10b 1
+!s100 PQY8z[EPcTkcIDQDOH:l33
+IOS`UJSKTN<ndC@Zz`5z]a3
+R2
+R0
+R3
+8C:/VerilogProgramWorkspace/work/HiLo.v
+FC:/VerilogProgramWorkspace/work/HiLo.v
+L0 2
+R4
+r1
+!s85 0
+31
+R5
+!s107 C:/VerilogProgramWorkspace/work/HiLo.v|
+!s90 -reportprogress|300|-work|work|C:/VerilogProgramWorkspace/work/HiLo.v|
+!i113 1
+R6
+R7
+n@hi@lo
+vMultiplier
+R1
+!i10b 1
+!s100 T]B147okZeJTD6iKXcSXz0
+ICRdOlogLlPjD3JYi@2mg?3
+R2
+R0
+R3
+8C:/VerilogProgramWorkspace/work/Multiplier.v
+FC:/VerilogProgramWorkspace/work/Multiplier.v
+L0 2
+R4
+r1
+!s85 0
+31
+R5
+!s107 C:/VerilogProgramWorkspace/work/Multiplier.v|
+!s90 -reportprogress|300|-work|work|C:/VerilogProgramWorkspace/work/Multiplier.v|
+!i113 1
+R6
+R7
+n@multiplier
+vMUX
+R1
+!i10b 1
+!s100 0fC19`ZfSZLNK`8O]1MdO2
+IWP6^IdI]YHZ0lah_7j]^G1
+R2
+R0
+R3
+8C:/VerilogProgramWorkspace/work/MUX.v
+FC:/VerilogProgramWorkspace/work/MUX.v
+L0 2
+R4
+r1
+!s85 0
+31
+R5
+!s107 C:/VerilogProgramWorkspace/work/MUX.v|
+!s90 -reportprogress|300|-work|work|C:/VerilogProgramWorkspace/work/MUX.v|
+!i113 1
+R6
+R7
+n@m@u@x
+vShifter
+R1
+!i10b 1
+!s100 z3@:?Dg[2D>CbnWOUP5fV0
+IBH<6`<kaKW0BDc_R<doD:2
+R2
+R0
+R3
+8C:/VerilogProgramWorkspace/work/Shifter.v
+FC:/VerilogProgramWorkspace/work/Shifter.v
+L0 2
+R4
+r1
+!s85 0
+31
+R5
+!s107 C:/VerilogProgramWorkspace/work/Shifter.v|
+!s90 -reportprogress|300|-work|work|C:/VerilogProgramWorkspace/work/Shifter.v|
+!i113 1
+R6
+R7
+n@shifter
+vtb_ALU
+R1
+!i10b 1
+!s100 `aUV5oP;0D0Pe<<;g72b]2
+IzMaF9Roc9@Kfa6IXa<L]V2
+R2
+R0
+w1778614606
+8C:/VerilogProgramWorkspace/work/tb_ALU.v
+FC:/VerilogProgramWorkspace/work/tb_ALU.v
+L0 3
+R4
+r1
+!s85 0
+31
+R5
+!s107 C:/VerilogProgramWorkspace/work/tb_ALU.v|
+!s90 -reportprogress|300|-work|work|C:/VerilogProgramWorkspace/work/tb_ALU.v|
+!i113 1
+R6
+R7
+ntb_@a@l@u
+vTotalALU
+R1
+!i10b 1
+!s100 KUjSd8JamUHO^lgh1Hb9R0
+I;OQRRHaWom2b>:Kblm?ZG0
+R2
+R0
+R3
+8C:/VerilogProgramWorkspace/work/TotalALU.v
+FC:/VerilogProgramWorkspace/work/TotalALU.v
+L0 2
+R4
+r1
+!s85 0
+31
+R5
+!s107 C:/VerilogProgramWorkspace/work/TotalALU.v|
+!s90 -reportprogress|300|-work|work|C:/VerilogProgramWorkspace/work/TotalALU.v|
+!i113 1
+R6
+R7
+n@total@a@l@u

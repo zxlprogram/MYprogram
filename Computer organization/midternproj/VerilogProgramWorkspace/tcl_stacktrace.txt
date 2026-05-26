@@ -1,0 +1,13 @@
+Sat May 09 01:21:58 +0800 2026
+Trace back: window name "search_bar" already exists in parent
+    while executing
+"frame $bar -relief flat -bd 0 -padx 2 -pady 2"
+    (procedure "privCreate" line 18)
+    invoked from within
+"privCreate $w"
+    (procedure "SearchBar::show" line 9)
+    invoked from within
+"SearchBar::show .dlg_sim_opts.top_row.child_f.nb.canvas.notebook.cs.page1.cs.libbrowser.contents {}"
+    ("after" script)
+  <2:C:/intelFPGA/17.1/modelsim_ase/win32aloem/tk8.5/bgerror.tcl:92: ::tkerror {window name "search_bar" already exists in parent}
+  <1:eval:1: ::tk::dialog::error::bgerror {window name "search_bar" already exists in parent}

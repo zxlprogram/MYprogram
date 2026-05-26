@@ -1,0 +1,57 @@
+C:/VerilogProgramWorkspace/work/HiLo.v {1 {vlog -work work -stats=none C:/VerilogProgramWorkspace/work/HiLo.v
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module HiLo
+
+Top level modules:
+	HiLo
+
+} {} {}} C:/VerilogProgramWorkspace/work/Shifter.v {1 {vlog -work work -stats=none C:/VerilogProgramWorkspace/work/Shifter.v
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module Shifter
+
+Top level modules:
+	Shifter
+
+} {} {}} C:/VerilogProgramWorkspace/work/TotalALU.v {1 {vlog -work work -stats=none C:/VerilogProgramWorkspace/work/TotalALU.v
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module TotalALU
+
+Top level modules:
+	TotalALU
+
+} {} {}} C:/VerilogProgramWorkspace/work/MUX.v {1 {vlog -work work -stats=none C:/VerilogProgramWorkspace/work/MUX.v
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module MUX
+
+Top level modules:
+	MUX
+
+} {} {}} C:/VerilogProgramWorkspace/work/ALU.v {1 {vlog -work work -stats=none C:/VerilogProgramWorkspace/work/ALU.v
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module ALU
+
+Top level modules:
+	ALU
+
+} {} {}} C:/VerilogProgramWorkspace/work/tb_ALU.v {1 {vlog -work work -stats=none C:/VerilogProgramWorkspace/work/tb_ALU.v
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module tb_ALU
+
+Top level modules:
+	tb_ALU
+
+} {} {}} C:/VerilogProgramWorkspace/work/ALUControl.v {1 {vlog -work work -stats=none C:/VerilogProgramWorkspace/work/ALUControl.v
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module ALUControl
+
+Top level modules:
+	ALUControl
+
+} {} {}} C:/VerilogProgramWorkspace/work/Divider.v {1 {vlog -work work -stats=none C:/VerilogProgramWorkspace/work/Divider.v
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module Divider
+
+Top level modules:
+	Divider
+
+} {} {}}

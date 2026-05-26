@@ -1,0 +1,22 @@
+C:/VerilogProgramWorkspace/work/ALU1bit.v {1 {vlog -work work -stats=none C:/VerilogProgramWorkspace/work/ALU1bit.v
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module ALU1bit
+
+Top level modules:
+	ALU1bit
+
+} {} {}} C:/VerilogProgramWorkspace/work/Multiplier.v {1 {vlog -work work -stats=none C:/VerilogProgramWorkspace/work/Multiplier.v
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module Multiplier
+
+Top level modules:
+	Multiplier
+
+} {} {}} C:/VerilogProgramWorkspace/work/FullAdder.v {1 {vlog -work work -stats=none C:/VerilogProgramWorkspace/work/FullAdder.v
+Model Technology ModelSim - Intel FPGA Edition vlog 10.5b Compiler 2016.10 Oct  5 2016
+-- Compiling module FullAdder
+
+Top level modules:
+	FullAdder
+
+} {} {}}
