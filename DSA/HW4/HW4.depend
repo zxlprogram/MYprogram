@@ -1,0 +1,14 @@
+# depslib dependency file v1.0
+1779370377 source:c:\users\user\desktop\hw4\main.cpp
+	<algorithm>
+	<climits>
+	<cstring>
+	<fstream>
+	<iomanip>
+	<iostream>
+	<queue>
+	<sstream>
+	<string>
+	<unordered_map>
+	<vector>
+

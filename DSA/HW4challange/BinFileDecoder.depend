@@ -1,0 +1,27 @@
+# depslib dependency file v1.0
+1779369053 source:c:\users\user\desktop\binfiledecoder\main.cpp
+	<iostream>
+	<fstream>
+	<vector>
+	<unordered_map>
+	<algorithm>
+	<queue>
+	<string>
+	<cmath>
+	<iomanip>
+
+1779776171 source:c:\users\user\desktop\homework\дднь\dsa\binfiledecoder\main.cpp
+	<algorithm>
+	<climits>
+	<cstring>
+	<fstream>
+	<iomanip>
+	<iostream>
+	<queue>
+	<sstream>
+	<string>
+	<unordered_map>
+	<vector>
+	<chrono>
+	<cctype>
+

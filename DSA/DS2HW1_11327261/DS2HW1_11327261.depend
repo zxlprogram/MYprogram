@@ -1,0 +1,13 @@
+# depslib dependency file v1.0
+1772794192 source:c:\users\user\desktop\ds2hw1_11327261\main.cpp
+	<iostream>
+	<vector>
+	<cmath>
+	<fstream>
+	<map>
+
+1774157075 source:c:\users\user\desktop\homework\дднь\dsa\ds2hw1_11327261\main.cpp
+	<iostream>
+	<vector>
+	<fstream>
+

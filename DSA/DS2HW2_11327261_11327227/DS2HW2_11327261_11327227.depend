@@ -1,0 +1,16 @@
+# depslib dependency file v1.0
+1774553286 source:c:\users\user\desktop\ds2hw2_11327261_11327227\main.cpp
+	<iostream>
+	<vector>
+	<fstream>
+
+1774626668 source:c:\users\user\desktop\homework\дднь\dsa\ds2hw2_11327261_11327227\main.cpp
+	<iomanip>
+	<iostream>
+	<fstream>
+	<sstream>
+	<vector>
+	<string>
+	<algorithm>
+	<functional>
+

@@ -1,0 +1,11 @@
+# depslib dependency file v1.0
+1777894645 source:c:\users\user\desktop\hw3\main.cpp
+	<iostream>
+	<fstream>
+	<vector>
+	<string>
+	<sstream>
+	<iomanip>
+	<cmath>
+	<cstring>
+

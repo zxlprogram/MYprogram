@@ -1,0 +1,10 @@
+# depslib dependency file v1.0
+1772445979 source:c:\users\user\desktop\heap\main.cpp
+	<iostream>
+	<vector>
+
+1772529132 source:c:\users\user\desktop\homework\дднь\dsa\heap\main.cpp
+	<iostream>
+	<vector>
+	<unordered_map>
+
