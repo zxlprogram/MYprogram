@@ -14,6 +14,12 @@ CREATE TABLE system_log (
 );
 
 ```
+## file structure
+Client inherits ABSuser,ABSuser have the registered method, it gave the insert permission
+the client has-a account and decorated by user id
+the manager has a root permission
+TableManager is a part of Client and manager
+
 ## running
 path to this project root folder
 paste this in the cmd
